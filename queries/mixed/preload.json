@@ -1,0 +1,35 @@
+ {
+ "operators" : {
+      "loadvbak" : {
+        "type" : "LoadDumpedTable",
+        "name" : "vbak30000000"
+      },
+      "setvbak" : {
+        "type" : "SetTable",
+         "name" : "vbak"
+      },
+      "loadvbap" : {
+        "type" : "LoadDumpedTable",
+        "name" : "vbap30000000"
+      },
+      "setvbap" : {
+        "type" : "SetTable",
+         "name" : "vbap"
+      }, 
+      "index": {
+        "type": "CreateIndex",
+        "fields": ["order_id"],
+        "index_name": "vbak_order_ix"
+      },
+     "nop": {
+      "type" : "NoOp"
+     }
+  },
+  "edges" : [
+    ["loadvbak", "setvbak"],
+    ["loadvbap", "setvbap"],
+    ["setvbap", "nop"],
+    ["setvbak", "index"],
+    ["index", "nop"]
+  ]
+}

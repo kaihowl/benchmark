@@ -38,7 +38,7 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
  
 
     instances = [32, 16, 1]
-    users = [32, 48]
+    users = [48]
     for i in instances:
         for j in users:
             print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
@@ -141,7 +141,7 @@ kwargs = {
     "useJson"           : args["json"],
     "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tables",
-    "scheduler"         : "CentralScheduler",
+    "scheduler"         : "CentralPriorityScheduler",
     "serverThreads"     : 31,
     "remote"            : False,
     "host"              : "127.0.0.1"

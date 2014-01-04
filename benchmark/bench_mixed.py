@@ -107,8 +107,9 @@ class MixedWLUser(User):
         # Now run the query                                                                                                                                                                                 
 #        query = self._olapQC[queryid] % {'papi': self._papi, 'matnr': matnr[0], "db": self._db, "core": self._core, "instances": self._instances}                                                          
         query = self._olapQC[queryid] % {'papi': self._papi, "db": self._db, "instances": self._instances, "sessionId": str(self._userId), "priority": str(self._prio), "microsecs": str(self._microsecs)}
+#        print query 
         result = self.fireQuery(query).json()
-        #print result
+        
         return result
 
         #self._queries[queryid] += 1
