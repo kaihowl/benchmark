@@ -102,9 +102,32 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 
 
 # gaza remote
+#kwargs = {
+#    "port"              : args["port"],
+#    "manual"            : True,
+#    "warmuptime"        : 20,
+#    "runtime"           : 120,
+#    "prepareQueries"    : ("preload",),
+#    "showStdout"        : True,
+#    "showStderr"        : args["stderr"],
+#    "rebuild"           : args["rebuild"],
+#    "regenerate"        : args["regenerate"],
+#    "noLoad"            : args["no_load"],
+#    "serverThreads"     : args["threads"],
+#    "collectPerfData"   : args["perfdata"],
+#    "useJson"           : args["json"],
+#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+#    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tables",
+#    "scheduler"         : "CentralScheduler",
+#    "serverThreads"     : 31,
+#    "remote"            : True,
+#    "remoteUser"        : "Johannes.Wust",
+#    "host"              : "gaza"
+#}
+
+# gaza local
 kwargs = {
     "port"              : args["port"],
-    "manual"            : True,
     "warmuptime"        : 20,
     "runtime"           : 120,
     "prepareQueries"    : ("preload",),
@@ -120,9 +143,8 @@ kwargs = {
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tables",
     "scheduler"         : "CentralScheduler",
     "serverThreads"     : 31,
-    "remote"            : True,
-    "remoteUser"        : "Johannes.Wust",
-    "host"              : "gaza"
+    "remote"            : False,
+    "host"              : "127.0.0.1"
 }
 
 # begram local
