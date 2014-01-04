@@ -3,33 +3,40 @@
   "operators": {
     "0": {
       "type": "GetTable",
-      "name": "vbak2000"
+      "name": "vbak"
     },
     "1": {
       "type": "GetTable",
-      "name": "vbap2000"
+      "name": "vbap"
     },
     "2": {
       "type": "TableScan",
-      "expression": "hyrise::intbetween",
-      "column" : 2,
-      "fromValue" : 19900101,
-      "toValue": 20200101,
-      "dynamic": true
+      "expression": "hyrise::STORE_FLV_F1_LTEQ_INT_AND_F2_GTEQ_INT",
+      "f1" : 2,
+      "f2" : 2,
+      "COMMENT": "from and to values are in the dictionary for 10mill",
+      "v_f1" : 19990105,
+      "v_f2": 19990809,
+      "instances": %(instances)s
     },
     "3": {
       "type": "TableScan",
-      "expression": "hyrise::floatbetween",
-      "column": 5,
-      "fromValue": 1.0,
-      "toValue": 100000.0,
-      "dynamic": true
+      "expression": "hyrise::STORE_FLV_F1_LTEQ_FLOAT_AND_F2_GTEQ_FLOAT",
+      "f1": 5,
+      "f2": 5,
+      "COMMENT": "from and to values are in the dictionary for 10mill",
+      "v_f1": 10,
+      "v_f2": 100000,
+      "instances": %(instances)s
     },
     "4": {
       "type": "RadixJoin",
-      "bits1": 10,
+      "comment": "First edge is probe, second edge is hash",
+      "bits1": 12,
       "bits2": 5,
-      "dynamic": true,
+      "hash_par": %(instances)s,
+      "probe_par": %(instances)s,
+      "join_par": %(instances)s,       
       "fields": [1,1]
     },
     "5": {
@@ -39,8 +46,8 @@
   "edges" : [
     ["0", "2"],
     ["1", "3"],
-    ["2", "4"],
     ["3", "4"],
+    ["2", "4"],
     ["4","5"]
   ]
 }

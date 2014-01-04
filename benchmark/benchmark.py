@@ -16,10 +16,10 @@ import queries
 class Benchmark:
 
     def __init__(self, benchmarkGroupId, benchmarkRunId, buildSettings, **kwargs):
-        if(kwargs.has_key("remote") and (kwargs.has_key("dirBinary") or kwargs.has_key("hyriseDBPath"))):
-            print "dirBinary and hyriseDBPath cannot be used with remote"
-            exit()
-
+      #  if(kwargs.has_key("remote") and (kwargs.has_key("dirBinary") or kwargs.has_key("hyriseDBPath"))):
+      #      print "dirBinary and hyriseDBPath cannot be used with remote"
+      #      exit()
+#
         self._pid               = os.getpid()
         self._id                = benchmarkGroupId
         self._runId             = benchmarkRunId
@@ -32,9 +32,9 @@ class Benchmark:
         self._mysqlUser         = kwargs["mysqlUser"] if kwargs.has_key("mysqlUser") else "hyrise"
         self._mysqlPass         = kwargs["mysqlPass"] if kwargs.has_key("mysqlPass") else "hyrise"
         self._papi              = kwargs["papi"] if kwargs.has_key("papi") else "NO_PAPI"
-        self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.QUERIES_PREPARE
+        self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.PREPARE_QUERIES_SERVER 
         self._prepArgs          = kwargs["prepareArgs"] if kwargs.has_key("prepareArgs") else {"db": "cbtr"}
-        self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.QUERIES_ALL
+        self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.ALL_QUERIES
         self._host              = kwargs["host"] if kwargs.has_key("host") else "127.0.0.1"
         self._port              = kwargs["port"] if kwargs.has_key("port") else 5000
         self._warmuptime        = kwargs["warmuptime"] if kwargs.has_key("warmuptime") else 0
@@ -61,7 +61,7 @@ class Benchmark:
         self._scheduler         = kwargs["scheduler"] if kwargs.has_key("scheduler") else "CoreBoundQueuesScheduler"
         self._serverIP          = kwargs["serverIP"] if kwargs.has_key("serverIP") else "127.0.0.1"
         self._remoteUser        = kwargs["remoteUser"] if kwargs.has_key("remoteUser") else "hyrise"
-        self._remotePath        = kwargs["remotePath"] if kwargs.has_key("remotePath") else "/home/" + kwargs["remoteUser"] + "/benchmark"
+        self._remotePath        = kwargs["remotePath"] if kwargs.has_key("remotePath") else "/home/" + self._remoteUser + "/benchmark"
         if self._remote:
             self._ssh               = paramiko.SSHClient()
         else:
@@ -88,15 +88,15 @@ class Benchmark:
         print "+------------------+\n"
 
         if self._remote:
-            subprocess.call(["mkdir", "-p", "remotefs/" + self._host])
-            subprocess.call(["fusermount", "-u", "remotefs/127.0.0.1"])
-            subprocess.Popen(["sshfs", self._remoteUser + "@" + self._host + ":" + self._remotePath, "remotefs/" + self._host + "/"], preexec_fn = self.preexec)
-            self._olddir = os.getcwd()
-            os.chdir("remotefs/" + self._host + "/")
-            self._dirBinary         = os.path.join(os.getcwd(), "builds/%s" % self._buildSettings.getName())
-            self._dirHyriseDB       = os.path.join(os.getcwd(), "hyrise")
+           # subprocess.call(["mkdir", "-p", "remotefs/" + self._host])
+           # subprocess.call(["fusermount", "-u", "remotefs/127.0.0.1"])
+           # subprocess.Popen(["sshfs", self._remoteUser + "@" + self._host + ":" + self._remotePath, "remotefs/" + self._host + "/"], preexec_fn = self.preexec)
+           # self._olddir = os.getcwd()
+           # os.chdir("remotefs/" + self._host + "/")
+           # self._dirBinary         = os.path.join(os.getcwd(), "builds/%s" % self._buildSettings.getName())
+           # self._dirHyriseDB       = os.path.join(os.getcwd(), "hyrise")
             self._startSSHConnection()
-
+            self._startRemoteServer()
 
         if not self._manual:
             # no support for building on remote machine yet
@@ -153,8 +153,8 @@ class Benchmark:
         self._stopServer()
         print "all set"
 
-        if self._remote:
-            os.chdir(self._olddir)
+        #if self._remote:
+        #    os.chdir(self._olddir)
 
 
     def addQuery(self, queryId, queryStr):
@@ -270,6 +270,9 @@ class Benchmark:
         time.sleep(1)
         print "done"
 
+    def _createUsers(self):
+        for i in range(self._numUsers):
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
 
     def _runPrepareQueries(self):
         if self._prepQueries == None or len(self._prepQueries) == 0:
@@ -284,12 +287,6 @@ class Benchmark:
             except Exception:
                 print "Running prepare queries... %i%% --> Error" % ((i+1.0) / numQueries * 100)
         print "Running prepare queries... done"
-
-
-
-    def _createUsers(self):
-        for i in range(self._numUsers):
-            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
 
     def _stopServer(self):
         if not self._remote: 

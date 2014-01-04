@@ -9,19 +9,51 @@ from benchmark.mixedWLPlotter import MixedWLPlotter
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
-    users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
-#    users = [1, 32, 128]
+    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
+    users = [512]
     for i in users:
         runId = str(i)
         kwargs["numUsers"] = i
         b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
         b1.run()
-        time.sleep(5)
+        time.sleep(1)
     plotter = MixedWLPlotter(groupId)
     output += groupId + "\n"
     output += plotter.printStatistics()
     return output
 
+
+def runBenchmark_varying_users(groupId, s1, **kwargs):
+    output = ""
+    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
+    
+
+    kwargs["olapQueries"] = ("q6_ch",)
+    kwargs["tolapUser"] = 0
+    kwargs["tolapThinkTime"] = 1
+    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["oltpUser"] = 0
+    kwargs["oltpQueries"] = ("q7idx_vbak",)
+
+ 
+
+    instances = [32, 16, 1]
+    users = [32, 48]
+    for i in instances:
+        for j in users:
+            print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
+            runId = str(i) + "_" + str(j)
+            kwargs["olapInstances"] = i
+            kwargs["olapUser"] = j
+            kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+            b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+            b1.run()
+            time.sleep(5)
+    plotter = MixedWLPlotter(groupId)
+    output += groupId + "\n"
+    output += plotter.printStatistics()
+   # output += plotter.printOpStatistics ()
+    return output
 
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
@@ -67,13 +99,15 @@ args = vars(aparser.parse_args())
 
 s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 
+
+
+# gaza remote
 kwargs = {
     "port"              : args["port"],
-    "manual"            : args["manual"],
-    "warmuptime"        : 2,
-    "runtime"           : 20,
-    "benchmarkQueries"  : ("q7idx_vbak",),
-    "prepareQueries"    : ("create_vbak_index",),
+    "manual"            : True,
+    "warmuptime"        : 20,
+    "runtime"           : 120,
+    "prepareQueries"    : ("preload",),
     "showStdout"        : True,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
@@ -82,29 +116,50 @@ kwargs = {
     "serverThreads"     : args["threads"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
-    #"dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
-    "scheduler"         : "CoreBoundQueuesScheduler",
-    "serverThreads"     : 11,
-    "remote"            : False,
+    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tables",
+    "scheduler"         : "CentralScheduler",
+    "serverThreads"     : 31,
+    "remote"            : True,
     "remoteUser"        : "Johannes.Wust",
-    #"host"              : "gaza"
+    "host"              : "gaza"
 }
+
+# begram local
+#kwargs = {
+#    "port"              : args["port"],
+#    "warmuptime"        : 10,
+#    "runtime"           : 60,
+#    "prepareQueries"    : ("create_vbak_index","preload"),
+#    "showStdout"        : True,
+#    "showStderr"        : args["stderr"],
+#    "rebuild"           : args["rebuild"],
+#    "regenerate"        : args["regenerate"],
+#    "noLoad"            : args["no_load"],
+#    "serverThreads"     : args["threads"],
+#    "collectPerfData"   : args["perfdata"],
+#    "useJson"           : args["json"],
+#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+#    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
+#    "scheduler"         : "CentralPriorityScheduler",
+#    "serverThreads"     : 11,
+#    "remote"            : False,
+#    "host"              : "127.0.0.1"
+#}
+
 
 output = ""
 output += "kwargs\n"
 output += str(kwargs)
 output += "\n"
 output += "\n"
-output += "OLTP 11 threads\n"
+output += "OLTP 31 threads\n"
 output += "\n"
-output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-kwargs["scheduler"] = "WSCoreBoundQueuesScheduler"
-output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-kwargs["scheduler"] = "CentralScheduler"
-output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-kwargs["scheduler"] = "ThreadPerTaskScheduler"
-output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+output += runBenchmark_varying_users(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#kwargs["scheduler"] = "CentralScheduler"
+#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#kwargs["scheduler"] = "ThreadPerTaskScheduler"
+#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 
 
 #kwargs["serverThreads"] = 62

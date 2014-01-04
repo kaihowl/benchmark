@@ -13,8 +13,9 @@ PREPARE_QUERIES_SERVER = {
     #"distinct_vbeln_vbak" : "queries/mixed/distinct_vbeln_vbak.json",                                                                                                                                              
     #"indices": "queries/mixed/create_indices.json" ,
     "preload_vbap" : "queries/mixed/preload_vbap.json",
-    "create_vbak_index" : "queries/mixed/create_vbak_index.json"                                                                                                                                                      
-}
+    "preload" : "queries/mixed/preload.json",
+    "create_vbak_index" : "queries/mixed/create_vbak_index.json"                             
+    }
 
 # locations for json query files sorted by OLTP (TPCC) and OLAP (TPC-H).                                                                                                                                      
 OLAP_QUERY_FILES = {
@@ -27,7 +28,7 @@ OLAP_QUERY_FILES = {
     "xselling2000"               : "queries/mixed/xselling2000.json",
     "q6_ch"                  : "queries/mixed/q6_ch.json",
     "busy"                  : "queries/mixed/busy.json",
-
+    "BusyTask" : "queries/mixed/BusyTask.json"
     }
 
 OLTP_QUERY_FILES ={
@@ -56,6 +57,7 @@ OLAP_WEIGHTS = (
     ("xselling2000", 1),
     ("q6_ch", 1),
     ("busy", 1),
+    ("BusyTask", 1)
     )
 
 OLTP_WEIGHTS = (

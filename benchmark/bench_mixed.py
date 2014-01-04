@@ -24,7 +24,9 @@ class MixedWLUser(User):
 
 #        self.scaleParameters = kwargs["scaleParameters"]
         self._benchmarkQueries = kwargs["queries"] if kwargs.has_key("queries") else queries.QUERIES_ALL
-        
+            
+       # print self._benchmarkQueries
+
         self._core = kwargs["core"] if kwargs.has_key("core") else 1
         self._prio = kwargs["prio"] if kwargs.has_key("prio") else 2
         # default assumes hyperthreading count of 2
@@ -63,7 +65,11 @@ class MixedWLUser(User):
         #result = self.fireQuery(querystr, paramlist, sessionContext=self.context, autocommit=commit, stored_procedure=stored_procedure).json()
         self.addPerfData(result.get("performanceData", None))
         tEnd = time.time()
-        self.log("transactions", [0, tEnd-tStart, tStart-self.userStartTime, self.perf])
+        if not self._stopevent.is_set():
+            print "user " + str(self._userId) + " logged!"
+            self.log("transactions", [element, tEnd-tStart, tStart-self.userStartTime, self.perf])
+        else: 
+            print "too late to log"
 
     def oltp(self, predefined=None):
         if predefined == None:
@@ -101,8 +107,8 @@ class MixedWLUser(User):
         # Now run the query                                                                                                                                                                                 
 #        query = self._olapQC[queryid] % {'papi': self._papi, 'matnr': matnr[0], "db": self._db, "core": self._core, "instances": self._instances}                                                          
         query = self._olapQC[queryid] % {'papi': self._papi, "db": self._db, "instances": self._instances, "sessionId": str(self._userId), "priority": str(self._prio), "microsecs": str(self._microsecs)}
-
         result = self.fireQuery(query).json()
+        #print result
         return result
 
         #self._queries[queryid] += 1
@@ -183,8 +189,38 @@ class MixedWLBenchmark(Benchmark):
         #self._dirHyriseDB = os.path.join(os.getcwd(), "hyrise")
         os.environ['HYRISE_DB_PATH'] = self._dirHyriseDB
 
+        self._olapUser = kwargs["olapUser"] if kwargs.has_key("olapUser") else 0
+        self._olapQueries = kwargs["olapQueries"] if kwargs.has_key("olapQueries") else ()
+        self._olapThinkTime = kwargs["olapThinkTime"] if kwargs.has_key("olapThinkTime") else 0
+        self._olapInstances = kwargs["olapInstances"] if kwargs.has_key("olapInstances") else 1
+
+        self._tolapUser = kwargs["tolapUser"] if kwargs.has_key("tolapUser") else 0
+        self._tolapQueries = kwargs["tolapQueries"] if kwargs.has_key("tolapQueries") else ()
+        self._tolapThinkTime = kwargs["tolapThinkTime"] if kwargs.has_key("tolapThinkTime") else 0
+        
+        self._oltpUser = kwargs["oltpUser"] if kwargs.has_key("oltpUser") else 0
+        self._oltpQueries = kwargs["oltpQueries"] if kwargs.has_key("oltpQueries") else ()
+        self._oltpThinkTime = kwargs["oltpThinkTime"] if kwargs.has_key("oltpThinkTime") else 0
+
+
         self.setUserClass(MixedWLUser)
         self._queryDict = self.loadQueryDict()
+
+    def _createUsers(self):
+        for i in range(self._olapUser):
+            self._userArgs["thinkTime"] = self._olapThinkTime 
+            self._userArgs["queries"] = self._olapQueries
+            self._userArgs["instances"] = self._olapInstances
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+        for i in range(self._olapUser, self._olapUser + self._tolapUser):
+            self._userArgs["thinkTime"] = self._tolapThinkTime 
+            self._userArgs["queries"] = self._tolapQueries 
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+        for i in range(self._olapUser + self._tolapUser, self._olapUser + self._tolapUser + self._oltpUser):
+            self._userArgs["thinkTime"] = self._oltpThinkTime 
+            self._userArgs["queries"] = self._oltpQueries 
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+
 
     def loadQueryDict(self):
         queryDict = {}
