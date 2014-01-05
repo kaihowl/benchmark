@@ -23,12 +23,11 @@ class MixedWLPlotter:
         output = {}
         for runId, runData in self._runs.iteritems():
             stats = runData[runData.keys()[0]]["txStats"]["q6_ch"]
-            output[runId] = "q6_ch " + str(stats["totalRuns"]) + " " + str(stats["rtAvg"]) + " " + str(stats["rtStd"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
-            #stats = runData[runData.keys()[0]]["txStats"]["q7idx_vbak"]
-            #output[runId] += "  q7idx_vbak " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
-            #stats = runData[runData.keys()[0]]["txStats"]["xselling"]
-            #output[runId] += "  xselling " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
-
+            output[runId] = "q6_ch " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
+            stats = runData[runData.keys()[0]]["txStats"]["q7idx_vbak"]
+            output[runId] += "  q7idx_vbak " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
+            stats = runData[runData.keys()[0]]["txStats"]["xselling"]
+            output[runId] += "  xselling " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
 
         for run in sorted(output.iterkeys()):
             logStr += "%s %s" % (str(run), output[run])

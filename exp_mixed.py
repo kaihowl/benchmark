@@ -35,8 +35,6 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     kwargs["oltpUser"] = 0
     kwargs["oltpQueries"] = ("q7idx_vbak",)
 
- 
-
     instances = [32, 16, 1]
     users = [48]
     for i in instances:
@@ -49,6 +47,64 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
             b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
             b1.run()
             time.sleep(5)
+    plotter = MixedWLPlotter(groupId)
+    output += groupId + "\n"
+    output += plotter.printStatistics()
+   # output += plotter.printOpStatistics ()
+    return output
+
+
+
+def runBenchmark_prio(groupId, s1, **kwargs):
+    output = ""
+    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
+
+    kwargs["olapQueries"] = ("q6_ch",)
+    kwargs["olapInstances"] = 31
+    kwargs["tolapUser"] = 1
+    kwargs["tolapThinkTime"] = 1
+    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["oltpUser"] = 1
+    kwargs["oltpQueries"] = ("q7idx_vbak",)
+
+    #users = [1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64]
+    users = [32]
+    for j in users:
+        print "starting benchmark with " + str(j) + " users" 
+        runId = str(j)        
+        kwargs["olapUser"] = j
+        kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+        b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+        b1.run()
+        time.sleep(5)
+    plotter = MixedWLPlotter(groupId)
+    output += groupId + "\n"
+    output += plotter.printStatistics()
+   # output += plotter.printOpStatistics ()
+    return output
+
+def runBenchmark_task_sizes(groupId, s1, **kwargs):
+    output = ""
+    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
+
+    kwargs["olapQueries"] = ("q6_ch",)
+    kwargs["olapUser"] = 31
+    kwargs["tolapUser"] = 1
+    kwargs["tolapThinkTime"] = 1
+    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["oltpUser"] = 1
+    kwargs["oltpQueries"] = ("q7idx_vbak",)
+
+    #instances = [1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64]
+    instances = [31, 62]
+    for j in instances:
+        print "starting benchmark with " + str(j) + " users" 
+        runId = str(j)        
+        kwargs["olapInstances"] = j
+        kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+        b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+        b1.run()
+        time.sleep(5)
     plotter = MixedWLPlotter(groupId)
     output += groupId + "\n"
     output += plotter.printStatistics()
@@ -105,8 +161,8 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 kwargs = {
     "port"              : args["port"],
     "manual"            : True,
-    "warmuptime"        : 20,
-    "runtime"           : 120,
+    "warmuptime"        : 60,
+    "runtime"           : 180,
     "prepareQueries"    : ("preload",),
     "showStdout"        : True,
     "showStderr"        : args["stderr"],
@@ -153,10 +209,13 @@ output += "kwargs\n"
 output += str(kwargs)
 output += "\n"
 output += "\n"
-output += "OLTP 31 threads\n"
+output += "OLXP 31 threads\n"
 output += "\n"
-output += runBenchmark_varying_users(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#output += runBenchmark_prio(kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #kwargs["scheduler"] = "CentralScheduler"
+#output += runBenchmark_prio(kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+kwargs["scheduler"] = "CentralPriorityScheduler"
+output += runBenchmark_task_sizes(kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #kwargs["scheduler"] = "ThreadPerTaskScheduler"
 #output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)

@@ -66,7 +66,7 @@ class MixedWLUser(User):
         self.addPerfData(result.get("performanceData", None))
         tEnd = time.time()
         if not self._stopevent.is_set():
-            print "user " + str(self._userId) + " logged!"
+            #print "user " + str(self._userId) + " logged!"
             self.log("transactions", [element, tEnd-tStart, tStart-self.userStartTime, self.perf])
         else: 
             print "too late to log"
