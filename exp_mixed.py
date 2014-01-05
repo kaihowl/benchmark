@@ -37,8 +37,8 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
 
  
 
-    instances = [32, 16, 1]
-    users = [48]
+    instances = [1, 8, 16, 31, 62, 124]
+    users = [1, 8, 16, 31, 46, 62, 93]
     for i in instances:
         for j in users:
             print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
@@ -105,7 +105,7 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 #kwargs = {
 #    "port"              : args["port"],
 #    "manual"            : True,
-#    "warmuptime"        : 20,
+#    "warmuptime"        : 120,
 #    "runtime"           : 120,
 #    "prepareQueries"    : ("preload",),
 #    "showStdout"        : True,
@@ -128,8 +128,8 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 # gaza local
 kwargs = {
     "port"              : args["port"],
-    "warmuptime"        : 20,
-    "runtime"           : 120,
+    "warmuptime"        : 120,
+    "runtime"           : 300,
     "prepareQueries"    : ("preload",),
     "showStdout"        : True,
     "showStderr"        : args["stderr"],

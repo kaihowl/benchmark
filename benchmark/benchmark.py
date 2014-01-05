@@ -100,7 +100,7 @@ class Benchmark:
 
         if not self._manual:
             # no support for building on remote machine yet
-            self._buildServer()
+            #self._buildServer()
             self._startServer()
             print "---\nHYRISE server running on port %s\n---" % self._port
         else:
