@@ -27,7 +27,6 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
     
-
     kwargs["olapQueries"] = ("q6_ch",)
     kwargs["tolapUser"] = 0
     kwargs["tolapThinkTime"] = 1
@@ -35,8 +34,8 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     kwargs["oltpUser"] = 0
     kwargs["oltpQueries"] = ("q7idx_vbak",)
 
-    instances = [1, 8, 16, 31, 62, 124]
-    users = [1, 8, 16, 31, 46, 62, 93]
+    instances = [1, 8, 31, 128] #[1, 8, 16, 31, 62, 124]
+    users = [1, 31, 62] #[1, 8, 16, 31, 46, 62, 93]
     for i in instances:
         for j in users:
             print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
@@ -46,14 +45,12 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
             kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
             b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
             b1.run()
-            time.sleep(5)
+            time.sleep(3)
     plotter = MixedWLPlotter(groupId)
     output += groupId + "\n"
     output += plotter.printStatistics()
    # output += plotter.printOpStatistics ()
     return output
-
-
 
 def runBenchmark_prio(groupId, s1, **kwargs):
     output = ""
@@ -68,7 +65,7 @@ def runBenchmark_prio(groupId, s1, **kwargs):
     kwargs["oltpQueries"] = ("q7idx_vbak",)
 
     #users = [1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64]
-    users = [32]
+    users = [1, 16, 32, 64]
     for j in users:
         print "starting benchmark with " + str(j) + " users" 
         runId = str(j)        
@@ -95,10 +92,10 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     kwargs["oltpUser"] = 1
     kwargs["oltpQueries"] = ("q7idx_vbak",)
 
-    #instances = [1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64]
-    instances = [31, 62]
+    instances = [1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64]
+    #instances = [31]
     for j in instances:
-        print "starting benchmark with " + str(j) + " users" 
+        print "starting benchmark with " + str(j) + " instances" 
         runId = str(j)        
         kwargs["olapInstances"] = j
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
@@ -184,8 +181,8 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 # gaza local
 kwargs = {
     "port"              : args["port"],
-    "warmuptime"        : 60,
-    "runtime"           : 180,
+    "warmuptime"        : 20,
+    "runtime"           : 120,
     "prepareQueries"    : ("preload",),
     "showStdout"        : True,
     "showStderr"        : args["stderr"],
@@ -233,11 +230,15 @@ output += "\n"
 output += "\n"
 output += "OLXP 31 threads\n"
 output += "\n"
-#output += runBenchmark_prio(kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #kwargs["scheduler"] = "CentralScheduler"
-#output += runBenchmark_prio(kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-kwargs["scheduler"] = "CentralPriorityScheduler"
-output += runBenchmark_task_sizes(kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#output += runBenchmark_prio("Var_q3" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#kwargs["scheduler"] = "WSCoreBoundPriorityQueuesScheduler"
+#output += runBenchmark_prio("Var_q3" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#kwargs["scheduler"] = "CentralPriorityScheduler"
+#output += runBenchmark_task_sizes("Var_instances" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#kwargs["scheduler"] = "WSCoreBoundPriorityQueuesScheduler"
+#output += runBenchmark_task_sizes("Var_instances" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #kwargs["scheduler"] = "ThreadPerTaskScheduler"
 #output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)

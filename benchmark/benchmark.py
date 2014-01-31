@@ -302,7 +302,7 @@ class Benchmark:
                 time.sleep(0.5)
                 if self._serverProc.poll() is None:
                     subprocess.call("killall hyrise-server_release")
-                time.sleep(0.5)
+                time.sleep(3)
         else:
             print "kill server, close connection"
             self._ssh.exec_command("killall hyrise-server_release");
