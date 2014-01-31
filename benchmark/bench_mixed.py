@@ -221,6 +221,7 @@ class MixedWLBenchmark(Benchmark):
             self._userArgs["thinkTime"] = self._oltpThinkTime 
             self._userArgs["queries"] = self._oltpQueries 
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+
         if (self._olapUser + self._oltpUser + self._tolapUser) == 0:
             for i in range(self._numUsers):
                 self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))

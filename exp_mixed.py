@@ -34,8 +34,8 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     kwargs["oltpUser"] = 0
     kwargs["oltpQueries"] = ("q7idx_vbak",)
 
-    instances = [1, 8, 31, 128] #[1, 8, 16, 31, 62, 124]
-    users = [1, 31, 62] #[1, 8, 16, 31, 46, 62, 93]
+    instances = [1]#, 8, 31, 128] #[1, 8, 16, 31, 62, 124]
+    users = [1]#, 31, 62] #[1, 8, 16, 31, 46, 62, 93]
     for i in instances:
         for j in users:
             print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
