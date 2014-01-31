@@ -2,7 +2,7 @@
  "operators" : {
       "loadvbak" : {
         "type" : "LoadDumpedTable",
-        "name" : "vbak30000000"
+        "name" : "vbak10000000"
       },
       "setvbak" : {
         "type" : "SetTable",
@@ -10,7 +10,7 @@
       },
       "loadvbap" : {
         "type" : "LoadDumpedTable",
-        "name" : "vbap30000000"
+        "name" : "vbap10000000"
       },
       "setvbap" : {
         "type" : "SetTable",
