@@ -3,14 +3,14 @@
     "operators": {
         "load_vbak" : {
             "type" : "TableLoad",
-            "filename": "vbak_base_project1.tbl",
-            "table": "vbak"
+            "filename": "vbap_base_project1.tbl",
+            "table": "vbap"
             },
         "filter_kunnr": {
           "type": "IndexScan",
           "vtype": 2,
           "value": "0070000069",
-          "index": "vbak_order_ix",
+          "index": "vbap_order_ix",
           "fields": ["VBELN"]
         },
         "mat": {

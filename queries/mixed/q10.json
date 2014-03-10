@@ -1,56 +1,55 @@
 {
-    "papi": "%(papi)s",
+    "priority": 3,
     "operators": {
-        "load_vbap" : {
-            "type" : "MySQLTableLoad",
-            "database": "%(db)s",
-            "core" : %(core)s,
-            "table": "VBAP"
-            },
-        "load_vbak" : {
-            "type" : "MySQLTableLoad",
-            "database": "%(db)s",
-            "core" : %(core)s,
-            "table": "VBAK"
-            },
-        "filter_aedat": {
-            "type": "SimpleTableScan",
-            "core" : %(core)s,
-            "predicates" : [
-                {"type": 2, "in": 0, "f": "AEDAT", "value": 20030101}
-            ]
-        },
-        "hash_header": {
-            "type": "HashBuild",
-            "core" : %(core)s,
-            "key": "join",
-            "fields": [1]
-        },
-        "join_header_item": {
-            "type": "HashJoinProbe",
-            "core" : %(core)s,
-            "fields" : ["VBELN"]
-        },
+
+      "load_vbak": {
+        "type": "GetTable",
+        "name": "vbak"
+      },
+      "load_vbap": {
+        "type": "GetTable",
+        "name": "vbap"
+      },
+      "filter_aedat": {
+
+      "type": "TableScan",
+        "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
+        "f1" : 47,//KUNNR
+        "f2" : 2,//ERDAT
+        "COMMENT": "from and to values are in the dictionary for 10mill",
+        "v_f1" : "0000001460",
+        "v_f2": 20031130,
+        "instances": %(instances)s
+      },
+      "join_header_item": {
+        "type": "RadixJoin",
+        "comment": "First edge is probe, second edge is hash",
+        "bits1": 12,
+        "bits2": 5,
+        "hash_par": %(instances)s,
+        "probe_par": %(instances)s,
+        "join_par": %(instances)s,       
+        "fields": [1,1]
+      },
         "hash_netwr" : {
             "type": "HashBuild",
-            "core" : %(core)s,
             "fields": ["KUNNR"], 
             "key": "groupby"
         },
         "groupby" : {
             "type" : "GroupByScan",
-            "core" : %(core)s,
             "fields": ["KUNNR"],
             "functions": [
-            {"type": "SUM", "field": "NETWR"}
+            //Be sure to choose the second NETWR of the joined tybel (currently only possible by referncing via position)
+            {"type": "SUM", "field": 43}
             ]
         }
+
     },
     "edges": [
     ["load_vbak", "filter_aedat"], 
-    ["filter_aedat", "hash_header"], 
-    ["hash_header", "join_header_item"],
     ["load_vbap", "join_header_item"],
+    ["filter_aedat", "join_header_item"],
     ["join_header_item", "hash_netwr"],
     ["join_header_item", "groupby"],
     ["hash_netwr", "groupby"]

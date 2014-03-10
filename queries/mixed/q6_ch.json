@@ -1,47 +1,48 @@
 {
   "priority": 3,
   "operators": {
-    "0": {
-      "type": "GetTable",
-      "name": "vbak"
-    },
-    "1": {
-      "type": "GetTable",
-      "name": "vbap"
-    },
+   "0": {
+     "type": "GetTable",
+     "name": "vbak"
+   },
+   "1": {
+     "type": "GetTable",
+     "name": "vbap"
+   },
     "2": {
       "type": "TableScan",
       "expression": "hyrise::STORE_FLV_F1_LTEQ_INT_AND_F2_GTEQ_INT",
       "f1" : 2,
       "f2" : 2,
       "COMMENT": "from and to values are in the dictionary for 10mill",
-      "v_f1" : 19990105,
-      "v_f2": 19990809,
+      "v_f1" : 19941208,
+      "v_f2": 20031204,
       "instances": %(instances)s
-    },
-    "3": {
-      "type": "TableScan",
-      "expression": "hyrise::STORE_FLV_F1_LTEQ_FLOAT_AND_F2_GTEQ_FLOAT",
-      "f1": 5,
-      "f2": 5,
-      "COMMENT": "from and to values are in the dictionary for 10mill",
-      "v_f1": 10,
-      "v_f2": 100000,
-      "instances": %(instances)s
-    },
-    "4": {
-      "type": "RadixJoin",
-      "comment": "First edge is probe, second edge is hash",
-      "bits1": 12,
-      "bits2": 5,
-      "hash_par": %(instances)s,
-      "probe_par": %(instances)s,
-      "join_par": %(instances)s,       
-      "fields": [1,1]
-    },
-    "5": {
-      "type": "NoOp"
-    }
+  },
+    
+   "3": {
+     "type": "TableScan",
+     "expression": "hyrise::STORE_FLV_F1_LTEQ_FLOAT_AND_F2_GTEQ_FLOAT",
+     "f1": 48,
+     "f2": 48,
+     "COMMENT": "from and to values are in the dictionary for 10mill",
+     "v_f1": 10,
+     "v_f2": 100000,
+     "instances": %(instances)s
+   },
+  "4": {
+    "type": "RadixJoin",
+    "comment": "First edge is probe, second edge is hash",
+    "bits1": 12,
+    "bits2": 5,
+    "hash_par": %(instances)s,
+    "probe_par": %(instances)s,
+    "join_par": %(instances)s,       
+    "fields": [1,1]
+  },
+  "5": {
+     "type": "NoOp"
+   }
   },
   "edges" : [
     ["0", "2"],

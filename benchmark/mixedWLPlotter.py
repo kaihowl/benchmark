@@ -18,12 +18,16 @@ class MixedWLPlotter:
         if not os.path.isdir(self._dirOutput):
             os.makedirs(self._dirOutput)
 
-    def printStatistics(self):
+    def printStatistics(self, queries):
         logStr = ""
         output = {}
+        #print self._runs
         for runId, runData in self._runs.iteritems():
-            stats = runData[runData.keys()[0]]["txStats"]["q6_ch"]
-            output[runId] = "q6_ch " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
+            output[runId] = ""
+            for query in queries:
+                if query in runData[runData.keys()[0]]["txStats"]:
+                    stats = runData[runData.keys()[0]]["txStats"][query]
+                    output[runId] += str(self._groupId) + "\t\t" + query + " " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
             #stats = runData[runData.keys()[0]]["txStats"]["q7idx_vbak"]
             #output[runId] += "  q7idx_vbak " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
             #stats = runData[runData.keys()[0]]["txStats"]["xselling"]
@@ -31,6 +35,93 @@ class MixedWLPlotter:
 
         for run in sorted(output.iterkeys()):
             logStr += "%s %s" % (str(run), output[run])
+        #    numUsers = runData[runData.keys()[0]]["numUsers"]
+        #    print "Run ID: %s [%s users]" % (runId, numUsers)
+        #    print "=============================="
+        #    for buildId, buildData in runData.iteritems():
+        #        if buildData == {'numUsers': 0, 'txStats': {}}:
+        #            continue
+        #        print "|\n+-- Build ID: %s" % buildId
+        #        print "|"
+        #        print "|     Transaction       tps      min(ms)    max(ms)   avg(ms)    median(ms)"
+        #        totalRuns = 0.0
+        #        totalTime = 0.0
+        #        for txId, txData in buildData["txStats"].iteritems():
+        #            totalRuns += txData["totalRuns"]
+        #            totalTime += txData["userTime"] 
+        #        print str(totalRuns) + " " + str(totalTime)
+        #        for txId, txData in buildData["txStats"].iteritems():
+        #            print "|     -------------------------------------------------------------------------------------------"
+        #            print "|     TX: {:14s} tps: {:05.2f}, min: {:05.2f}, max: {:05.2f}, avg: {:05.2f}, med: {:05.2f} (all in ms)".format(txId, float(txData["totalRuns"]) / totalTime, txData["rtMin"]*1000, txData["rtMax"]*1000, txData["rtAvg"]*1000, txData["rtMed"]*1000)
+        #            print "|     -------------------------------------------------------------------------------------------"
+        #            if txData["operators"] and len(txData["operators"].keys()) > 0:
+        #                print "|       Operator                   #perTX     min(ms)    max(ms)   avg(ms)    median(ms)"
+        #                print "|       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        #                for opName, opData in txData["operators"].iteritems():
+        #                    print "|       {:25s}  {:05.2f}      {:05.2f}      {:05.2f}      {:05.2f}      {:05.2f}".format(opName, opData["avgRuns"], opData["rtMin"], opData["rtMax"], opData["rtAvg"], opData["rtMed"])
+        #        print "|     -------------------------------------------------------------------------------------------"
+        #        print "|     total:            %1.2f tps\n" % (totalRuns / totalTime)
+        return logStr
+
+    def printFormattedStatistics(self, queries):
+        logStr = ""
+        output = {}
+        #print self._runs
+        for runId, runData in self._runs.iteritems():
+            output[runId] = ""
+            total_runs = 0;
+            avg_runtime = 0;
+            total_runtime = 0;
+            avg_op_runtime = 0;
+            total_op_runtime = 0;
+
+            for query in queries:
+                if query in runData[runData.keys()[0]]["txStats"]:
+                    stats = runData[runData.keys()[0]]["txStats"][query]
+                    total_runs += stats["totalRuns"]
+                    total_runtime += stats["srtAvg"] * stats["totalRuns"]
+                    total_op_runtime += stats["opAvg"] * stats["totalRuns"]
+                    output[runId] += str(self._groupId) + " " + str(runId) + " " + query +  " " + str(stats["totalRuns"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + "\n"
+            if(total_runs>0):
+                avg_runtime = total_runtime / total_runs
+                avg_op_runtime = total_op_runtime / total_runs
+                output[runId] += str(self._groupId) + " " + str(runId) + " avg " + str(total_runs) + " " + str(avg_runtime) + " " + str(avg_op_runtime) + "\n"
+
+        for run in sorted(output.iterkeys()):
+            logStr += "%s" % (output[run])    
+        return logStr
+    
+    def printFormattedStatisticsAverage(self, queries):
+        logStr = ""
+        output = {}
+        #print self._runs
+        for runId, runData in self._runs.iteritems():
+            output[runId] = ""
+            total_runs = 0;
+            avg_runtime = 0;
+            total_runtime = 0;
+            avg_op_runtime = 0;
+            total_op_runtime = 0;
+
+            for query in queries:
+                if query in runData[runData.keys()[0]]["txStats"]:
+                    stats = runData[runData.keys()[0]]["txStats"][query]
+                    total_runs += stats["totalRuns"]
+                    total_runtime += stats["srtAvg"] * stats["totalRuns"]
+                    total_op_runtime += stats["opAvg"] * stats["totalRuns"]
+            if(total_runs>0):
+                avg_runtime = total_runtime / total_runs
+                avg_op_runtime = total_op_runtime / total_runs
+            
+            output[runId] += str(self._groupId) + " " + str(runId) + " " + str(total_runs) + " " + str(avg_runtime) + " " + str(avg_op_runtime) + "\n"
+
+            #stats = runData[runData.keys()[0]]["txStats"]["q7idx_vbak"]
+            #output[runId] += "  q7idx_vbak " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
+            #stats = runData[runDaa.keys()[0]]["txStats"]["xselling"]
+            #output[runId] += "  xselling " + str(stats["totalRuns"]) + " " + str(stats["srtMin"]) + " " + str(stats["srtMax"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + " " + str(stats["schedAvg"]) + " " +str(stats["schedStd"]) + "\n"
+
+        for run in sorted(output.iterkeys()):
+            logStr += "%s" % (output[run])
         #    numUsers = runData[runData.keys()[0]]["numUsers"]
         #    print "Run ID: %s [%s users]" % (runId, numUsers)
         #    print "=============================="

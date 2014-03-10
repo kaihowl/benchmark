@@ -9,8 +9,8 @@ from benchmark.mixedWLPlotter import MixedWLPlotter
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
-    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
-    users = [512]
+    users = [1, 11]#, 48, 64, 96, 128]
+    #users = [512]
     for i in users:
         runId = str(i)
         kwargs["numUsers"] = i
@@ -18,8 +18,7 @@ def runbenchmarks(groupId, s1, **kwargs):
         b1.run()
         time.sleep(1)
     plotter = MixedWLPlotter(groupId)
-    output += groupId + "\n"
-    output += plotter.printStatistics()
+    output += plotter.printFormattedStatisticsAverage(kwargs["benchmarkQueries"])
     return output
 
 
@@ -27,28 +26,28 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
     
-    kwargs["olapQueries"] = ("q6_ch",)
+    kwargs["olapQueries"] = ("q6_ch","q10","q12")
     kwargs["tolapUser"] = 0
     kwargs["tolapThinkTime"] = 1
-    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["tolapQueries"] = ("xselling","q11")
     kwargs["oltpUser"] = 0
-    kwargs["oltpQueries"] = ("q7idx_vbak",)
+    kwargs["oltpQueries"] = ("q7idx_vbak","q8idx_vbap")
 
-    instances = [1]#, 8, 31, 128] #[1, 8, 16, 31, 62, 124]
-    users = [1]#, 31, 62] #[1, 8, 16, 31, 46, 62, 93]
+    instances = [1, 12]
+    users = [1, 12]
     for i in instances:
         for j in users:
-            print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
-            runId = str(i) + "_" + str(j)
-            kwargs["olapInstances"] = i
-            kwargs["olapUser"] = j
-            kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
-            b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
-            b1.run()
-            time.sleep(3)
+           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
+           runId = str(i) + "_" + str(j)
+           kwargs["olapInstances"] = i
+           kwargs["olapUser"] = j
+           kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+           b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+           b1.run()
+           time.sleep(3)
     plotter = MixedWLPlotter(groupId)
     output += groupId + "\n"
-    output += plotter.printStatistics()
+    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
    # output += plotter.printOpStatistics ()
     return output
 
@@ -56,16 +55,18 @@ def runBenchmark_prio(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
 
-    kwargs["olapQueries"] = ("q6_ch",)
-    kwargs["olapInstances"] = 31
+    kwargs["olapQueries"] = ("q6_ch","q10","q12")
+    kwargs["olapInstances"] = 10
     kwargs["tolapUser"] = 1
     kwargs["tolapThinkTime"] = 1
-    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["tolapQueries"] = ("xselling","q11")
     kwargs["oltpUser"] = 1
-    kwargs["oltpQueries"] = ("q7idx_vbak",)
+    kwargs["oltpQueries"] = ("q7idx_vbak","q8idx_vbap")
 
     #users = [1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64]
-    users = [1, 16, 32, 64]
+    users = [1]#, 2, 3, 4]#, 4, 8, 10, 12, 14, 20, 30, 60]
+    kwargs["bench_users_a"] = [12]# 3,4 ,5, 6]#, 4, 8, 16, 24, 32, 40, 48, 56, 64, 96, 128]
+    kwargs["bench_users_t"] = [12]
     for j in users:
         print "starting benchmark with " + str(j) + " users" 
         runId = str(j)        
@@ -73,10 +74,10 @@ def runBenchmark_prio(groupId, s1, **kwargs):
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
         b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
         b1.run()
-        time.sleep(5)
+        time.sleep(2)
     plotter = MixedWLPlotter(groupId)
-    output += groupId + "\n"
-    output += plotter.printStatistics()
+    #output += groupId + "\n"
+    output += plotter.printFormattedStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
    # output += plotter.printOpStatistics ()
     return output
 
@@ -84,16 +85,16 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
 
-    kwargs["olapQueries"] = ("q6_ch",)
-    kwargs["olapUser"] = 31
-    kwargs["tolapUser"] = 1
-    kwargs["tolapThinkTime"] = 1
+    kwargs["olapQueries"] = ("q6_ch","q10","q12")
+    kwargs["olapUser"] = 0
+    kwargs["tolapUser"] = 11
+    kwargs["tolapThinkTime"] = 0
     kwargs["tolapQueries"] = ("xselling",)
-    kwargs["oltpUser"] = 1
+    kwargs["oltpUser"] = 0
     kwargs["oltpQueries"] = ("q7idx_vbak",)
 
-    instances = [1, 2, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64]
-    #instances = [31]
+    #instances = [1, 2, 4, 8, 11, 12, 16, 20, 22, 28, 33]
+    instances = [11]
     for j in instances:
         print "starting benchmark with " + str(j) + " instances" 
         runId = str(j)        
@@ -104,7 +105,7 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
         time.sleep(5)
     plotter = MixedWLPlotter(groupId)
     output += groupId + "\n"
-    output += plotter.printStatistics()
+    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
    # output += plotter.printOpStatistics ()
     return output
 
@@ -154,11 +155,34 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 
 
 
-# gaza remote
+#gaza remote
 #kwargs = {
 #    "port"              : args["port"],
 #    "manual"            : True,
-#    "warmuptime"        : 120,
+#    "warmuptime"        : 10,
+#    "runtime"           : 180,
+#    "prepareQueries"    : ("preload_cbtr", "create_vbak_index","create_vbap_index"),
+#    "showStdout"        : True,
+#    "showStderr"        : args["stderr"],
+#    "rebuild"           : args["rebuild"],
+#    "regenerate"        : args["regenerate"],
+#    "noLoad"            : args["no_load"],
+#    "serverThreads"     : args["threads"],
+#    "collectPerfData"   : args["perfdata"],
+#    "useJson"           : args["json"],
+#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+#    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
+#    "scheduler"         : "CentralScheduler",
+#    "serverThreads"     : 32,
+#    "remote"            : True,
+#    "remoteUser"        : "Johannes.Wust",
+#    "host"              : "gaza"
+#}
+
+# gaza local
+#kwargs = {
+#    "port"              : args["port"],
+#    "warmuptime"        : 20,
 #    "runtime"           : 120,
 #    "prepareQueries"    : ("preload",),
 #    "showStdout"        : True,
@@ -171,20 +195,19 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 #    "useJson"           : args["json"],
 #    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
 #    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tables",
-#    "scheduler"         : "CentralScheduler",
+#    "scheduler"         : "CentralPriorityScheduler",
 #    "serverThreads"     : 31,
-#    "remote"            : True,
-#    "remoteUser"        : "Johannes.Wust",
-#    "host"              : "gaza"
+#    "remote"            : False,
+#    "host"              : "127.0.0.1"
 #}
 
-# gaza local
+#begram local
 kwargs = {
     "port"              : args["port"],
-    "warmuptime"        : 20,
-    "runtime"           : 120,
-    "prepareQueries"    : ("preload",),
-    "showStdout"        : True,
+    "warmuptime"        : 1,
+    "runtime"           : 10,
+    "prepareQueries"    : ("preload_cbtr_small", "create_vbak_index","create_vbap_index"),
+    "showStdout"        : False,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
     "regenerate"        : args["regenerate"],
@@ -192,35 +215,14 @@ kwargs = {
     "serverThreads"     : args["threads"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
+    "manual"            : False,
     "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tables",
-    "scheduler"         : "CentralPriorityScheduler",
-    "serverThreads"     : 31,
+    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
+    "scheduler"         : "CoreBoundQueuesScheduler",
+    "serverThreads"     : 12,
     "remote"            : False,
     "host"              : "127.0.0.1"
 }
-
-# begram local
-#kwargs = {
-#    "port"              : args["port"],
-#    "warmuptime"        : 10,
-#    "runtime"           : 60,
-#    "prepareQueries"    : ("create_vbak_index","preload"),
-#    "showStdout"        : True,
-#    "showStderr"        : args["stderr"],
-#    "rebuild"           : args["rebuild"],
-#    "regenerate"        : args["regenerate"],
-#    "noLoad"            : args["no_load"],
-#    "serverThreads"     : args["threads"],
-#    "collectPerfData"   : args["perfdata"],
-#    "useJson"           : args["json"],
-#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-#    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
-#    "scheduler"         : "CentralPriorityScheduler",
-#    "serverThreads"     : 11,
-#    "remote"            : False,
-#    "host"              : "127.0.0.1"
-#}
 
 
 output = ""
@@ -228,89 +230,37 @@ output += "kwargs\n"
 output += str(kwargs)
 output += "\n"
 output += "\n"
-output += "OLXP 31 threads\n"
+output += "OLTP 11 threads\n"
 output += "\n"
-output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "CentralScheduler"
-#output += runBenchmark_prio("Var_q3" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "WSCoreBoundPriorityQueuesScheduler"
-#output += runBenchmark_prio("Var_q3" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "CentralPriorityScheduler"
-#output += runBenchmark_task_sizes("Var_instances" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "WSCoreBoundPriorityQueuesScheduler"
-#output += runBenchmark_task_sizes("Var_instances" + kwargs["scheduler"] + "_OLXP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "ThreadPerTaskScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 
+schedulers = [
+         #"WSThreadLevelQueuesScheduler",
+         #"ThreadLevelQueuesScheduler",
+         #"CoreBoundQueuesScheduler",
+         #"WSCoreBoundQueuesScheduler",
+         #"WSThreadLevelPriorityQueuesScheduler",
+         #"ThreadLevelPriorityQueuesScheduler",
+         #"CoreBoundPriorityQueuesScheduler",
+         #"WSCoreBoundPriorityQueuesScheduler",
+         "CentralScheduler"
+         #"CentralPriorityScheduler",
+         #"ThreadPerTaskScheduler",
+         ###"DynamicPriorityScheduler",
+         ###"DynamicScheduler",
+         #"NodeBoundQueuesScheduler",
+         #"WSNodeBoundQueuesScheduler",
+         #"NodeBoundPriorityQueuesScheduler",
+         #"WSNodeBoundPriorityQueuesScheduler"
+         ]
 
-#kwargs["serverThreads"] = 62
+for scheduler in schedulers:
+    print "OLTP benchmark with " + scheduler 
+    kwargs["scheduler"] = scheduler
+    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 
-## write output to file
-#filename = "results_" + str(int(time.time()))
-#f = open(filename,'w')
-#f.write(output) # python will convert \n to os.linesep
-#f.close() # you can omit in most cases as the destructor will call if
-#
-#output += ""
-#output += "OLTP 62 threads\n"
-#output += "\n"
-#kwargs["scheduler"] = "CoreBoundQueuesScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "WSCoreBoundQueuesScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "CentralScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "ThreadPerTaskScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLTP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#
-#
-## write output to file
-#filename = "results_" + str(int(time.time()))
-#f = open(filename,'w')
-#f.write(output) # python will convert \n to os.linesep
-#f.close() # you can omit in most cases as the destructor will call if
-#
-#kwargs["serverThreads"] = 31
-#kwargs["benchmarkQueries"] = ("xselling",)
-#kwargs["prepareQueries"] = ("preload_vbap",)
-#output += "\n"
-#output += "OLAP 31 threads\n"
-#output += "\n"
-#kwargs["scheduler"] = "CoreBoundQueuesScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "WSCoreBoundQueuesScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "CentralScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "ThreadPerTaskScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#
-#
-## write output to file
-#filename = "results_" + str(int(time.time()))
-#f = open(filename,'w')
-#f.write(output) # python will convert \n to os.linesep
-#f.close() # you can omit in most cases as the destructor will call if
-#
-#
-#kwargs["serverThreads"] = 62
-#
-#output += "\n"
-#output += "OLAP 62 threads\n"
-#output += "\n"
-#kwargs["scheduler"] = "CoreBoundQueuesScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "WSCoreBoundQueuesScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "CentralScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-#kwargs["scheduler"] = "ThreadPerTaskScheduler"
-#output += runbenchmarks(kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-
-# write output to file
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
 f.close() # you can omit in most cases as the destructor will call if
+
 print output

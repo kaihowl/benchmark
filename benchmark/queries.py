@@ -13,8 +13,11 @@ PREPARE_QUERIES_SERVER = {
     #"distinct_vbeln_vbak" : "queries/mixed/distinct_vbeln_vbak.json",                                                                                                                                              
     #"indices": "queries/mixed/create_indices.json" ,
     "preload_vbap" : "queries/mixed/preload_vbap.json",
+    "preload_cbtr_small" : "queries/mixed/preload_cbtr_small.json",
+    "preload_cbtr" : "queries/mixed/preload_cbtr.json",
     "preload" : "queries/mixed/preload.json",
-    "create_vbak_index" : "queries/mixed/create_vbak_index.json"                             
+    "create_vbak_index" : "queries/mixed/create_vbak_index.json",
+    "create_vbap_index" : "queries/mixed/create_vbap_index.json"                             
     }
 
 # locations for json query files sorted by OLTP (TPCC) and OLAP (TPC-H).                                                                                                                                      
@@ -23,11 +26,11 @@ OLAP_QUERY_FILES = {
     "q11"                    : "queries/mixed/q11.json",
     "q12"                    : "queries/mixed/q12.json",
     "xselling"               : "queries/mixed/xselling.json",
-    "xselling100"               : "queries/mixed/xselling100.json",
-    "xselling500"               : "queries/mixed/xselling500.json",
-    "xselling2000"               : "queries/mixed/xselling2000.json",
+    "xselling100"            : "queries/mixed/xselling100.json",
+    "xselling500"            : "queries/mixed/xselling500.json",
+    "xselling2000"           : "queries/mixed/xselling2000.json",
     "q6_ch"                  : "queries/mixed/q6_ch.json",
-    "busy"                  : "queries/mixed/busy.json",
+    "busy"                   : "queries/mixed/busy.json",
     "BusyTask" : "queries/mixed/BusyTask.json"
     }
 
@@ -40,7 +43,7 @@ OLTP_QUERY_FILES ={
     "q7" : "queries/mixed/q7.json",
     "q8" : "queries/mixed/q8.json",
     "q7idx_vbak" : "queries/mixed/q7idx_vbak.json",
-    "q8idx" : "queries/mixed/q8idx.json",
+    "q8idx_vbap" : "queries/mixed/q8idx_vbap.json",
     "q3_c"  : "queries/mixed/q3_c.json"
     #"q9" : "queries/mixed/q9.json",                                                                                                                                                                                
 }
@@ -69,7 +72,7 @@ OLTP_WEIGHTS = (
     ("q7", 1),                                                                                                                                                                                                
     ("q8", 1),                                                                                                                                                                                                
     ("q7idx_vbak", 1),                                                                                                                                                                                        
-    ("q8idx", 1),                                                                                                                                                                                             
+    ("q8idx_vbap", 1),                                                                                                                                                                                             
     ("q3_c", 1),                                                                                                                                                                                              
     #("q9", 1),                                                                                                                                                                                               
     )                                                                                                                                                                                                         

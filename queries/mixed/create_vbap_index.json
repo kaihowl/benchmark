@@ -2,13 +2,13 @@
   "operators": {
     "0": {
       "type": "TableLoad",
-      "table": "vbak",
-      "filename": "vbak_base_project1.tbl"
+      "table": "vbap",
+      "filename": "vbap_base_project1.tbl"
     },
     "1": {
       "type": "CreateIndex",
       "fields": ["VBELN"],
-      "index_name": "vbak_order_ix"
+      "index_name": "vbap_order_ix"
     },
     "3": {
       "type" : "NoOp"

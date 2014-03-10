@@ -2,7 +2,7 @@
  "operators" : {
       "loadvbak" : {
         "type" : "LoadDumpedTable",
-        "name" : "vbak2000"
+        "name" : "VBAK_CBTR"
       },
       "setvbak" : {
         "type" : "SetTable",
@@ -10,16 +10,11 @@
       },
       "loadvbap" : {
         "type" : "LoadDumpedTable",
-        "name" : "vbap2000"
+        "name" : "VBAP_CBTR"
       },
       "setvbap" : {
         "type" : "SetTable",
          "name" : "vbap"
-      }, 
-      "index": {
-        "type": "CreateIndex",
-        "fields": ["order_id"],
-        "index_name": "vbak_order_ix"
       },
      "nop": {
       "type" : "NoOp"
@@ -29,7 +24,6 @@
     ["loadvbak", "setvbak"],
     ["loadvbap", "setvbap"],
     ["setvbap", "nop"],
-    ["setvbak", "index"],
-    ["index", "nop"]
+    ["setvbak", "nop"]
   ]
 }
