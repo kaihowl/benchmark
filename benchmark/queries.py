@@ -26,12 +26,7 @@ OLAP_QUERY_FILES = {
     "q11"                    : "queries/mixed/q11.json",
     "q12"                    : "queries/mixed/q12.json",
     "xselling"               : "queries/mixed/xselling.json",
-    "xselling100"            : "queries/mixed/xselling100.json",
-    "xselling500"            : "queries/mixed/xselling500.json",
-    "xselling2000"           : "queries/mixed/xselling2000.json",
-    "q6_ch"                  : "queries/mixed/q6_ch.json",
-    "busy"                   : "queries/mixed/busy.json",
-    "BusyTask" : "queries/mixed/BusyTask.json"
+    "q6_ch"                  : "queries/mixed/q6_ch.json"
     }
 
 OLTP_QUERY_FILES ={
@@ -55,12 +50,7 @@ OLAP_WEIGHTS = (
     ("q11", 1),
     ("q12", 1),
     ("xselling", 1),
-    ("xselling100", 1),
-    ("xselling500", 1),
-    ("xselling2000", 1),
-    ("q6_ch", 1),
-    ("busy", 1),
-    ("BusyTask", 1)
+    ("q6_ch", 1)
     )
 
 OLTP_WEIGHTS = (

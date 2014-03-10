@@ -40,7 +40,7 @@
             "type" : "GroupByScan",
             "fields": ["KUNNR"],
             "functions": [
-            //Be sure to choose the second NETWR of the joined tybel (currently only possible by referncing via position)
+            //Be sure to choose the second NETWR of the joined label (currently only possible by referncing via position)
             {"type": "SUM", "field": 43}
             ]
         }

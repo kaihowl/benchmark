@@ -26,11 +26,11 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
     
-    kwargs["olapQueries"] = ("q6_ch","q10","q12")
-    kwargs["tolapUser"] = 0
+    kwargs["olapQueries"] = ("q10","q11","q12")
+    kwargs["tolapUser"] = 1
     kwargs["tolapThinkTime"] = 1
-    kwargs["tolapQueries"] = ("xselling","q11")
-    kwargs["oltpUser"] = 0
+    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["oltpUser"] = 1
     kwargs["oltpQueries"] = ("q7idx_vbak","q8idx_vbap")
 
     instances = [1, 12]
@@ -46,8 +46,7 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
            b1.run()
            time.sleep(3)
     plotter = MixedWLPlotter(groupId)
-    output += groupId + "\n"
-    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
+    output += plotter.printFormattedStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
    # output += plotter.printOpStatistics ()
     return output
 
