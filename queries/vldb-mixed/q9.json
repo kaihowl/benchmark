@@ -1,0 +1,17 @@
+{
+    "operators": {
+        "load_vbak" : {
+            "type" : "TableLoad",
+            "table": "vbak",
+            "filename": "vbak.tbl"
+            },
+        "sort_vbeln": {
+            "type": "SortScan",
+            "fields" : [1]
+        }
+    },
+    "limit": 30,
+    "edges": [
+    ["load_vbak", "sort_vbeln"]
+    ]
+}

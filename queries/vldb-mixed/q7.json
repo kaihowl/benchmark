@@ -1,0 +1,18 @@
+{
+    "operators": {
+        "load_vbak" : {
+            "type" : "TableLoad",
+            "table": "vbak",
+            "filename": "vbak.tbl"
+            },
+        "filter_vbeln": {
+            "type": "SimpleTableScan",
+            "predicates" : [
+                { "type": "EQ", "in": 0, "f": "order_id", "value": 0050000005, "vtype": 0}
+            ]
+        }
+    },
+    "edges": [
+    ["load_vbak", "filter_vbeln"]
+    ]
+}

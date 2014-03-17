@@ -1,0 +1,26 @@
+{
+    "operators": {
+        "load_vbap" : {
+            "type" : "TableLoad",
+            "table": "vbap",
+            "filename": "vbap.tbl"
+            },
+        "insert": {
+            "type": "InsertScan",
+            "data" : [
+              [800, 005000034, 000010, "C200", 0.00, 1000.0] 
+            ]
+        },
+        "commit": {
+          "type": "Commit"
+        },
+        "noop": {
+          "type": "NoOp"
+        }
+    },
+    "edges": [
+      ["load_vbap", "insert"],
+      ["insert", "commit"],
+      ["commit", "noop"]
+    ]
+}

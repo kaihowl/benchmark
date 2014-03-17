@@ -1,0 +1,26 @@
+{
+    "operators": {
+        "load_vbak" : {
+            "type" : "TableLoad",
+            "table": "vbak",
+            "filename": "vbak.tbl"
+            },
+        "insert": {
+            "type": "InsertScan",
+            "data" : [
+              [800, 5000034, 19950409] 
+            ]
+        },
+        "commit": {
+          "type": "Commit"
+        },
+        "noop": {
+          "type": "NoOp"
+        }
+    },
+    "edges": [
+      ["load_vbak", "insert"],
+      ["insert", "commit"],
+      ["commit", "noop"]
+    ]
+}
