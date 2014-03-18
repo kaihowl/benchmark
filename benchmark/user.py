@@ -31,6 +31,10 @@ class User(multiprocessing.Process):
         self._totalRuns         = 0
         self._totalTime         = 0
         self._totalQueryTime    = 0
+        self._queryfile         = None
+        self._write_to_file     = kwargs["write_to_file"] if kwargs.has_key("write_to_file") else None
+        self._write_to_file_count    = int(kwargs["write_to_file_count"]) if kwargs.has_key("write_to_file_count") and kwargs["write_to_file_count"]!=None else None
+        self._written_to_file_count = 0
 
     def prepareUser(self):
         """ implement this in subclasses """
@@ -63,7 +67,6 @@ class User(multiprocessing.Process):
     def stop(self):
         self._stopevent.set()
 
-
     def fireQuery(self, queryString, queryArgs={"papi": "NO_PAPI"}, sessionContext=None, autocommit=False, stored_procedure=None):
         if queryArgs: query = queryString % queryArgs
         else:         query = queryString
@@ -74,7 +77,12 @@ class User(multiprocessing.Process):
         self._lastQuery = data
         tStart = time.time()
         if stored_procedure:
-            result = self._session.post("http://%s:%s/%s/" % (self._host, self._port, stored_procedure), data=data, timeout=100000)
+            if self._write_to_file:
+                w_id = queryArgs["w_id"]
+                self.write_request_to_file(query, stored_procedure, self._write_to_file, w_id)
+                return
+            else:
+                result = self._session.post("http://%s:%s/%s/" % (self._host, self._port, stored_procedure), data=data, timeout=100000)
         else:
             result = self._session.post("http://%s:%s/" % (self._host, self._port), data=data, timeout=100000)
         self._totalQueryTime += time.time() - tStart
@@ -86,7 +94,26 @@ class User(multiprocessing.Process):
         else:
             raise RuntimeError("Request failed --> %s" % result.text)
 
-    def startLogging(self):
+    def write_request_to_file(self, query, stored_procedure, filename, w_id):
+        if self._queryfile == None:
+            self._queryfile = open(filename, 'w+')
+        postdata = "procedure=" + stored_procedure + "&query="+query
+        postlen = len(postdata) + 4
+        request = "POST /procedure/%s/ HTTP/1.0\r\nConnection: Keep-Alive\r\nContent-length: %s\r\nContent-type: application/x-www-form-urlencoded\r\nHost: 127.0.0.1:5000\r\nUser-Agent: ApacheBench/2.3\r\nAccept: */*\r\n\r\n" % (w_id, postlen)
+        requestlen = len(request)
+        self._queryfile.write('{:04d}'.format(requestlen)+'\0')
+        self._queryfile.write('{:04d}'.format(postlen)+'\0')
+        self._queryfile.write(request)
+        self._queryfile.write(postdata)
+        self._queryfile.write("\r\n\r\n")
+
+        self._written_to_file_count = self._written_to_file_count + 1
+        if self._written_to_file_count >= self._write_to_file_count:
+            self._queryfile.flush()
+            print "Terminating user. Generated " + str(self._written_to_file_count) + " of " + str(self._write_to_file_count) + " queries."
+            exit(0)
+
+    def startLogging(self): 
         self._logevent.set()
 
     def stopLogging(self):

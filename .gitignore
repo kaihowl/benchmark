@@ -8,5 +8,10 @@ logs/
 .DS_Store
 *.DS_Store
 results/
+results
 saved/
 pytpcc/pytpcc/tables
+
+ab/ab
+ab_queries/
+tables/

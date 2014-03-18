@@ -2,8 +2,36 @@ import argparse
 import benchmark
 import os
 import getpass
+import shutil
+import commands
+import copy
 
+def clear_dir(path):
+    print "Clearing directory:", path
+    if not os.path.exists(path):
+        return
+    for root, dirs, files in os.walk(path):
+        for f in files:
+            os.unlink(os.path.join(root, f))
+        for d in dirs:
+            shutil.rmtree(os.path.join(root, d))
 
+def reset_persistency_directory():
+    if not args["manual"]:
+        if "hyriseDBPath" in kwargs:
+            clear_dir(os.path.join(kwargs["hyriseDBPath"], "persistency"))
+
+def reset_nvram_directory():
+    if not args["manual"]:
+        pmfs_data = os.path.expandvars("/mnt/pmfs/$USER/hyrisedata/")
+        clear_dir(pmfs_data)
+        hyrise_tpcc = "/mnt/pmfs/hyrise_tpcc"
+        txmgr = "/mnt/pmfs/txmgr.bin"
+        if os.path.isfile(hyrise_tpcc):
+            os.remove(hyrise_tpcc)
+        if os.path.isfile(txmgr):
+            os.remove(txmgr)
+        
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
 aparser.add_argument('--scalefactor', default=1, type=float, metavar='SF',
                      help='Benchmark scale factor')
@@ -17,6 +45,8 @@ aparser.add_argument('--clients-min', default=1, type=int, metavar='N',
                      help='The minimum number of blocking clients to fork')
 aparser.add_argument('--clients-max', default=1, type=int, metavar='N',
                      help='The maximum number of blocking clients to fork')
+aparser.add_argument('--clients-step', default=1, type=int, metavar='N',
+                     help='The step-width for the number of clients to fork')
 aparser.add_argument('--no-load', action='store_true',
                      help='Disable loading the data')
 aparser.add_argument('--no-execute', action='store_true',
@@ -47,14 +77,53 @@ aparser.add_argument('--perfdata', default=False, action='store_true',
                      help='Collect additional performance data. Slows down benchmark.')
 aparser.add_argument('--json', default=False, action='store_true',
                      help='Use JSON queries instead of stored procedures.')
+aparser.add_argument('--ab', default=None,
+                     help='Queryfile with prepared requests. If specified ab tool is used to fire queries.')
+aparser.add_argument('--verbose', default=1,
+                     help='Verbose output level. Default is 1. Set to 0 if nothing should be printed.')
+aparser.add_argument('--abCore', default=2,
+                     help='Core to bind ab to.')
+aparser.add_argument('--tabledir', default=None, type=str, metavar="T",
+                     help='Directory for TPCC tables to use.')
+aparser.add_argument('--genCount', default=None, type=str,
+                     help='Number of queries to generate')
+aparser.add_argument('--genFile', default=None, type=str, metavar="T",
+                     help='File to store generated queries')
+aparser.add_argument('--onlyNeworders', default=False, action='store_true',
+                     help='Only do new-order transactions. Otherwise full mix of tpcc transactions is executed/generated.')
+aparser.add_argument('--csv', default=False, action='store_true',
+                     help='Load data from csv files and do not user binary import.')
+
 args = vars(aparser.parse_args())
 
-s1 = benchmark.Settings("None", PERSISTENCY="NONE")
-s2 = benchmark.Settings("Logger_1ms", PERSISTENCY="BUFFEREDLOGGER", WITH_GROUP_COMMIT=1, GROUP_COMMIT_WINDOW=1000)
-s3 = benchmark.Settings("Logger_10ms", PERSISTENCY="BUFFEREDLOGGER", WITH_GROUP_COMMIT=1, GROUP_COMMIT_WINDOW=10000)
-s4 = benchmark.Settings("Logger_50ms", PERSISTENCY="BUFFEREDLOGGER", WITH_GROUP_COMMIT=1, GROUP_COMMIT_WINDOW=50000)
-s5 = benchmark.Settings("Logger_unlimited", PERSISTENCY="BUFFEREDLOGGER", WITH_GROUP_COMMIT=1, GROUP_COMMIT_WINDOW="unlimited")
-s6 = benchmark.Settings("NVRAM", PERSISTENCY="NVRAM", NVRAM_FILENAME="hyrise_tpcc")
+if args["tabledir"] == None:
+    print "Please specify a table directory."
+    exit(0)
+else:
+    args["tabledir"] = os.path.abspath(args["tabledir"])
+    print "Using table directory:", args["tabledir"]
+
+def create_benchmark(name, settings_kwargs, groupId, parameters, benchmark_kwargs):
+    runId = str(parameters).replace(",", "@")
+    s = benchmark.Settings(name, **settings_kwargs)
+    return benchmark.TPCCBenchmark(groupId, runId, s, **benchmark_kwargs) 
+
+def create_benchmark_none(name, groupId, parameters, benchmark_kwargs):
+    settings_kwargs = {"PERSISTENCY":"NONE"}
+    return create_benchmark(name, settings_kwargs, groupId, parameters, benchmark_kwargs)
+
+def create_benchmark_logger(name, groupId, parameters, benchmark_kwargs, windowsize_ms, checkpoint_interval_ms):
+    reset_persistency_directory()
+    settings_kwargs = {"PERSISTENCY":"BUFFEREDLOGGER"}
+    benchmark_kwargs = copy.copy(benchmark_kwargs)
+    benchmark_kwargs["commitWindow"] = windowsize_ms
+    benchmark_kwargs["checkpointInterval"] = checkpoint_interval_ms
+    return create_benchmark(name, settings_kwargs, groupId, parameters, benchmark_kwargs)
+
+def create_benchmark_nvram(name, groupId, parameters, benchmark_kwargs):
+    reset_nvram_directory()
+    settings_kwargs = {"PERSISTENCY":"NVRAM", "NVRAM_FILENAME":"hyrise_tpcc"}
+    return create_benchmark(name, settings_kwargs, groupId, parameters, benchmark_kwargs)
 
 kwargs = {
     "remoteUser"        : args["remoteUser"],
@@ -75,40 +144,11 @@ kwargs = {
     "noLoad"            : args["no_load"],
     "serverThreads"     : args["threads"],
     "collectPerfData"   : args["perfdata"],
-    "useJson"           : args["json"]
+    "useJson"           : args["json"],
+    "abQueryFile"       : args["ab"],
+    "abCore"            : args["abCore"],
+    "verbose"           : args["verbose"],
+    "tabledir"          : args["tabledir"],
+    "onlyNeworders"     : args["onlyNeworders"],
+    "csv"               : args["csv"]
 }
-
-groupId = "tpcc_tmp"
-num_clients = args["clients"]
-minClients = args["clients_min"]
-maxClients = args["clients_max"]
-
-if args["clients"] > 0:
-    minClients = args["clients"]
-    maxClients = args["clients"]
-
-for num_clients in xrange(minClients, maxClients+1):
-    runId = "numClients_%s" % num_clients
-    kwargs["numUsers"] = num_clients
-
-    b1 = benchmark.TPCCBenchmark(groupId, runId, s1, **kwargs)
-    b2 = benchmark.TPCCBenchmark(groupId, runId, s2, **kwargs)
-    b3 = benchmark.TPCCBenchmark(groupId, runId, s3, **kwargs)
-    b4 = benchmark.TPCCBenchmark(groupId, runId, s4, **kwargs)
-    b5 = benchmark.TPCCBenchmark(groupId, runId, s5, **kwargs)
-    b6 = benchmark.TPCCBenchmark(groupId, runId, s6, **kwargs)
-    
-
-    b1.run()
-    b2.run()
-    b3.run()
-    b4.run()
-    b5.run()
-    # b6.run()
-    
-    if os.path.exists("/mnt/pmfs/hyrise_tpcc"):
-        os.remove("/mnt/pmfs/hyrise_tpcc")
-
-#plotter = benchmark.Plotter(groupId)
-#plotter.printStatistics()
-

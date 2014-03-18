@@ -26,7 +26,11 @@ OLAP_QUERY_FILES = {
     "q11"                    : "queries/mixed/q11.json",
     "q12"                    : "queries/mixed/q12.json",
     "xselling"               : "queries/mixed/xselling.json",
-    "q6_ch"                  : "queries/mixed/q6_ch.json"
+    "q6_ch"                  : "queries/mixed/q6_ch.json",
+    "ccsched1"               : "queries/other/ccsched_test.json",
+    "ccsched2"               : "queries/other/ccsched_test2.json",
+    "ccsched3"               : "queries/other/ccsched_test3.json",
+    "ccneutral"               : "queries/other/ccneutral.json"
     }
 
 OLTP_QUERY_FILES ={
@@ -50,7 +54,11 @@ OLAP_WEIGHTS = (
     ("q11", 1),
     ("q12", 1),
     ("xselling", 1),
-    ("q6_ch", 1)
+    ("q6_ch", 1),
+    ("ccsched1", 1),
+    ("ccsched2", 1),
+    ("ccsched3", 1),
+    ("ccneutral", 1)
     )
 
 OLTP_WEIGHTS = (
