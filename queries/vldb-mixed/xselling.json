@@ -1,0 +1,47 @@
+{
+    "priority": 2,
+    "operators": {
+        // Load the tables
+        "0": {
+          "type": "TableLoad",
+          "table": "vbap",
+          "filename" : "vbap.tbl"  
+        },
+        "2" : {
+          "type" : "TableScan",
+          "expression": "hyrise::Store_FLV_F1_EQ_STRING",
+          "f1": 2,
+          "COMMENT": "value is in the dictionary for 10mill",
+          "v_f1": "DPC1010" 
+        },
+        "3" : {
+          "type" : "TableScan",
+          "expression": "hyrise::Store_FLV_F1_EQ_STRING",
+          "f1": 2,
+          "COMMENT": "value is in the dictionary for 10mill",
+          "v_f1": "DPC1011"
+        },
+        "4": {
+          "type": "RadixJoin",
+          "bits1": 10,
+          "bits2": 5,
+          "hash_par": 12,
+          "probe_par": 12,
+          "join_par": 12,
+          "fields": [1,1] // Left and right
+        },
+        "5": {
+          "type": "NoOp"
+        }
+    },
+
+    "edges" : [
+        ["0","2"],
+        ["0","3"],
+        ["2","4"],
+        ["3","4"]
+//	["4","5"]
+    ]
+}
+}
+
