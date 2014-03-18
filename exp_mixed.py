@@ -109,6 +109,34 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     return output
 
 
+def runBenchmark_varying_mts(groupId, s1, **kwargs):
+    output = ""
+
+    kwargs["olapQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
+    kwargs["olapUser"] = 1
+    kwargs["tolapQueries"] = ("xselling",)
+    # TODO why was that 0?
+    kwargs["tolapUser"] = 1
+    # TODO is this in seconds?
+    kwargs["tolapThinkTime"] = 1
+    kwargs["oltpQueries"] = ("q10", "q11", "q12")
+    kwargs["oltpUser"] = 32
+
+    mts_list = [30, 50, 200, 300]
+    for mts in mts_list:
+        print "starting benchmark with mts=" + str(mts)
+        runId = str(mts)        
+        kwargs["mts"] = mts
+        kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+        b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+        b1.run()
+        time.sleep(5)
+    plotter = MixedWLPlotter(groupId)
+    output += groupId + "\n"
+    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
+   # output += plotter.printOpStatistics ()
+    return output
+
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
 aparser.add_argument('--duration', default=20, type=int, metavar='D',
                      help='How long to run the benchmark in seconds')
@@ -178,35 +206,13 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 #    "host"              : "gaza"
 #}
 
-# gaza local
-#kwargs = {
-#    "port"              : args["port"],
-#    "warmuptime"        : 20,
-#    "runtime"           : 120,
-#    "prepareQueries"    : ("preload",),
-#    "showStdout"        : True,
-#    "showStderr"        : args["stderr"],
-#    "rebuild"           : args["rebuild"],
-#    "regenerate"        : args["regenerate"],
-#    "noLoad"            : args["no_load"],
-#    "serverThreads"     : args["threads"],
-#    "collectPerfData"   : args["perfdata"],
-#    "useJson"           : args["json"],
-#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-#    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tables",
-#    "scheduler"         : "CentralPriorityScheduler",
-#    "serverThreads"     : 31,
-#    "remote"            : False,
-#    "host"              : "127.0.0.1"
-#}
-
-#begram local
+#gaza local
 kwargs = {
     "port"              : args["port"],
-    "warmuptime"        : 1,
-    "runtime"           : 10,
-    "prepareQueries"    : ("preload_cbtr_small", "create_vbak_index","create_vbap_index"),
-    "showStdout"        : False,
+    "warmuptime"        : 20,
+    "runtime"           : 120,
+    "prepareQueries"    : ("preload",),
+    "showStdout"        : True,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
     "regenerate"        : args["regenerate"],
@@ -214,14 +220,36 @@ kwargs = {
     "serverThreads"     : args["threads"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
-    "manual"            : False,
-    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
-    "scheduler"         : "CoreBoundQueuesScheduler",
-    "serverThreads"     : 12,
+    "dirBinary"         : "/home/Kai.Hoewelmeyer/hyrise/build/",
+    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
+    "scheduler"         : "DynamicPriorityScheduler",
+    "serverThreads"     : 31,
     "remote"            : False,
     "host"              : "127.0.0.1"
 }
+
+##begram local
+#kwargs = {
+#    "port"              : args["port"],
+#    "warmuptime"        : 1,
+#    "runtime"           : 10,
+#    "prepareQueries"    : ("preload_cbtr_small", "create_vbak_index","create_vbap_index"),
+#    "showStdout"        : False,
+#    "showStderr"        : args["stderr"],
+#    "rebuild"           : args["rebuild"],
+#    "regenerate"        : args["regenerate"],
+#    "noLoad"            : args["no_load"],
+#    "serverThreads"     : args["threads"],
+#    "collectPerfData"   : args["perfdata"],
+#    "useJson"           : args["json"],
+#    "manual"            : False,
+#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+#    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
+#    "scheduler"         : "CoreBoundQueuesScheduler",
+#    "serverThreads"     : 12,
+#    "remote"            : False,
+#    "host"              : "127.0.0.1"
+#}
 
 
 output = ""
@@ -229,34 +257,35 @@ output += "kwargs\n"
 output += str(kwargs)
 output += "\n"
 output += "\n"
-output += "OLTP 11 threads\n"
+output += "Varying MTS 31 OLTP users on 31 threads\n"
 output += "\n"
 
-schedulers = [
-         #"WSThreadLevelQueuesScheduler",
-         #"ThreadLevelQueuesScheduler",
-         #"CoreBoundQueuesScheduler",
-         #"WSCoreBoundQueuesScheduler",
-         #"WSThreadLevelPriorityQueuesScheduler",
-         #"ThreadLevelPriorityQueuesScheduler",
-         #"CoreBoundPriorityQueuesScheduler",
-         #"WSCoreBoundPriorityQueuesScheduler",
-         "CentralScheduler"
-         #"CentralPriorityScheduler",
-         #"ThreadPerTaskScheduler",
-         ###"DynamicPriorityScheduler",
-         ###"DynamicScheduler",
-         #"NodeBoundQueuesScheduler",
-         #"WSNodeBoundQueuesScheduler",
-         #"NodeBoundPriorityQueuesScheduler",
-         #"WSNodeBoundPriorityQueuesScheduler"
-         ]
+#schedulers = [
+#         #"WSThreadLevelQueuesScheduler",
+#         #"ThreadLevelQueuesScheduler",
+#         #"CoreBoundQueuesScheduler",
+#         #"WSCoreBoundQueuesScheduler",
+#         #"WSThreadLevelPriorityQueuesScheduler",
+#         #"ThreadLevelPriorityQueuesScheduler",
+#         #"CoreBoundPriorityQueuesScheduler",
+#         #"WSCoreBoundPriorityQueuesScheduler",
+#         "CentralScheduler"
+#         #"CentralPriorityScheduler",
+#         #"ThreadPerTaskScheduler",
+#         ###"DynamicPriorityScheduler",
+#         ###"DynamicScheduler",
+#         #"NodeBoundQueuesScheduler",
+#         #"WSNodeBoundQueuesScheduler",
+#         #"NodeBoundPriorityQueuesScheduler",
+#         #"WSNodeBoundPriorityQueuesScheduler"
+#         ]
 
-for scheduler in schedulers:
-    print "OLTP benchmark with " + scheduler 
-    kwargs["scheduler"] = scheduler
-    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-
+#for scheduler in schedulers:
+#    print "OLTP benchmark with " + scheduler 
+#    kwargs["scheduler"] = scheduler
+#    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#
+output += runBenchmark_varying_mts("Var_mts", s1, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
