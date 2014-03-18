@@ -1,0 +1,36 @@
+{
+    "operators": {
+    "load_vbap": {
+        "type": "TableLoad",
+        "name": "vbap",
+        "filename": "vbap.tbl"
+      },
+      "filter_aedat": {
+          "type": "TableScan",
+            "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
+            "f1" : 2,//MATNR
+            "f2" : 5,//ERDAT
+            "COMMENT": "from and to values are in the dictionary for 10mill",
+            "v_f1" : "SP JR CONSULTANT",
+            "v_f2": 20031219
+      },
+        "hash_netwr" : {
+            "type": "HashBuild",
+            "fields": ["ERDAT"], 
+            "key": "groupby"
+      },
+        "groupby" : {
+            "type" : "GroupByScan",
+            "fields": ["ERDAT"],
+            "functions": [
+            {"type": "SUM", "field": "KWMENG"}
+            ]
+        }
+    },
+    "edges": [
+    ["load_vbap", "filter_aedat"], 
+    ["filter_aedat", "hash_netwr"],
+    ["filter_aedat", "groupby"],
+    ["hash_netwr", "groupby"]
+    ]
+}
