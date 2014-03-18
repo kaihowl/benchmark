@@ -1,18 +1,17 @@
 {
-    "operators": {
-        "load_adrc" : {
-            "type" : "TableLoad",
-            "table": "adrc",
-            "filename": "adrc.tbl"
-            },
-        "filter_kunnr": {
-            "type": "SimpleTableScan",
-            "predicates" : [
-                { "type": "EQ", "in": 0, "f": "ADDRNUMBER", "value": "0000000104", "vtype": 2}
-            ]
-        }
+  "operators": {
+    "load_adrc" : {
+      "type" : "GetTable",
+      "name": "adrc"
     },
-    "edges": [
-      ["load_adrc", "filter_kunnr"]
+    "filter_kunnr": {
+      "type": "SimpleTableScan",
+      "predicates" : [
+      { "type": "EQ", "in": 0, "f": "ADDRNUMBER", "value": "0000000104", "vtype": 2}
+      ]
+    }
+  },
+  "edges": [
+    ["load_adrc", "filter_kunnr"]
     ]
 }

@@ -1,19 +1,17 @@
 {
-    "papi": "%(papi)s",
-    "operators": {
-        "load_vbap" : {
-            "type" : "TableLoad",
-            "table": "vbap",
-            "filename": "vbap.tbl"
-            },
-        "filter_vbeln": {
-            "type": "SimpleTableScan",
-            "predicates" : [
-                { "type": "EQ", "in": 0, "f": "order_id", "value": 0050000024, "vtype": 0}
-            ]
-        }
+  "operators": {
+    "load_vbap" : {
+      "type" : "GetTable",
+      "name": "vbap"
     },
-    "edges": [
+    "filter_vbeln": {
+      "type": "SimpleTableScan",
+      "predicates" : [
+      { "type": "EQ", "in": 0, "f": "VBELN", "value": "0050000024", "vtype": 2}
+      ]
+    }
+  },
+  "edges": [
     ["load_vbap", "filter_vbeln"]
     ]
 }

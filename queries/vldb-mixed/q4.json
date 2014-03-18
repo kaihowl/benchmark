@@ -1,23 +1,22 @@
 {
-    "operators": {
-        "load_makt" : {
-            "type" : "TableLoad",
-            "table": "makt",
-            "filename": "makt.tbl"
-            },
-        "filter_maktx": {
-            "type": "SimpleTableScan",
-            "predicates" : [
-                { "type": "EQ_V", "in": 0, "f": "MATNR", "value": "DPC9033", "vtype": 2}
-            ]
-        },
-        "projection": {
-          "type": "ProjectionScan",
-          "fields": ["MATNR", "MAKTX"]
-        }
+  "operators": {
+    "load_makt" : {
+      "type" : "GetTable",
+      "name": "makt"
     },
-    "edges": [
-      ["load_makt", "filter_maktx"],
-      ["filter_maktx", "projection"]
+    "filter_maktx": {
+      "type": "SimpleTableScan",
+      "predicates" : [
+      { "type": "EQ_V", "in": 0, "f": "MATNR", "value": "DPC9033", "vtype": 2}
+      ]
+    },
+    "projection": {
+      "type": "ProjectionScan",
+      "fields": ["MATNR", "MAKTX"]
+    }
+  },
+  "edges": [
+    ["load_makt", "filter_maktx"],
+  ["filter_maktx", "projection"]
     ]
 }

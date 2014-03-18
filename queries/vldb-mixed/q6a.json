@@ -1,26 +1,25 @@
 {
-    "operators": {
-        "load_vbak" : {
-            "type" : "TableLoad",
-            "table": "vbak",
-            "filename": "vbak.tbl"
-            },
-        "insert": {
-            "type": "InsertScan",
-            "data" : [
-              [800, 5000034, 19950409] 
-            ]
-        },
-        "commit": {
-          "type": "Commit"
-        },
-        "noop": {
-          "type": "NoOp"
-        }
+  "operators": {
+    "load_vbak" : {
+      "type" : "GetTable",
+      "name": "vbak"
     },
-    "edges": [
-      ["load_vbak", "insert"],
-      ["insert", "commit"],
-      ["commit", "noop"]
+    "insert": {
+      "type": "InsertScan",
+      "data" : [
+        [800, 5000034, 19950409, 0000002200] 
+        ]
+    },
+    "commit": {
+      "type": "Commit"
+    },
+    "noop": {
+      "type": "NoOp"
+    }
+  },
+  "edges": [
+    ["load_vbak", "insert"],
+  ["insert", "commit"],
+  ["commit", "noop"]
     ]
 }

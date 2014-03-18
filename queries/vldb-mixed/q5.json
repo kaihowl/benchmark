@@ -1,19 +1,17 @@
 {
-    "papi": "%(papi)s",
-    "operators": {
-        "load_mara" : {
-            "type" : "TableLoad",
-            "table": "mara",
-            "filename": "mara.tbl"
-            },
-        "filter_matnr": {
-            "type": "SimpleTableScan",
-            "predicates" : [
-                { "type": "EQ", "in": 0, "f": "MATNR", "value": "000000000000000088", "vtype": 2}
-            ]
-        }
+  "operators": {
+    "load_mara" : {
+      "type" : "GetTable",
+      "name": "mara"
     },
-    "edges": [
+    "filter_matnr": {
+      "type": "SimpleTableScan",
+      "predicates" : [
+      { "type": "EQ", "in": 0, "f": "MATNR", "value": "000000000000000088", "vtype": 2}
+      ]
+    }
+  },
+  "edges": [
     ["load_mara", "filter_matnr"]
     ]
 }
