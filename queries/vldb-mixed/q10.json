@@ -16,17 +16,16 @@
       "f2" : 2,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 10mill",
       "v_f1" : "0000001460",
-      "v_f2": 20031130
+      "v_f2": 20031130,
+      "dynamic": true
     },
     "join_header_item": {
       "type": "RadixJoin",
       "comment": "First edge is probe, second edge is hash",
       "bits1": 12,
       "bits2": 5,
-      "hash_par": 1,
-      "probe_par": 1,
-      "join_par": 1,       
-      "fields": [1, 1]
+      "fields": [1, 1],
+      "dynamic": true
     },
     "hash_netwr" : {
       "type": "HashBuild",

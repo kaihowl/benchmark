@@ -12,7 +12,8 @@
       "f2" : 5,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 10mill",
       "v_f1" : "SP JR CONSULTANT",
-      "v_f2": 20031219
+      "v_f2": 20031219,
+      "dynamic": true
     },
     "hash_netwr" : {
       "type": "HashBuild",
