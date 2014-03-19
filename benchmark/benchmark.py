@@ -59,6 +59,7 @@ class Benchmark:
         self._serverProc        = None
         self._users             = []
         self._scheduler         = kwargs["scheduler"] if kwargs.has_key("scheduler") else "CoreBoundQueuesScheduler"
+        self._mts               = kwargs["mts"] if kwargs.has_key("mts") else 0
         self._serverIP          = kwargs["serverIP"] if kwargs.has_key("serverIP") else "127.0.0.1"
         self._remoteUser        = kwargs["remoteUser"] if kwargs.has_key("remoteUser") else "hyrise"
         self._remotePath        = kwargs["remotePath"] if kwargs.has_key("remotePath") else "/home/" + self._remoteUser + "/benchmark"
@@ -225,7 +226,7 @@ class Benchmark:
             threadstring = ""
             if (self._serverThreads > 0):
                 threadstring = "--threads=%s" % self._serverThreads
-            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, threadstring],
+            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, threadstring, "--maxTaskSize=%d" % self._mts],
                                                 cwd=self._dirBinary,
                                                 env=env,
                                                 stdout=open("/dev/null") if not self._stdout else None,
