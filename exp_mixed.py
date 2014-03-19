@@ -112,15 +112,15 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
 def runBenchmark_varying_mts(groupId, s1, **kwargs):
     output = ""
 
-    kwargs["olapQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
-    kwargs["olapUser"] = 1
+    kwargs["oltpQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
+    kwargs["oltpUser"] = 1
     kwargs["tolapQueries"] = ("xselling",)
     # TODO why was that 0?
     kwargs["tolapUser"] = 1
     # TODO is this in seconds?
     kwargs["tolapThinkTime"] = 1
-    kwargs["oltpQueries"] = ("q10", "q11", "q12")
-    kwargs["oltpUser"] = 32
+    kwargs["olapQueries"] = ("q10", "q11", "q12")
+    kwargs["olapUser"] = 32
 
     mts_list = [30, 50, 200, 300]
     for mts in mts_list:
@@ -212,7 +212,7 @@ kwargs = {
     "warmuptime"        : 20,
     "runtime"           : 120,
     "prepareQueries"    : ("preload",),
-    "showStdout"        : True,
+    "showStdout"        : False,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
     "regenerate"        : args["regenerate"],
