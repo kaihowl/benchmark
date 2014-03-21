@@ -7,6 +7,8 @@ import subprocess
 import sys
 import multiprocessing
 import time
+import random
+import datetime
 
 from benchmark import Benchmark
 from user import User
@@ -45,7 +47,7 @@ class MixedWLUser(User):
 
     def prepareUser(self):
         self.userStartTime = time.time()
-        self.initDistinctValues()
+        self.initQueryFormatDict()
 
     def runUser(self):
         """ main user activity """
@@ -151,17 +153,31 @@ class MixedWLUser(User):
         query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
 
                                                                                                                                                        
-    def initDistinctValues(self):
+    def initQueryFormatDict(self):
 
-        self.distincts = {}
+        distincts = {}
         print "... beginning prepare ..."
         for q in PREPARE_QUERIES_USER:
             with open(PREPARE_QUERIES_USER[q], "r") as f:
                 query = f.read() % {"db": self._db}
-            data = self.fireQuery(query)
-            print data.json()                                                                                                                                                                          
-            if "rows" in data[0]:
-                self.distincts[q] = data[0]["rows"]
+            data = self.fireQuery(query).json()
+            if "rows" in data:
+                distincts[q] = data["rows"]
+
+        self.queryFormatDict = {
+          'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
+          'rand_date': random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d"), # random date within today-360 days
+          'rand_kunnr_vbak': random.choice(distincts['distinct-kunnr-vbak'])[0],
+          'max_erdat_minus_30_days': (datetime.datetime.strptime(str(distincts['max-erdat-vbap'][0][0]), '%Y%m%d') - datetime.timedelta(days=30)).strftime("%Y%m%d"),
+          'rand_matnr_vbap': random.choice(distincts['distinct-matnr-vbap'])[0],
+          'max_erdat_minus_180_days': (datetime.datetime.strptime(str(distincts['max-erdat-vbap'][0][0]), "%Y%m%d") - datetime.timedelta(days=180)).strftime("%Y%m%d"),
+          'rand_kunnr_kna1': random.choice(distincts['distinct-kunnr-kna1'])[0],
+          'rand_addrnumber_adrc': random.choice(distincts['distinct-addrnumber-adrc'])[0],
+          'rand_matnr_makt': random.choice(distincts['distinct-matnr-makt'])[0],
+          'rand_matnr_mara': random.choice(distincts['distinct-matnr-mara'])[0],
+          'rand_netwr': random.normalvariate(100,5),
+          'rand_kwmeng': random.normalvariate(100,5)
+        }
 
         print "... finished prepare ..."
 

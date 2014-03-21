@@ -1,9 +1,12 @@
 PREPARE_QUERIES_USER = {
-    #"distinct_kunnr_adrc" : "queries/mixed/distinct_kunnr_adrc.json",                                                                                                                                              
-    #"distinct_kunnr_kna1" : "queries/mixed/distinct_kunnr_kna1.json",                                                                                                                                              
-    #"distinct_matnr_mara" : "queries/mixed/vbap_mara_group.json",                                                                                                                                                  
-    #"distinct_vbeln_vbak" : "queries/mixed/distinct_vbeln_vbak.json",                                                                                                                                              
-    #"indices": "queries/mixed/create_indices.json" ,                                                                                                                                                 
+    "distinct-addrnumber-adrc": "queries/vldb-mixed/distinct-addrnumber-adrc.json",
+    "distinct-kunnr-kna1": "queries/vldb-mixed/distinct-kunnr-kna1.json",
+    "distinct-kunnr-vbak": "queries/vldb-mixed/distinct-kunnr-vbak.json",
+    "distinct-matnr-makt": "queries/vldb-mixed/distinct-matnr-makt.json",
+    "distinct-matnr-mara": "queries/vldb-mixed/distinct-matnr-mara.json",
+    "distinct-matnr-vbap": "queries/vldb-mixed/distinct-matnr-vbap.json",
+    "max-erdat-vbap": "queries/vldb-mixed/max-erdat-vbap.json"
+    #"indices": "queries/mixed/create_indices.json" ,
 }
 
 PREPARE_QUERIES_SERVER = {
