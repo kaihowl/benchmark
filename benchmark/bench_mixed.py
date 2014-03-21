@@ -47,7 +47,7 @@ class MixedWLUser(User):
 
     def prepareUser(self):
         self.userStartTime = time.time()
-        self.initQueryFormatDict()
+        self.initDistinctValues()
 
     def runUser(self):
         """ main user activity """
@@ -79,17 +79,16 @@ class MixedWLUser(User):
         else:
             queryid = predefined
 
-      #  vbeln = random.choice(self.distincts["distinct_vbeln_vbak"])[0]                                                                                                                                    
-      #  matnr = random.choice(self.distincts["distinct_matnr_mara"])[0]                                                                                                                                    
-      #  addrnumber = random.choice(self.distincts["distinct_kunnr_adrc"])[0]                                                                                                                               
-      #  kunnr = random.choice(self.distincts["distinct_kunnr_kna1"])[0]                                                                                                                                    
-
-        query = self._oltpQC[queryid] % {'papi': self._papi,
-          #  "vbeln": vbeln,                                                                                                                                                                                
-          #  "matnr": matnr,                                                                                                                                                                                
-          # "addrnumber": addrnumber,                                                                                                                                                                      
-          #  "kunnr": kunnr,                                                                                                                                                                                
-            "core": str(self._core), "db": self._db, "sessionId": str(self._userId), "priority": str(self._prio), "microsecs": str(self._microsecs)}
+        initFormatDict = {
+            "papi": self._papi,
+            "core": str(self._core),
+            "db": self._db,
+            "sessionId": str(self._userId),
+            "priority": str(self._prio),
+            "microsecs": str(self._microsecs)}
+        randFormatDict = self.getQueryFormatDict()
+        
+        query = self._oltpQC[queryid] % dict(initFormatDict.items() + randFormatDict.items())
 
         result = self.fireQuery(query).json()
         #  self._queries[queryid] += 1
@@ -103,13 +102,16 @@ class MixedWLUser(User):
         else:
             queryid = predefined
 
-        # Find random matnr                                                                                                                                                                                 
-        # matnr = random.choice(self.distincts["distinct_matnr_mara"])                                                                                                                                       
+        initFormatDict = {
+            'papi': self._papi,
+            "db": self._db,
+            "instances": self._instances,
+            "sessionId": str(self._userId),
+            "priority": str(self._prio),
+            "microsecs": str(self._microsecs)}
+        randFormatDict = self.getQueryFormatDict()
+        query = self._olapQC[queryid] % dict(initFormatDict.items() + randFormatDict.items())
 
-        # Now run the query                                                                                                                                                                                 
-#        query = self._olapQC[queryid] % {'papi': self._papi, 'matnr': matnr[0], "db": self._db, "core": self._core, "instances": self._instances}                                                          
-        query = self._olapQC[queryid] % {'papi': self._papi, "db": self._db, "instances": self._instances, "sessionId": str(self._userId), "priority": str(self._prio), "microsecs": str(self._microsecs)}
-#        print query 
         result = self.fireQuery(query).json()
         
         return result
@@ -153,33 +155,37 @@ class MixedWLUser(User):
         query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
 
                                                                                                                                                        
-    def initQueryFormatDict(self):
+    def initDistinctValues(self):
 
-        distincts = {}
+        self.distincts = {}
         print "... beginning prepare ..."
         for q in PREPARE_QUERIES_USER:
             with open(PREPARE_QUERIES_USER[q], "r") as f:
                 query = f.read() % {"db": self._db}
             data = self.fireQuery(query).json()
             if "rows" in data:
-                distincts[q] = data["rows"]
+                self.distincts[q] = data["rows"]
+        print "... finished prepare ..."
 
-        self.queryFormatDict = {
+    def getQueryFormatDict(self):
+        return {
           'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
           'rand_date': random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d"), # random date within today-360 days
-          'rand_kunnr_vbak': random.choice(distincts['distinct-kunnr-vbak'])[0],
-          'max_erdat_minus_30_days': (datetime.datetime.strptime(str(distincts['max-erdat-vbap'][0][0]), '%Y%m%d') - datetime.timedelta(days=30)).strftime("%Y%m%d"),
-          'rand_matnr_vbap': random.choice(distincts['distinct-matnr-vbap'])[0],
-          'max_erdat_minus_180_days': (datetime.datetime.strptime(str(distincts['max-erdat-vbap'][0][0]), "%Y%m%d") - datetime.timedelta(days=180)).strftime("%Y%m%d"),
-          'rand_kunnr_kna1': random.choice(distincts['distinct-kunnr-kna1'])[0],
-          'rand_addrnumber_adrc': random.choice(distincts['distinct-addrnumber-adrc'])[0],
-          'rand_matnr_makt': random.choice(distincts['distinct-matnr-makt'])[0],
-          'rand_matnr_mara': random.choice(distincts['distinct-matnr-mara'])[0],
+          'rand_kunnr_vbak': random.choice(self.distincts['distinct-kunnr-vbak'])[0],
+          'max_erdat_vbap_minus_10_days': (datetime.datetime.strptime(str(self.distincts['max-erdat-vbap'][0][0]), '%Y%m%d') - datetime.timedelta(days=10)).strftime("%Y%m%d"),
+          'max_erdat_vbak_minus_30_days': (datetime.datetime.strptime(str(self.distincts['max-erdat-vbak'][0][0]), '%Y%m%d') - datetime.timedelta(days=30)).strftime("%Y%m%d"),
+          'rand_matnr_vbap': random.choice(self.distincts['distinct-matnr-vbap'])[0],
+          'rand_matnr_vbap_2': random.choice(self.distincts['distinct-matnr-vbap'])[0],
+          'max_erdat_vbap_minus_180_days': (datetime.datetime.strptime(str(self.distincts['max-erdat-vbap'][0][0]), "%Y%m%d") - datetime.timedelta(days=180)).strftime("%Y%m%d"),
+          'rand_kunnr_kna1': random.choice(self.distincts['distinct-kunnr-kna1'])[0],
+          'rand_addrnumber_adrc': random.choice(self.distincts['distinct-addrnumber-adrc'])[0],
+          'rand_matnr_makt': random.choice(self.distincts['distinct-matnr-makt'])[0],
+          'rand_matnr_mara': random.choice(self.distincts['distinct-matnr-mara'])[0],
+          'rand_vbeln_vbap': random.choice(self.distincts['distinct-vbeln-vbap'])[0],
+          'rand_vbeln_vbak': random.choice(self.distincts['distinct-vbeln-vbak'])[0],
           'rand_netwr': random.normalvariate(100,5),
           'rand_kwmeng': random.normalvariate(100,5)
         }
-
-        print "... finished prepare ..."
 
     @staticmethod
     def weighted_choice(choices_and_weights):

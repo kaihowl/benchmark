@@ -11,8 +11,8 @@
       "f1" : 2,//MATNR
       "f2" : 5,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 10mill",
-      "v_f1" : "M12",
-      "v_f2": 20030627,
+      "v_f1" : "%(rand_matnr_vbap)s",
+      "v_f2": %(max_erdat_vbap_minus_30_days)s,
       "dynamic": true
     },
     "hash_netwr" : {

@@ -10,7 +10,7 @@
       "expression": "hyrise::Store_FLV_F1_EQ_STRING",
       "f1": 2,
       "COMMENT": "value is in the dictionary for 10mill",
-      "v_f1": "DPC1010",
+      "v_f1": "%(rand_matnr_vbap)s",
       "dynamic": true
     },
     "3" : {
@@ -18,7 +18,7 @@
       "expression": "hyrise::Store_FLV_F1_EQ_STRING",
       "f1": 2,
       "COMMENT": "value is in the dictionary for 10mill",
-      "v_f1": "DPC1011",
+      "v_f1": "%(rand_matnr_vbap_2)s",
       "dynamic": true
     },
     "4": {

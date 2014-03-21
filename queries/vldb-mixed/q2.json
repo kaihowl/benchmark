@@ -8,7 +8,7 @@
     "filter_kunnr": {
       "type": "SimpleTableScan",
       "predicates" : [
-      { "type": "EQ", "in": 0, "f": "KUNNR", "value": "0000000150", "vtype": 2}
+      { "type": "EQ", "in": 0, "f": "KUNNR", "value": "%(rand_kunnr_kna1)s", "vtype": 2}
       ]
     }
   },

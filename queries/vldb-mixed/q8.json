@@ -8,7 +8,7 @@
     "filter_vbeln": {
       "type": "SimpleTableScan",
       "predicates" : [
-      { "type": "EQ", "in": 0, "f": "VBELN", "value": "0050000024", "vtype": 2}
+      { "type": "EQ", "in": 0, "f": "VBELN", "value": "%(rand_vbeln_vbap)s", "vtype": 2}
       ]
     }
   },

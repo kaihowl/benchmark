@@ -1,0 +1,20 @@
+{
+  "operators": {
+    "load" : {
+      "type" : "GetTable",
+      "name": "vbak"
+    },
+    "distinct": {
+      "type": "Distinct",
+      "fields": ["VBELN"]
+    },
+    "project": {
+      "type" : "ProjectionScan",
+      "fields" : ["VBELN"]
+    }
+  },
+  "edges": [
+    ["load", "distinct"],
+  ["distinct", "project"]
+    ]
+}

@@ -8,7 +8,7 @@
     "insert": {
       "type": "InsertScan",
       "data" : [
-        [800, 5000034, 19950409, 0000002200] 
+        [800, "%(rand_vbeln)s", %(rand_date)s, %(rand_kunnr_vbak)s] 
         ]
     },
     "commit": {
