@@ -12,7 +12,7 @@
       "f2" : 5,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 10mill",
       "v_f1" : "%(rand_matnr_vbap)s",
-      "v_f2": %(max_erdat_vbap_minus_30_days)s,
+      "v_f2": %(max_erdat_vbap_minus_10_days)s,
       "dynamic": true
     },
     "hash_netwr" : {
