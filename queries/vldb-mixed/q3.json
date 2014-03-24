@@ -1,0 +1,18 @@
+{
+  "priority": 1,
+  "operators": {
+    "load_adrc" : {
+      "type" : "GetTable",
+      "name": "adrc"
+    },
+    "filter_kunnr": {
+      "type": "SimpleTableScan",
+      "predicates" : [
+      { "type": "EQ", "in": 0, "f": "ADDRNUMBER", "value": "%(rand_addrnumber_adrc)s", "vtype": 2}
+      ]
+    }
+  },
+  "edges": [
+    ["load_adrc", "filter_kunnr"]
+    ]
+}

@@ -1,0 +1,37 @@
+{
+  "priority": 3,
+  "operators": {
+    "load_vbap" : {
+      "type" : "GetTable",
+      "name": "vbap"
+    },
+    "filter_aedat": {
+      "type": "TableScan",
+      "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
+      "f1" : 2,//MATNR
+      "f2" : 5,//ERDAT
+      "COMMENT": "from and to values are in the dictionary for 10mill",
+      "v_f1" : "%(rand_matnr_vbap)s",
+      "v_f2": %(max_erdat_vbap_minus_30_days)s,
+      "dynamic": true
+    },
+    "hash_netwr" : {
+      "type": "HashBuild",
+      "fields": ["ERDAT"], 
+      "key": "groupby"
+    },
+    "groupby" : {
+      "type" : "GroupByScan",
+      "fields": ["ERDAT"],
+      "functions": [
+      {"type": "SUM", "field": "KWMENG"}
+      ]
+    }
+  },
+  "edges": [
+    ["load_vbap", "filter_aedat"], 
+  ["filter_aedat", "hash_netwr"],
+  ["filter_aedat", "groupby"],
+  ["hash_netwr", "groupby"]
+    ]
+}

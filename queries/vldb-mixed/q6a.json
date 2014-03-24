@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "operators": {
+    "load_vbak" : {
+      "type" : "GetTable",
+      "name": "vbak"
+    },
+    "insert": {
+      "type": "InsertScan",
+      "data" : [
+        [800, "%(rand_vbeln)s", %(rand_date)s, %(rand_kunnr_vbak)s] 
+        ]
+    },
+    "commit": {
+      "type": "Commit"
+    },
+    "noop": {
+      "type": "NoOp"
+    }
+  },
+  "edges": [
+    ["load_vbak", "insert"],
+  ["insert", "commit"],
+  ["commit", "noop"]
+    ]
+}

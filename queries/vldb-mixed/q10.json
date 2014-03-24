@@ -1,0 +1,54 @@
+{
+  "priority": 3,
+  "operators": {
+    "load_vbak" : {
+      "type" : "GetTable",
+      "name": "vbak"
+    },
+    "load_vbap" : {
+      "type" : "GetTable",
+      "name": "vbap"
+    },
+    "filter_aedat": {
+      "type": "TableScan",
+      "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
+      "f1" : 3,//KUNNR
+      "f2" : 2,//ERDAT
+      "COMMENT": "from and to values are in the dictionary for 10mill",
+      "v_f1" : "%(rand_kunnr_vbak)s",
+      "v_f2": %(max_erdat_vbak_minus_30_days)s,
+      "dynamic": true
+    },
+    "join_header_item": {
+      "type": "RadixJoin",
+      "comment": "First edge is probe, second edge is hash",
+      "bits1": 12,
+      "bits2": 5,
+      "fields": [1, 1],
+      "dynamic": true
+    },
+    "hash_netwr" : {
+      "type": "HashBuild",
+      "fields": ["KUNNR"], 
+      "key": "groupby"
+    },
+    "groupby" : {
+      "type" : "GroupByScan",
+      "fields": ["KUNNR"],
+      "functions": [
+        //Be sure to choose the second NETWR of the joined label (currently only possible by referncing via position)
+      {"type": "SUM", "field": "NETWR"}
+      ]
+    }
+
+  },
+  "edges": [
+    ["load_vbak", "filter_aedat"], 
+  ["load_vbap", "join_header_item"],
+  ["filter_aedat", "join_header_item"],
+  ["join_header_item", "hash_netwr"],
+  ["join_header_item", "groupby"],
+  ["hash_netwr", "groupby"]
+    ]
+}
+
