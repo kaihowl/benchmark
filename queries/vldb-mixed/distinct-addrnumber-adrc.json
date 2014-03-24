@@ -1,0 +1,20 @@
+{
+  "operators": {
+    "load" : {
+      "type" : "GetTable",
+      "name": "adrc"
+    },
+    "distinct": {
+      "type": "Distinct",
+      "fields": ["ADDRNUMBER"]
+    },
+    "project": {
+      "type" : "ProjectionScan",
+      "fields" : ["ADDRNUMBER"]
+    }
+  },
+  "edges": [
+    ["load", "distinct"],
+  ["distinct", "project"]
+    ]
+}

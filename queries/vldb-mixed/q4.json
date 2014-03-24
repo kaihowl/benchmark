@@ -1,0 +1,23 @@
+{
+  "priority": 1,
+  "operators": {
+    "load_makt" : {
+      "type" : "GetTable",
+      "name": "makt"
+    },
+    "filter_maktx": {
+      "type": "SimpleTableScan",
+      "predicates" : [
+      { "type": "EQ_V", "in": 0, "f": "MATNR", "value": "%(rand_matnr_makt)s", "vtype": 2}
+      ]
+    },
+    "projection": {
+      "type": "ProjectionScan",
+      "fields": ["MATNR", "MAKTX"]
+    }
+  },
+  "edges": [
+    ["load_makt", "filter_maktx"],
+  ["filter_maktx", "projection"]
+    ]
+}
