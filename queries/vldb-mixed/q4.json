@@ -6,11 +6,12 @@
       "name": "makt"
     },
     "filter_maktx": {
-      "type": "SimpleTableScan",
-      "predicates" : [
-      { "type": "EQ_V", "in": 0, "f": "MATNR", "value": "%(rand_matnr_makt)s", "vtype": 2}
-      ]
-    },
+      "type": "IndexScan",
+      "vtype": 2,
+      "value": "%(rand_matnr_makt)s",
+      "index": "makt_matnr_idx",
+      "fields": ["MATNR"]
+    }
     "projection": {
       "type": "ProjectionScan",
       "fields": ["MATNR", "MAKTX"]

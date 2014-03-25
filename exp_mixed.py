@@ -211,7 +211,6 @@ kwargs = {
     "port"              : args["port"],
     "warmuptime"        : 20,
     "runtime"           : 120,
-    "prepareQueries"    : ("preload",),
     "showStdout"        : False,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],

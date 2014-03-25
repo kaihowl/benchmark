@@ -1,0 +1,18 @@
+{
+  "operators": {
+    "0": {
+      "type": "GetTable",
+      "name": "makt"
+    },
+    "1": {
+      "type": "CreateIndex",
+      "fields": ["MATNR"],
+      "index_name": "makt_matnr_idx"
+    },
+    "2": {
+      "type" : "NoOp"
+    }
+  },
+  "edges": [["0", "1"], ["1", "2"]]
+}
+
