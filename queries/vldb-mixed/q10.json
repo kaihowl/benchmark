@@ -16,7 +16,7 @@
       "f2" : 2,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 10mill",
       "v_f1" : "%(rand_kunnr_vbak)s",
-      "v_f2": %(max_erdat_vbak_minus_30_days)s,
+      "v_f2": 20001108,
       "dynamic": true
     },
     "join_header_item": {
