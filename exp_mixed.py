@@ -225,6 +225,7 @@ kwargs = {
     "scheduler"         : "DynamicPriorityScheduler",
     "serverThreads"     : 31,
     "remote"            : False,
+    "manual"            : False,
     "host"              : "127.0.0.1"
 }
 
