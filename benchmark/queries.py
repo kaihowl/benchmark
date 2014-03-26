@@ -39,7 +39,11 @@ OLAP_QUERY_FILES = {
     "q10":        "queries/vldb-mixed/q10.json",
     "q11":        "queries/vldb-mixed/q11.json",
     "q12":        "queries/vldb-mixed/q12.json",
-    "xselling":   "queries/vldb-mixed/xselling.json"
+    "xselling":   "queries/vldb-mixed/xselling.json",
+    "q10i":        "queries/mixed/q10.json",
+    "q11i":        "queries/mixed/q11.json",
+    "q12i":        "queries/mixed/q12.json",
+    "xsellingi":   "queries/mixed/xselling.json"
 }
 
 

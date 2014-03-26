@@ -111,7 +111,6 @@ class MixedWLUser(User):
             "microsecs": str(self._microsecs)}
         randFormatDict = self.getQueryFormatDict()
         query = self._olapQC[queryid] % dict(initFormatDict.items() + randFormatDict.items())
-
         result = self.fireQuery(query).json()
         
         return result

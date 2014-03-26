@@ -26,15 +26,15 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
     
-    kwargs["olapQueries"] = ("q10","q11","q12")
+    kwargs["olapQueries"] = ("q10i","q11i","q12i")
     kwargs["tolapUser"] = 1
     kwargs["tolapThinkTime"] = 1
-    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["tolapQueries"] = ("xsellingi",)
     kwargs["oltpUser"] = 1
-    kwargs["oltpQueries"] = ("q7idx_vbak","q8idx_vbap")
+    kwargs["oltpQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
 
     instances = [1, 12]
-    users = [1, 12]
+    users = [1, 12, 24]
     for i in instances:
         for j in users:
            print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
@@ -112,15 +112,15 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
 def runBenchmark_varying_mts(groupId, s1, **kwargs):
     output = ""
 
-    kwargs["oltpQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
-    kwargs["oltpUser"] = 1
+    kwargs["oltpQueries"] = ("q6a", "q6b")#, "q7", "q8", "q9")
+    kwargs["oltpUser"] = 0
     kwargs["tolapQueries"] = ("xselling",)
     # TODO why was that 0?
-    kwargs["tolapUser"] = 1
+    kwargs["tolapUser"] = 0
     # TODO is this in seconds?
     kwargs["tolapThinkTime"] = 1
-    kwargs["olapQueries"] = ("q10", "q11", "q12")
-    kwargs["olapUser"] = 32
+    kwargs["olapQueries"] = ("q10","q6a", "q6b")# "q11", "q12")
+    kwargs["olapUser"] = 1
 
     mts_list = [30, 50, 200, 300]
     for mts in mts_list:
@@ -207,10 +207,32 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 #}
 
 #gaza local
+#kwargs = {
+#    "port"              : args["port"],
+#    "warmuptime"        : 20,
+#    "runtime"           : 120,
+#    "prepareQueries"    : ("preload",),
+#    "showStdout"        : False,
+#    "showStderr"        : args["stderr"],
+#    "rebuild"           : args["rebuild"],
+#    "regenerate"        : args["regenerate"],
+#    "noLoad"            : args["no_load"],
+#    "serverThreads"     : args["threads"],
+#    "collectPerfData"   : args["perfdata"],
+#    "useJson"           : args["json"],
+#    "dirBinary"         : "/home/Kai.Hoewelmeyer/hyrise/build/",
+#    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
+#    "scheduler"         : "DynamicPriorityScheduler",
+#    "serverThreads"     : 31,
+#    "remote"            : False,
+#    "host"              : "127.0.0.1"
+#}
+
+##begram local
 kwargs = {
     "port"              : args["port"],
-    "warmuptime"        : 20,
-    "runtime"           : 120,
+    "warmuptime"        : 1,
+    "runtime"           : 30,
     "prepareQueries"    : ("preload",),
     "showStdout"        : False,
     "showStderr"        : args["stderr"],
@@ -220,36 +242,14 @@ kwargs = {
     "serverThreads"     : args["threads"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
-    "dirBinary"         : "/home/Kai.Hoewelmeyer/hyrise/build/",
-    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
+    "manual"            : True,
+    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+    "hyriseDBPath"      : "/home/Johannes.Wust/vldb-tables/scaler/output",
     "scheduler"         : "DynamicPriorityScheduler",
-    "serverThreads"     : 31,
+    "serverThreads"     : 12,
     "remote"            : False,
     "host"              : "127.0.0.1"
 }
-
-##begram local
-#kwargs = {
-#    "port"              : args["port"],
-#    "warmuptime"        : 1,
-#    "runtime"           : 10,
-#    "prepareQueries"    : ("preload_cbtr_small", "create_vbak_index","create_vbap_index"),
-#    "showStdout"        : False,
-#    "showStderr"        : args["stderr"],
-#    "rebuild"           : args["rebuild"],
-#    "regenerate"        : args["regenerate"],
-#    "noLoad"            : args["no_load"],
-#    "serverThreads"     : args["threads"],
-#    "collectPerfData"   : args["perfdata"],
-#    "useJson"           : args["json"],
-#    "manual"            : False,
-#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-#    "hyriseDBPath"      : "/home/Johannes.Wust/hyrise/test/",
-#    "scheduler"         : "CoreBoundQueuesScheduler",
-#    "serverThreads"     : 12,
-#    "remote"            : False,
-#    "host"              : "127.0.0.1"
-#}
 
 
 output = ""
@@ -260,7 +260,7 @@ output += "\n"
 output += "Varying MTS 31 OLTP users on 31 threads\n"
 output += "\n"
 
-#schedulers = [
+schedulers = [
 #         #"WSThreadLevelQueuesScheduler",
 #         #"ThreadLevelQueuesScheduler",
 #         #"CoreBoundQueuesScheduler",
@@ -270,7 +270,7 @@ output += "\n"
 #         #"CoreBoundPriorityQueuesScheduler",
 #         #"WSCoreBoundPriorityQueuesScheduler",
 #         "CentralScheduler"
-#         #"CentralPriorityScheduler",
+    "CentralPriorityScheduler",
 #         #"ThreadPerTaskScheduler",
 #         ###"DynamicPriorityScheduler",
 #         ###"DynamicScheduler",
@@ -278,10 +278,10 @@ output += "\n"
 #         #"WSNodeBoundQueuesScheduler",
 #         #"NodeBoundPriorityQueuesScheduler",
 #         #"WSNodeBoundPriorityQueuesScheduler"
-#         ]
+]
 
 #for scheduler in schedulers:
-#    print "OLTP benchmark with " + scheduler 
+#   print "OLTP benchmark with " + scheduler 
 #    kwargs["scheduler"] = scheduler
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
