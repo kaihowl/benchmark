@@ -21,7 +21,14 @@ PREPARE_QUERIES_SERVER = {
 #    "preload_vbap" : "queries/mixed/preload_vbap.json",
 #    "preload_cbtr_small" : "queries/mixed/preload_cbtr_small.json",
 #    "preload_cbtr" : "queries/mixed/preload_cbtr.json",
-    "preload" : "queries/vldb-mixed/preload.json"
+    "preload" : "queries/vldb-mixed/preload.json",
+    "index-addrnumber-adrc": "queries/vldb-mixed/index-addrnumber-adrc.json",
+    "index-kunnr-kna1": "queries/vldb-mixed/index-kunnr-kna1.json",
+    "index-matnr-makt": "queries/vldb-mixed/index-matnr-makt.json",
+    "index-matnr-mara": "queries/vldb-mixed/index-matnr-mara.json",
+    "index-vbeln-vbak": "queries/vldb-mixed/index-vbeln-vbak.json",
+    "index-vbeln-vbap": "queries/vldb-mixed/index-vbeln-vbap.json"
+
 #    "create_vbak_index" : "queries/mixed/create_vbak_index.json",
 #    "create_vbap_index" : "queries/mixed/create_vbap_index.json"                             
     }
