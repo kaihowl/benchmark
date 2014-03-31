@@ -1,4 +1,4 @@
-PREPARE_QUERIES_USER = {
+PREPARE_DISTINCTS_SERVER = {
     "distinct-addrnumber-adrc": "queries/vldb-mixed/distinct-addrnumber-adrc.json",
     "distinct-kunnr-kna1": "queries/vldb-mixed/distinct-kunnr-kna1.json",
     "distinct-kunnr-vbak": "queries/vldb-mixed/distinct-kunnr-vbak.json",
@@ -11,6 +11,8 @@ PREPARE_QUERIES_USER = {
     "max-erdat-vbak": "queries/vldb-mixed/max-erdat-vbak.json"
     #"indices": "queries/mixed/create_indices.json" ,
 }
+
+PREPARE_QUERIES_USER = {}
 
 PREPARE_QUERIES_SERVER = {
     #"distinct_kunnr_adrc" : "queries/mixed/distinct_kunnr_adrc.json",                                                                                                                                              
