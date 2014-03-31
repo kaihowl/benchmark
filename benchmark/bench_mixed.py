@@ -256,14 +256,20 @@ class MixedWLBenchmark(Benchmark):
 
     def initDistinctValues(self):
         self._distincts = {}
-        print "... beginning preparation of placeholder distinct values ..."
+        status_string = "beginning preparation of placeholder distinct values ..."
+        sys.stdout.write(status_string+"\r")
+        sys.stdout.flush()
+        num_prep = 0
         for q in PREPARE_DISTINCTS_SERVER:
+            sys.stdout.write(status_string + " %i%%\r" % (num_prep / float(len(PREPARE_DISTINCTS_SERVER)) * 100))
+            sys.stdout.flush()
             with open(PREPARE_DISTINCTS_SERVER[q], "r") as f:
                 query = f.read()
             data = self.fireQuery(query).json()
             if "rows" in data:
                 self._distincts[q] = data["rows"]
-        print "... finished prepare for placeholders ..."
+            num_prep += 1
+        print "finished prepare for placeholders ..."
 
     def loadQueryDict(self):
         queryDict = {}
