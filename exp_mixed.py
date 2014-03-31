@@ -142,6 +142,7 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
     output += plotter.printGroupFormatted(groupMapping)
+    output += plotter.printQueryOpStatistics()
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
