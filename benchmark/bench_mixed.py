@@ -26,6 +26,9 @@ class MixedWLUser(User):
 
 #        self.scaleParameters = kwargs["scaleParameters"]
         self._benchmarkQueries = kwargs["queries"] if kwargs.has_key("queries") else queries.QUERIES_ALL
+
+        # allow to group results by user type instead of query name
+        self._logGroupName = kwargs["logGroupName"] if kwargs.has_key("logGroupName") else None
             
        # print self._benchmarkQueries
 
@@ -67,9 +70,13 @@ class MixedWLUser(User):
         #result = self.fireQuery(querystr, paramlist, sessionContext=self.context, autocommit=commit, stored_procedure=stored_procedure).json()
         self.addPerfData(result.get("performanceData", None))
         tEnd = time.time()
+        if self._logGroupName is not None:
+          logName = self._logGroupName
+        else:
+          logName = element
         if not self._stopevent.is_set():
             #print "user " + str(self._userId) + " logged!"
-            self.log("transactions", [element, tEnd-tStart, tStart-self.userStartTime, self.perf])
+            self.log("transactions", [logName, tEnd-tStart, tStart-self.userStartTime, self.perf])
         else: 
             print "too late to log"
 
@@ -234,14 +241,17 @@ class MixedWLBenchmark(Benchmark):
             self._userArgs["thinkTime"] = self._olapThinkTime 
             self._userArgs["queries"] = self._olapQueries
             self._userArgs["instances"] = self._olapInstances
+            self._userArgs["logGroupName"] = "OLAP"
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
         for i in range(self._olapUser, self._olapUser + self._tolapUser):
             self._userArgs["thinkTime"] = self._tolapThinkTime 
             self._userArgs["queries"] = self._tolapQueries 
+            self._userArgs["logGroupName"] = "TOLAP"
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
         for i in range(self._olapUser + self._tolapUser, self._olapUser + self._tolapUser + self._oltpUser):
             self._userArgs["thinkTime"] = self._oltpThinkTime 
             self._userArgs["queries"] = self._oltpQueries 
+            self._userArgs["logGroupName"] = "OLTP"
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
 
         if (self._olapUser + self._oltpUser + self._tolapUser) == 0:
