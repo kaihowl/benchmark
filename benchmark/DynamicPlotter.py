@@ -52,10 +52,10 @@ class DynamicPlotter:
     # of all operations in a query
     def printQueryOpStatistics(self):
       logStr = ""
-      runStats = {}
       for runId, runData in self._runs.iteritems():
         opStats = runData[runData.keys()[0]]["opStats"]
-        for opStatName, statDict in opStats.iteritems():
+        for opStatName in sorted(opStats.keys()):
+          statDict = opStats[opStatName]
           logStr += "%s\t%s\t%s\t%s\n" % (runId, opStatName, statDict["count"], statDict["avgMedSrt"])
 
       return logStr
