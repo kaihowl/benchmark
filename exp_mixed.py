@@ -6,6 +6,7 @@ import time
 
 from benchmark.bench_mixed import MixedWLBenchmark
 from benchmark.mixedWLPlotter import MixedWLPlotter
+from benchmark.DynamicPlotter import DynamicPlotter
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
@@ -131,10 +132,16 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
         b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
         b1.run()
         time.sleep(5)
-    plotter = MixedWLPlotter(groupId)
+    groupMapping = {}
+    for query in kwargs["oltpQueries"]:
+     groupMapping[query] = "OLTP" 
+    for query in kwargs["olapQueries"]:
+      groupMapping[query] = "OLAP"
+    for query in kwargs["tolapQueries"]:
+      groupMapping[query] = "TOLAP"
+    plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
-    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
-   # output += plotter.printOpStatistics ()
+    output += plotter.printGroupFormatted(groupMapping)
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
