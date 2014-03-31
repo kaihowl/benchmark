@@ -26,8 +26,16 @@ class MixedWLUser(User):
 
 #        self.scaleParameters = kwargs["scaleParameters"]
         self._benchmarkQueries = kwargs["queries"] if kwargs.has_key("queries") else queries.QUERIES_ALL
+
+        # allow to group results by user type instead of query name
+        self._logGroupName = kwargs["logGroupName"] if kwargs.has_key("logGroupName") else None
             
        # print self._benchmarkQueries
+
+        if kwargs.has_key("distincts"):
+          self._distincts = kwargs["distincts"]
+        else:
+          raise RuntimeError("No distinct values for query placeholders supplied.")
 
         self._core = kwargs["core"] if kwargs.has_key("core") else 1
         self._prio = kwargs["prio"] if kwargs.has_key("prio") else 2
@@ -47,7 +55,6 @@ class MixedWLUser(User):
 
     def prepareUser(self):
         self.userStartTime = time.time()
-        self.initDistinctValues()
 
     def runUser(self):
         """ main user activity """
@@ -67,9 +74,13 @@ class MixedWLUser(User):
         #result = self.fireQuery(querystr, paramlist, sessionContext=self.context, autocommit=commit, stored_procedure=stored_procedure).json()
         self.addPerfData(result.get("performanceData", None))
         tEnd = time.time()
+        if self._logGroupName is not None:
+          logName = self._logGroupName
+        else:
+          logName = element
         if not self._stopevent.is_set():
             #print "user " + str(self._userId) + " logged!"
-            self.log("transactions", [element, tEnd-tStart, tStart-self.userStartTime, self.perf])
+            self.log("transactions", [logName, tEnd-tStart, tStart-self.userStartTime, self.perf])
         else: 
             print "too late to log"
 
@@ -153,35 +164,23 @@ class MixedWLUser(User):
         # Build the ordered list of all queryids                                                                                                                                                            
         query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
 
-                                                                                                                                                       
-    def initDistinctValues(self):
-
-        self.distincts = {}
-        print "... beginning prepare ..."
-        for q in PREPARE_QUERIES_USER:
-            with open(PREPARE_QUERIES_USER[q], "r") as f:
-                query = f.read() % {"db": self._db}
-            data = self.fireQuery(query).json()
-            if "rows" in data:
-                self.distincts[q] = data["rows"]
-        print "... finished prepare ..."
 
     def getQueryFormatDict(self):
         return {
           'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
           'rand_date': random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d"), # random date within today-360 days
-          'rand_kunnr_vbak': random.choice(self.distincts['distinct-kunnr-vbak'])[0],
-          'max_erdat_vbap_minus_10_days': (datetime.datetime.strptime(str(self.distincts['max-erdat-vbap'][0][0]), '%Y%m%d') - datetime.timedelta(days=10)).strftime("%Y%m%d"),
-          'max_erdat_vbak_minus_30_days': (datetime.datetime.strptime(str(self.distincts['max-erdat-vbak'][0][0]), '%Y%m%d') - datetime.timedelta(days=30)).strftime("%Y%m%d"),
-          'rand_matnr_vbap': random.choice(self.distincts['distinct-matnr-vbap'])[0],
-          'rand_matnr_vbap_2': random.choice(self.distincts['distinct-matnr-vbap'])[0],
-          'max_erdat_vbap_minus_180_days': (datetime.datetime.strptime(str(self.distincts['max-erdat-vbap'][0][0]), "%Y%m%d") - datetime.timedelta(days=180)).strftime("%Y%m%d"),
-          'rand_kunnr_kna1': random.choice(self.distincts['distinct-kunnr-kna1'])[0],
-          'rand_addrnumber_adrc': random.choice(self.distincts['distinct-addrnumber-adrc'])[0],
-          'rand_matnr_makt': random.choice(self.distincts['distinct-matnr-makt'])[0],
-          'rand_matnr_mara': random.choice(self.distincts['distinct-matnr-mara'])[0],
-          'rand_vbeln_vbap': random.choice(self.distincts['distinct-vbeln-vbap'])[0],
-          'rand_vbeln_vbak': random.choice(self.distincts['distinct-vbeln-vbak'])[0],
+          'rand_kunnr_vbak': random.choice(self._distincts['distinct-kunnr-vbak'])[0],
+          'max_erdat_vbap_minus_10_days': (datetime.datetime.strptime(str(self._distincts['max-erdat-vbap'][0][0]), '%Y%m%d') - datetime.timedelta(days=10)).strftime("%Y%m%d"),
+          'max_erdat_vbak_minus_30_days': (datetime.datetime.strptime(str(self._distincts['max-erdat-vbak'][0][0]), '%Y%m%d') - datetime.timedelta(days=30)).strftime("%Y%m%d"),
+          'rand_matnr_vbap': random.choice(self._distincts['distinct-matnr-vbap'])[0],
+          'rand_matnr_vbap_2': random.choice(self._distincts['distinct-matnr-vbap'])[0],
+          'max_erdat_vbap_minus_180_days': (datetime.datetime.strptime(str(self._distincts['max-erdat-vbap'][0][0]), "%Y%m%d") - datetime.timedelta(days=180)).strftime("%Y%m%d"),
+          'rand_kunnr_kna1': random.choice(self._distincts['distinct-kunnr-kna1'])[0],
+          'rand_addrnumber_adrc': random.choice(self._distincts['distinct-addrnumber-adrc'])[0],
+          'rand_matnr_makt': random.choice(self._distincts['distinct-matnr-makt'])[0],
+          'rand_matnr_mara': random.choice(self._distincts['distinct-matnr-mara'])[0],
+          'rand_vbeln_vbap': random.choice(self._distincts['distinct-vbeln-vbap'])[0],
+          'rand_vbeln_vbak': random.choice(self._distincts['distinct-vbeln-vbak'])[0],
           'rand_netwr': random.normalvariate(100,5),
           'rand_kwmeng': random.normalvariate(100,5)
         }
@@ -229,23 +228,41 @@ class MixedWLBenchmark(Benchmark):
         self._queryDict = self.loadQueryDict()
 
     def _createUsers(self):
+
+        self.initDistinctValues()
+        self._userArgs["distincts"] = self._distincts
+
         for i in range(self._olapUser):
             self._userArgs["thinkTime"] = self._olapThinkTime 
             self._userArgs["queries"] = self._olapQueries
             self._userArgs["instances"] = self._olapInstances
+            self._userArgs["logGroupName"] = "OLAP"
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
         for i in range(self._olapUser, self._olapUser + self._tolapUser):
             self._userArgs["thinkTime"] = self._tolapThinkTime 
             self._userArgs["queries"] = self._tolapQueries 
+            self._userArgs["logGroupName"] = "TOLAP"
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
         for i in range(self._olapUser + self._tolapUser, self._olapUser + self._tolapUser + self._oltpUser):
             self._userArgs["thinkTime"] = self._oltpThinkTime 
             self._userArgs["queries"] = self._oltpQueries 
+            self._userArgs["logGroupName"] = "OLTP"
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
 
         if (self._olapUser + self._oltpUser + self._tolapUser) == 0:
             for i in range(self._numUsers):
                 self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+
+    def initDistinctValues(self):
+        self._distincts = {}
+        print "... beginning preparation of placeholder distinct values ..."
+        for q in PREPARE_DISTINCTS_SERVER:
+            with open(PREPARE_DISTINCTS_SERVER[q], "r") as f:
+                query = f.read()
+            data = self.fireQuery(query).json()
+            if "rows" in data:
+                self._distincts[q] = data["rows"]
+        print "... finished prepare for placeholders ..."
 
     def loadQueryDict(self):
         queryDict = {}

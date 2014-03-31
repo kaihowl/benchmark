@@ -133,7 +133,7 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
         time.sleep(5)
     plotter = MixedWLPlotter(groupId)
     output += groupId + "\n"
-    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
+    output += plotter.printFormattedStatistics(("OLAP", "OLTP", "TOLAP"))
    # output += plotter.printOpStatistics ()
     return output
 
