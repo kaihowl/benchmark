@@ -123,7 +123,7 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     kwargs["olapQueries"] = ("q10", "q11", "q12")
     kwargs["olapUser"] = 32
 
-    mts_list = [30, 250, 500, 1000]
+    mts_list = [30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
     for mts in mts_list:
         print "starting benchmark with mts=" + str(mts)
         runId = str(mts)        
