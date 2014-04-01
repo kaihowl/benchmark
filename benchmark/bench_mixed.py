@@ -164,11 +164,8 @@ class MixedWLUser(User):
           'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
           'rand_date': random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d"), # random date within today-360 days
           'rand_kunnr_vbak': random.choice(self._distincts['distinct-kunnr-vbak'])[0],
-          'max_erdat_vbap_minus_10_days': (datetime.datetime.strptime(str(self._distincts['max-erdat-vbap'][0][0]), '%Y%m%d') - datetime.timedelta(days=10)).strftime("%Y%m%d"),
-          'max_erdat_vbak_minus_30_days': (datetime.datetime.strptime(str(self._distincts['max-erdat-vbak'][0][0]), '%Y%m%d') - datetime.timedelta(days=30)).strftime("%Y%m%d"),
           'rand_matnr_vbap': random.choice(self._distincts['distinct-matnr-vbap'])[0],
           'rand_matnr_vbap_2': random.choice(self._distincts['distinct-matnr-vbap'])[0],
-          'max_erdat_vbap_minus_180_days': (datetime.datetime.strptime(str(self._distincts['max-erdat-vbap'][0][0]), "%Y%m%d") - datetime.timedelta(days=180)).strftime("%Y%m%d"),
           'rand_kunnr_kna1': random.choice(self._distincts['distinct-kunnr-kna1'])[0],
           'rand_addrnumber_adrc': random.choice(self._distincts['distinct-addrnumber-adrc'])[0],
           'rand_matnr_makt': random.choice(self._distincts['distinct-matnr-makt'])[0],

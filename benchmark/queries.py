@@ -6,9 +6,7 @@ PREPARE_DISTINCTS_SERVER = {
     "distinct-matnr-mara": "queries/vldb-mixed/distinct-matnr-mara.json",
     "distinct-matnr-vbap": "queries/vldb-mixed/distinct-matnr-vbap.json",
     "distinct-vbeln-vbap": "queries/vldb-mixed/distinct-vbeln-vbap.json",
-    "distinct-vbeln-vbak": "queries/vldb-mixed/distinct-vbeln-vbak.json",
-    "max-erdat-vbap": "queries/vldb-mixed/max-erdat-vbap.json",
-    "max-erdat-vbak": "queries/vldb-mixed/max-erdat-vbak.json"
+    "distinct-vbeln-vbak": "queries/vldb-mixed/distinct-vbeln-vbak.json"
     #"indices": "queries/mixed/create_indices.json" ,
 }
 
