@@ -125,7 +125,7 @@ class DynamicPlotter:
                                               queryEndTime = float(op["endTime"])
                                             # uniquely identify all instances of an operator
                                             # in a query
-                                            opGroupName = op["name"] + op["id"][:op["id"].find("_")]
+                                            opGroupName = op["name"] + op["id"][:op["id"].rfind("_")]
                                             curOpStats.setdefault(opGroupName, list())
                                             opTime = float(op["endTime"]) - float(op["startTime"])
                                             curOpStats[opGroupName].append(opTime)
