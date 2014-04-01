@@ -53,12 +53,12 @@ class DynamicPlotter:
     # filterBySubStrings is a list of strings used as an output filter
     # only lines matching at least one substring in that list will show
     def printQueryOpStatistics(self, filterBySubStrings=list()):
-      logStr = ""
+      logStr = "runId\topStatName\tminPar\tavgPar\tmaxPar\tavgMedSRT\n"
       for runId, runData in self._runs.iteritems():
         opStats = runData[runData.keys()[0]]["opStats"]
         for opStatName in sorted(opStats.keys()):
           statDict = opStats[opStatName]
-          curLineStr = "%s\t%s\t%s\t%s\n" % (runId, opStatName, statDict["count"], statDict["avgMedSrt"])
+          curLineStr = "%s\t%s\t%s\t%s\t%s\t%s\n" % (runId, opStatName, statDict["minCount"], statDict["avgCount"], statDict["maxCount"], statDict["avgMedSrt"])
           if (len(filterBySubStrings)==0 or reduce(lambda x, el: x or el in curLineStr, filterBySubStrings, False)):
             logStr += curLineStr
 
@@ -149,12 +149,12 @@ class DynamicPlotter:
                           countList = [x["count"] for x in tmpRuns]
                           avgCount = average(countList)
                           minCount = amin(countList)
-                          if not avgCount == minCount:
-                            print "Expected min to equal average parallelism count within a group"
-                            sys.exit(1)
+                          maxCount = amax(countList)
 
                           opStats[opStatName] = {
-                              "count": avgCount,
+                              "avgCount": avgCount,
+                              "minCount": minCount,
+                              "maxCount": maxCount,
                               "avgMedSrt": average([x["medianDur"] for x in tmpRuns])
                           }
 
