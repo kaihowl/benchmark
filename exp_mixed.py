@@ -123,7 +123,7 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     kwargs["olapQueries"] = ("q10", "q11", "q12")
     kwargs["olapUser"] = 32
 
-    mts_list = [30, 50, 200, 300]
+    mts_list = [30, 250, 500, 1000]
     for mts in mts_list:
         print "starting benchmark with mts=" + str(mts)
         runId = str(mts)        
@@ -142,6 +142,7 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
     output += plotter.printGroupFormatted(groupMapping)
+    output += "\n"
     output += plotter.printQueryOpStatistics()
     return output
 

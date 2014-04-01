@@ -259,7 +259,7 @@ class MixedWLBenchmark(Benchmark):
             if "rows" in data:
                 self._distincts[q] = data["rows"]
             num_prep += 1
-        print "finished prepare for placeholders ..."
+        print "finished prepare for placeholders ...                                            "
 
     def loadQueryDict(self):
         queryDict = {}
