@@ -18,7 +18,7 @@ class DynamicPlotter:
     # group they fall into as the value. This will then print statistics for the groups instead of 
     # individual queries.
     def printGroupFormatted(self, queryToGroupMapping):
-      logStr = ""
+      logStr = "runId\tgroupName\tthroughput\tavgSRT\n"
       runStats = {}
       for runId, runData in self._runs.iteritems():
         # key: group name
