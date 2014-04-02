@@ -3,6 +3,14 @@ import os
 import sys
 from pylab import *
 
+# tries to convert a number to int. 
+# returns the successful conversion result or original string
+def _try_int(s):
+    try: 
+        return int(s)
+    except ValueError:
+        return s
+
 class DynamicPlotter:
 
     def __init__(self, benchmarkGroupId):
@@ -40,7 +48,8 @@ class DynamicPlotter:
 
         runStats[runId] = finalStats
 
-      for runId, stats in runStats.iteritems():
+      for intRunId, runId in sorted([(_try_int(x), x) for x in runStats.keys()]):
+        stats = runStats[runId]
         for groupName, statDict in stats.iteritems():
           logStr += "%s\t%s\t%s\t%s\n" % (runId, groupName, statDict["throughput"], statDict["avgservertime"])
 
@@ -54,7 +63,8 @@ class DynamicPlotter:
     # only lines matching at least one substring in that list will show
     def printQueryOpStatistics(self, filterBySubStrings=list()):
       logStr = "runId\topStatName\tminPar\tavgPar\tmaxPar\tavgMedSRT\n"
-      for runId, runData in self._runs.iteritems():
+      for intRunId, runId in sorted([(_try_int(x), x) for x in self._runs.keys()]):
+        runData = self._runs[runId]
         opStats = runData[runData.keys()[0]]["opStats"]
         for opStatName in sorted(opStats.keys()):
           statDict = opStats[opStatName]
