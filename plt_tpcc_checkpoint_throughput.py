@@ -11,5 +11,11 @@ if __name__ == "__main__":
 
   plotter = benchmark.Plotter(groupId, use_ab = True)
 
-  plotter.plotTotalThroughput(xtitle="Checkpointing Frequency [s]", x_parameter="checkpoint_interval", xtitle_converter = lambda x: x/1000)
+  xtitle = "Checkpointing Frequency [s]"
+  xtitle_converter = lambda x: x/1000
+  x_parameter = "checkpoint_interval"
+  
+  plotter.plotTotalThroughput(xtitle=xtitle, x_parameter=x_parameter, xtitle_converter = xtitle_converter)
+  plotter.plotOverTime()
+  plotter.plotTotalFails(xtitle=xtitle, x_parameter=x_parameter, xtitle_converter = xtitle_converter)
   

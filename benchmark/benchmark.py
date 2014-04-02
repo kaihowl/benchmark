@@ -73,19 +73,38 @@ class Benchmark:
         self._checkpoint_interval = str(kwargs["checkpointInterval"]) if kwargs.has_key("checkpointInterval") else None
         self._commit_window     = str(kwargs["commitWindow"]) if kwargs.has_key("commitWindow") else None
         self._csv                = kwargs["csv"] if kwargs.has_key("csv") else False
+        self._coreoffset        = kwargs["coreoffset"] if kwargs.has_key("coreoffset") else None
+        self._vtune             = os.path.expanduser(kwargs["vtune"]) if kwargs.has_key("vtune") and kwargs["vtune"] is not None else None
 
+        if self._vtune is not None:
+            self._manual = True        
         if self._remote:
             self._ssh               = paramiko.SSHClient()
         else:
             self._ssh           = None
         self._exiting           = False
 
-
         self._session.headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
         if not os.path.isdir(self._dirResults):
             os.makedirs(self._dirResults)
 
     def benchPrepare(self):
+        """ implement this in subclasses """
+        pass
+
+    def loadTables(self):
+        """ implement this in subclasses """
+        pass
+
+    def benchAfterLoad(self):
+        """ implement this in subclasses """
+        pass
+
+    def benchBeforeStop(self):
+        """ implement this in subclasses """
+        pass
+
+    def benchAfter(self):
         """ implement this in subclasses """
         pass
 
@@ -136,64 +155,74 @@ class Benchmark:
         print "Preparing benchmark..."
         self.benchPrepare()
         self.loadTables()
+        self.benchAfterLoad()
 
-        if self._abQueryFile != None:
-            print "---"
-            print "Using ab with queryfile=" + self._abQueryFile + ", concurrency=" + str(self._numUsers) + ", time=" + str(self._runtime) +"s"
-            print "Output File: ", self._dirResults + "/ab.log"
-            print "---"
-            ab = subprocess.Popen(["./ab/ab","-g", self._dirResults + "/ab.log", "-l", str(self._abCore), "-v", str(self._verbose), "-k", "-t", str(self._runtime), "-n", "10000000", "-c", str(self._numUsers), "-m", self._abQueryFile, self._host+":"+str(self._port)+"/procedure/"])
-            ab.wait()
-        else:
-            self._createUsers()
-            sys.stdout.write("Starting %s user(s)...\r" % self._numUsers)
-            sys.stdout.flush()
-            for i in range(self._numUsers):
-                sys.stdout.write("Starting %s user(s)... %i%%      \r" % (self._numUsers, (i+1.0) / self._numUsers * 100))
-                sys.stdout.flush()
-                self._users[i].start()
-            print "Starting %s user(s)... done     " % self._numUsers
+        print self._vtune
+        if self._vtune is not None:
+            subprocess.check_output("amplxe-cl -command resume", cwd=self._vtune, shell=True)
 
-            for i in range(self._warmuptime):
-                sys.stdout.write("Warming up... %i   \r" % (self._warmuptime - i))
+        if self._runtime > 0:
+            if self._abQueryFile != None:
+                print "---"
+                print "Using ab with queryfile=" + self._abQueryFile + ", concurrency=" + str(self._numUsers) + ", time=" + str(self._runtime) +"s"
+                print "Output File: ", self._dirResults + "/ab.log"
+                print "---"
+                ab = subprocess.Popen(["./ab/ab","-g", self._dirResults + "/ab.log", "-l", str(self._abCore), "-v", str(self._verbose), "-k", "-t", str(self._runtime), "-n", "99999999", "-c", str(self._numUsers), "-m", self._abQueryFile, self._host+":"+str(self._port)+"/procedure/"])
+                ab.wait()
+            else:
+                self._createUsers()
+                sys.stdout.write("Starting %s user(s)...\r" % self._numUsers)
                 sys.stdout.flush()
-                if self.allUsersFinished():
-                    break
-                time.sleep(1)
-            print "Warming up... done     "
+                for i in range(self._numUsers):
+                    sys.stdout.write("Starting %s user(s)... %i%%      \r" % (self._numUsers, (i+1.0) / self._numUsers * 100))
+                    sys.stdout.flush()
+                    self._users[i].start()
+                print "Starting %s user(s)... done     " % self._numUsers
 
-            sys.stdout.write("Logging results for %i seconds... \r" % self._runtime)
-            sys.stdout.flush()
-            for i in range(self._numUsers):
-                self._users[i].startLogging()
-            for i in range(self._runtime):
-                sys.stdout.write("Logging results for %i seconds... \r" % (self._runtime - i))
-                sys.stdout.flush()
-                if self.allUsersFinished():
-                    break
-                time.sleep(1)
-            #time.sleep(self._runtime)
-            for i in range(self._numUsers):
-                self._users[i].stopLogging()
-            print "Logging results for %i seconds... done" % self._runtime
+                for i in range(self._warmuptime):
+                    sys.stdout.write("Warming up... %i   \r" % (self._warmuptime - i))
+                    sys.stdout.flush()
+                    if self.allUsersFinished():
+                        break
+                    time.sleep(1)
+                print "Warming up... done     "
 
-            sys.stdout.write("Stopping %s user(s)...\r" % self._numUsers)
-            sys.stdout.flush()
-            for i in range(self._numUsers):
-                self._users[i].stop()
-            print "users stopped"
-            time.sleep(2)
-            for i in range(self._numUsers):
-                sys.stdout.write("Stopping %s user(s)... %i%%      \r" % (self._numUsers, (i+1.0) / self._numUsers * 100))
+                sys.stdout.write("Logging results for %i seconds... \r" % self._runtime)
                 sys.stdout.flush()
-                self._users[i].join()
-        
-        print "Stopping %s user(s)... done     " % self._numUsers
+                for i in range(self._numUsers):
+                    self._users[i].startLogging()
+                for i in range(self._runtime):
+                    sys.stdout.write("Logging results for %i seconds... \r" % (self._runtime - i))
+                    sys.stdout.flush()
+                    if self.allUsersFinished():
+                        break
+                    time.sleep(1)
+                #time.sleep(self._runtime)
+                for i in range(self._numUsers):
+                    self._users[i].stopLogging()
+                print "Logging results for %i seconds... done" % self._runtime
+
+                sys.stdout.write("Stopping %s user(s)...\r" % self._numUsers)
+                sys.stdout.flush()
+                for i in range(self._numUsers):
+                    self._users[i].stop()
+                print "users stopped"
+                time.sleep(2)
+                for i in range(self._numUsers):
+                    sys.stdout.write("Stopping %s user(s)... %i%%      \r" % (self._numUsers, (i+1.0) / self._numUsers * 100))
+                    sys.stdout.flush()
+                    self._users[i].join()
+                print "Stopping %s user(s)... done     " % self._numUsers
+        if self._vtune is not None:
+            subprocess.check_output("amplxe-cl -command stop", cwd=self._vtune, shell=True)
+        self.benchBeforeStop()
         self._stopServer()
         print "all set"
 
         #if self._remote:
         #    os.chdir(self._olddir)
+
+        self.benchAfter()
 
 
     def addQuery(self, queryId, queryStr):
@@ -253,11 +282,11 @@ class Benchmark:
             self._build.makeAll()
         print "done"
 
-    def _startServer(self):
+    def _startServer(self, paramString=""):
         if not self._remote:
             sys.stdout.write("Starting server for build '%s'... " % self._buildSettings.getName())
             sys.stdout.flush()
-            
+
             env = {
                 "HYRISE_DB_PATH"    : self._dirHyriseDB,
                 "LD_LIBRARY_PATH"   : self._dirBinary+":/usr/local/lib64/",
@@ -277,8 +306,6 @@ class Benchmark:
             threadstring = ""
             if (self._serverThreads > 0):
                 threadstring = "--threads=%s" % self._serverThreads
-<<<<<<< HEAD
-
             checkpoint_str = ""
             if (self._checkpoint_interval != None):
                 checkpoint_str = "--checkpointInterval=%s" % self._checkpoint_interval
@@ -287,15 +314,17 @@ class Benchmark:
             if (self._commit_window != None):
                 commit_window_str = "--commitWindow=%s" % self._commit_window
 
-            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, checkpoint_str, threadstring, commit_window_str],
-=======
-            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, threadstring, "--maxTaskSize=%d" % self._mts],
->>>>>>> origin/feature/adjusted_benchmark
+            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, checkpoint_str, threadstring, commit_window_str,"--maxTaskSize=%d" % self._mts],
+            coreoffset_str = ""
+            if (self._coreoffset != None):
+                coreoffset_str = "--coreOffset=%s" % self._coreoffset
+            
+            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, coreoffset_str, checkpoint_str, threadstring, commit_window_str],
                                                 cwd=self._dirBinary,
                                                 env=env,
                                                 stdout=open("/dev/null") if not self._stdout else None,
                                                 stderr=open("/dev/null") if not self._stderr else None)
-        else: 
+        else:
             self._startRemoteServer()
 
         time.sleep(1)
@@ -318,12 +347,12 @@ class Benchmark:
             server = os.path.join(self._dirBinary, "hyrise-server_%s" % self._buildSettings["BLD"])
 
         logdef = os.path.join(self._dirBinary, "log.properties")
-        
+
         threadstring = ""
-        
+
         if (self._serverThreads > 0):
             threadstring = "--threads=%s" % self._serverThreads
-          
+
         # note: there is an issue with large outputs of the server command;
         # the remote command hangs, probably when the channel buffer is full
         # either write to /dev/null on server machine of a file on server side
@@ -359,7 +388,7 @@ class Benchmark:
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **self._userArgs))
 
     def _stopServer(self):
-        if not self._remote: 
+        if not self._remote:
             if not self._manual and self._serverProc:
                 sys.stdout.write("Stopping server... ")
                 sys.stdout.flush()
@@ -371,8 +400,8 @@ class Benchmark:
                     self._serverProc.kill()
                 time.sleep(0.5)
                 if self._serverProc.poll() is None:
-                    subprocess.call("killall hyrise-server_release")
-                time.sleep(3)
+                    subprocess.call(["killall", "hyrise-server_release"])
+                time.sleep(0.5)
         else:
             print "kill server, close connection"
             self._ssh.exec_command("killall hyrise-server_release");

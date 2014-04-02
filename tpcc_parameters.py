@@ -16,6 +16,11 @@ def clear_dir(path):
         for d in dirs:
             shutil.rmtree(os.path.join(root, d))
 
+def clear_file(filename):
+    if os.path.isfile(filename):
+        os.remove(filename)
+        print "Deleted file:", filename
+
 def reset_persistency_directory():
     if not args["manual"]:
         if "hyriseDBPath" in kwargs:
@@ -25,12 +30,12 @@ def reset_nvram_directory():
     if not args["manual"]:
         pmfs_data = os.path.expandvars("/mnt/pmfs/$USER/hyrisedata/")
         clear_dir(pmfs_data)
-        hyrise_tpcc = "/mnt/pmfs/hyrise_tpcc"
-        txmgr = "/mnt/pmfs/txmgr.bin"
-        if os.path.isfile(hyrise_tpcc):
-            os.remove(hyrise_tpcc)
-        if os.path.isfile(txmgr):
-            os.remove(txmgr)
+        hyrise_tpcc = os.path.expandvars("/mnt/pmfs/$USER/hyrise_tpcc")
+        txmgr = os.path.expandvars("/mnt/pmfs/$USER/txmgr.bin")
+        hyrise = os.path.expandvars("/mnt/pmfs/$USER/hyrise")
+        clear_file(hyrise)
+        clear_file(hyrise_tpcc)
+        clear_file(txmgr)
         
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
 aparser.add_argument('--scalefactor', default=1, type=float, metavar='SF',
@@ -93,6 +98,10 @@ aparser.add_argument('--onlyNeworders', default=False, action='store_true',
                      help='Only do new-order transactions. Otherwise full mix of tpcc transactions is executed/generated.')
 aparser.add_argument('--csv', default=False, action='store_true',
                      help='Load data from csv files and do not user binary import.')
+aparser.add_argument('--vtune', default=None, type=str,
+                     help='Automatically resume running vTune session once load is complete and stop when benchmark is done (implies --manual) - give vTune project folder (e.g. ~/intel/amplxe/projects/hyrise/) - assumes vTune environment is set (i.e., amplxe-cl exists)')
+aparser.add_argument('--coreoffset', default=None, type=str,
+                     help='Core Offset for Hyrise Worker threads.')
 
 args = vars(aparser.parse_args())
 
@@ -150,5 +159,7 @@ kwargs = {
     "verbose"           : args["verbose"],
     "tabledir"          : args["tabledir"],
     "onlyNeworders"     : args["onlyNeworders"],
-    "csv"               : args["csv"]
+    "csv"               : args["csv"],
+    "vtune"             : args["vtune"],
+    "coreoffset"        : args["coreoffset"]
 }
