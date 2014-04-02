@@ -12,9 +12,15 @@
           "value": "0070000069",
           "index": "vbap_order_ix",
           "fields": ["VBELN"]
+        },
+        "mat": {
+	            "type": "MaterializingScan",
+            "memcpy": true
+
         }
     },
     "edges": [
-    ["load_vbak", "filter_kunnr"]
+    ["load_vbak", "filter_kunnr"],
+    ["filter_kunnr", "mat"]
     ]
 }

@@ -1,16 +1,18 @@
 {
-  "priority": 1,
-  "operators": {
-    "load_vbak" : {
-      "type" : "GetTable",
-      "name": "vbak"
+    "papi": "%(papi)s",
+    "limit": 30,
+    "operators": {
+        "load_vbak" : {
+            "type" : "MySQLTableLoad",
+            "database": "%(db)s",
+            "table": "VBAK"
+            },
+        "sort_vbeln": {
+            "type": "SortScan",
+            "fields": ["AEDAT"]
+        }
     },
-    "sort_vbeln": {
-      "type": "GetLastRecords",
-      "records" : 30
-    }
-  },
-  "edges": [
-    ["load_vbak", "sort_vbeln"]
+    "edges": [
+        ["load_vbak", "filter_kunnr"]
     ]
 }
