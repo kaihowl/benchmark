@@ -44,7 +44,11 @@ OLAP_QUERY_FILES = {
     "ccsched1"               : "queries/other/ccsched_test.json",
     "ccsched2"               : "queries/other/ccsched_test2.json",
     "ccsched3"               : "queries/other/ccsched_test3.json",
-    "ccneutral"               : "queries/other/ccneutral.json"
+    "ccneutral"               : "queries/other/ccneutral.json",
+    "q10i":        "queries/mixed/q10.json",
+    "q11i":        "queries/mixed/q11.json",
+    "q12i":        "queries/mixed/q12.json",
+    "xsellingi":   "queries/mixed/xselling.json"
     }
 
 
@@ -55,8 +59,6 @@ OLTP_QUERY_FILES ={
       "q8":  "queries/vldb-mixed/q8.json",
       "q9":  "queries/vldb-mixed/q9.json"
 }
-
-
 
 
 # relative weights for queries in format (id, weight)                                                                                                                                                         

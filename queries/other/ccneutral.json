@@ -1,0 +1,25 @@
+{
+    "priority": 3,
+  "operators": {
+        "load0": {
+            "type": "TableLoad",
+            "table": "companies2",
+            "filename": "cctable0.tbl"
+        },
+        "load1": {
+            "type": "TableLoad",
+            "table": "employees2",
+            "filename": "cctable1.tbl"
+        },
+        "scan0" : {
+            "type": "CCTableScan"
+        },
+        "scan1" : {
+            "type": "CCTableScan"
+        },
+  "Nop":{
+    "type": "NoOp"
+  }
+    },
+    "edges": [["load0", "scan0"], ["load1", "scan1"], ["scan0", "Nop"], ["scan1", "Nop"]]
+}

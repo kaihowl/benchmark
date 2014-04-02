@@ -17,10 +17,10 @@
       "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
       "f1" : 3,//KUNNR
       "f2" : 2,//ERDAT
-      "COMMENT": "from and to values are in the dictionary for 30 million / last 30 days",
-      "v_f1" : "%(rand_kunnr_vbak)s",
+      "COMMENT": "from and to values are in the dictionary for 10mill",
+      "v_f1" : "0000002140",
       "v_f2": 20031130,
-      "dynamic": true
+      "instances": 10
     },
     "join_header_item": {
       "type": "RadixJoin",
@@ -28,7 +28,9 @@
       "bits1": 12,
       "bits2": 5,
       "fields": [1, 1],
-      "dynamic": true
+      "hash_par": 10,
+      "probe_par": 10,
+      "join_par": 10
     },
     "hash_netwr" : {
       "type": "HashBuild",
@@ -48,11 +50,10 @@
   "edges": [
     ["load_vbak", "filter_aedat"], 
     ["load_vbap", "validate_vbap"],
-    ["validate_vbap", "join_header_item"],
-    ["filter_aedat", "join_header_item"],
-    ["join_header_item", "hash_netwr"],
-    ["join_header_item", "groupby"],
-    ["hash_netwr", "groupby"]
-  ]
+  ["validate_vbap", "join_header_item"],
+  ["filter_aedat", "join_header_item"],
+  ["join_header_item", "hash_netwr"],
+  ["join_header_item", "groupby"],
+  ["hash_netwr", "groupby"]
+    ]
 }
-

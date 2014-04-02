@@ -1,0 +1,20 @@
+{
+  "operators": {
+    "load" : {
+      "type" : "GetTable",
+      "name": "kna1"
+    },
+    "distinct": {
+      "type": "Distinct",
+      "fields": ["KUNNR"]
+    },
+    "project": {
+      "type" : "ProjectionScan",
+      "fields" : ["KUNNR"]
+    }
+  },
+  "edges": [
+    ["load", "distinct"],
+  ["distinct", "project"]
+    ]
+}

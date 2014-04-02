@@ -314,12 +314,11 @@ class Benchmark:
             if (self._commit_window != None):
                 commit_window_str = "--commitWindow=%s" % self._commit_window
 
-            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, checkpoint_str, threadstring, commit_window_str,"--maxTaskSize=%d" % self._mts],
             coreoffset_str = ""
             if (self._coreoffset != None):
                 coreoffset_str = "--coreOffset=%s" % self._coreoffset
             
-            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, coreoffset_str, checkpoint_str, threadstring, commit_window_str],
+            self._serverProc = subprocess.Popen([server, "--port=%s" % self._port, "--logdef=%s" % logdef, "--scheduler=%s" % self._scheduler, coreoffset_str, checkpoint_str, threadstring, commit_window_str,"--maxTaskSize=%d" % self._mts],
                                                 cwd=self._dirBinary,
                                                 env=env,
                                                 stdout=open("/dev/null") if not self._stdout else None,

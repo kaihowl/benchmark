@@ -1,4 +1,4 @@
-{
+query={
   "priority": 2,
   "operators": {
     "0" : {
@@ -10,25 +10,21 @@
       "expression": "hyrise::Store_FLV_F1_EQ_STRING",
       "f1": 2,
       "COMMENT": "value is in the dictionary for 10mill",
-      "v_f1": "%(rand_matnr_vbap)s",
-      "instances": %(instances)s
+      "v_f1": "SP JR CONSULTANT"
     },
     "3" : {
       "type" : "TableScan",
       "expression": "hyrise::Store_FLV_F1_EQ_STRING",
       "f1": 2,
       "COMMENT": "value is in the dictionary for 10mill",
-      "v_f1": "%(rand_matnr_vbap_2)s",
-      "instances": %(instances)s
+      "v_f1": "SP SUBCONSULTANTS"
     },
     "4": {
       "type": "RadixJoin",
       "bits1": 10,
       "bits2": 5,
-      "fields": [1,1], 
-      "hash_par": %(instances)s,
-      "probe_par": %(instances)s,
-      "join_par": %(instances)s
+      "fields": [1,1], // Left and right
+      "dynamic": true
     },
     "5": {
       "type": "NoOp"

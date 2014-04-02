@@ -1,0 +1,140 @@
+{
+    "operators" : {
+
+  //   "load_ADRC" : {
+  //         "type" : "MySQLTableLoad",
+  //         "database": "cbtr",
+  //         "table": "ADRC"
+  //         },
+  //   "getf_ADRC" : {
+  //      "type" : "GetTable",
+  //      "name" : "ADRC"
+  //   },
+  //   "df_ADRC" : {
+  //        "type" : "DumpTable",
+  //        "name" : "ADRC_CBTR"
+  //   },
+
+
+
+
+  //  "load_KNA1" : {
+  //         "type" : "MySQLTableLoad",
+  //         "database": "cbtr",
+  //         "table": "KNA1"
+  //         },
+  //   "getf_KNA1" : {
+  //      "type" : "GetTable",
+  //      "name" : "KNA1"
+  //   },
+  //   "df_KNA1" : {
+  //        "type" : "DumpTable",
+  //        "name" : "KNA1_CBTR"
+  //   },
+
+
+
+
+  //  "load_MAKT" : {
+  //         "type" : "MySQLTableLoad",
+  //         "database": "cbtr",
+  //         "table": "MAKT"
+  //         },
+  //   "getf_MAKT" : {
+  //      "type" : "GetTable",
+  //      "name" : "MAKT"
+  //   },
+  //   "df_MAKT" : {
+  //        "type" : "DumpTable",
+  //        "name" : "MAKT_CBTR"
+  //   },
+
+
+
+
+
+
+  //  "load_MARA" : {
+  //         "type" : "MySQLTableLoad",
+  //         "database": "cbtr",
+  //         "table": "MARA"
+  //         },
+  //   "getf_MARA" : {
+  //      "type" : "GetTable",
+  //      "name" : "MARA"
+  //   },
+  //   "df_MARA" : {
+  //        "type" : "DumpTable",
+  //        "name" : "MARA_CBTR"
+  //   },
+
+
+
+
+    "load_VBAP" : {
+           "type" : "MySQLTableLoad",
+           "database": "cbtr",
+           "table": "VBAP"
+           },
+     "getf_VBAP" : {
+        "type" : "GetTable",
+        "name" : "VBAP"
+     },
+     "df_VBAP" : {
+          "type" : "DumpTable",
+          "name" : "VBAP_CBTR"
+     },
+
+
+    // "load_VBAK" : {
+    //        "type" : "MySQLTableLoad",
+    //        "database": "cbtr",
+    //        "table": "VBAK"
+    //        },
+    //  "getf_VBAK" : {
+    //     "type" : "GetTable",
+    //     "name" : "VBAK"
+    //  },
+    //  "df_VBAK" : {
+    //       "type" : "DumpTable",
+    //       "name" : "VBAK_CBTR"
+    //  },
+
+
+
+
+
+
+
+      "nop" : {
+           "type" : "NoOp"
+      }
+
+    },
+    "edges": [
+    //   ["load_ADRC", "getf_ADRC"],
+    //   ["getf_ADRC", "df_ADRC"],
+    //   ["df_ADRC", "nop"],
+//
+    //   ["load_KNA1", "getf_KNA1"],
+    //   ["getf_KNA1", "df_KNA1"],
+    //   ["df_KNA1", "nop"],
+//
+    //   ["load_MAKT", "getf_MAKT"],
+    //   ["getf_MAKT", "df_MAKT"],
+    //   ["df_MAKT", "nop"],
+//
+    //   ["load_MARA", "getf_MARA"],
+    //   ["getf_MARA", "df_MARA"],
+    //   ["df_MARA", "nop"],
+
+       ["load_VBAP", "getf_VBAP"],
+       ["getf_VBAP", "df_VBAP"],
+       ["df_VBAP", "nop"]
+
+    //   ["load_VBAK", "getf_VBAK"],
+    //   ["getf_VBAK", "df_VBAK"],
+    //   ["df_VBAK", "nop"]
+
+    ]
+}
