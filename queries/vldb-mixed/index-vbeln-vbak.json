@@ -1,0 +1,18 @@
+{
+  "operators": {
+    "0": {
+      "type": "GetTable",
+      "name": "vbak"
+    },
+    "1": {
+      "type": "CreateIndex",
+      "fields": ["VBELN"],
+      "index_name": "vbak_vbeln_idx"
+    },
+    "2": {
+      "type" : "NoOp"
+    }
+  },
+  "edges": [["0", "1"], ["1", "2"]]
+}
+

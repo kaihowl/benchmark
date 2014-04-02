@@ -6,6 +6,7 @@ import time
 
 from benchmark.bench_mixed import MixedWLBenchmark
 from benchmark.mixedWLPlotter import MixedWLPlotter
+from benchmark.DynamicPlotter import DynamicPlotter
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
@@ -122,7 +123,7 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     kwargs["olapQueries"] = ("q10", "q11", "q12")
     kwargs["olapUser"] = 32
 
-    mts_list = [30, 50, 200, 300]
+    mts_list = [30, 250, 500, 1000]
     for mts in mts_list:
         print "starting benchmark with mts=" + str(mts)
         runId = str(mts)        
@@ -131,10 +132,18 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
         b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
         b1.run()
         time.sleep(5)
-    plotter = MixedWLPlotter(groupId)
+    groupMapping = {}
+    for query in kwargs["oltpQueries"]:
+     groupMapping[query] = "OLTP" 
+    for query in kwargs["olapQueries"]:
+      groupMapping[query] = "OLAP"
+    for query in kwargs["tolapQueries"]:
+      groupMapping[query] = "TOLAP"
+    plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
-    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
-   # output += plotter.printOpStatistics ()
+    output += plotter.printGroupFormatted(groupMapping)
+    output += "\n"
+    output += plotter.printQueryOpStatistics(("NestedLoopEquiJoin", "TableScan"))
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
@@ -211,7 +220,6 @@ kwargs = {
     "port"              : args["port"],
     "warmuptime"        : 20,
     "runtime"           : 120,
-    "prepareQueries"    : ("preload",),
     "showStdout"        : False,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
@@ -225,6 +233,7 @@ kwargs = {
     "scheduler"         : "DynamicPriorityScheduler",
     "serverThreads"     : 31,
     "remote"            : False,
+    "manual"            : False,
     "host"              : "127.0.0.1"
 }
 

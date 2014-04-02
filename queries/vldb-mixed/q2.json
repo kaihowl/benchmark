@@ -6,10 +6,11 @@
       "name": "kna1"
     },
     "filter_kunnr": {
-      "type": "SimpleTableScan",
-      "predicates" : [
-      { "type": "EQ", "in": 0, "f": "KUNNR", "value": "%(rand_kunnr_kna1)s", "vtype": 2}
-      ]
+      "type": "IndexScan",
+      "vtype": 2,
+      "value": "%(rand_kunnr_kna1)s",
+      "index": "kna1_kunnr_idx",
+      "fields": ["KUNNR"]
     }
   },
   "edges": [

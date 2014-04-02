@@ -10,9 +10,9 @@
       "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
       "f1" : 2,//MATNR
       "f2" : 5,//ERDAT
-      "COMMENT": "from and to values are in the dictionary for 10mill",
+      "COMMENT": "from and to values are in the dictionary for 30 mill / last 180 days",
       "v_f1" : "%(rand_matnr_vbap)s",
-      "v_f2": %(max_erdat_vbap_minus_10_days)s,
+      "v_f2": 20030627,
       "dynamic": true
     },
     "hash_netwr" : {

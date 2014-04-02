@@ -87,6 +87,7 @@ class MixedWLPlotter:
                 avg_op_runtime = total_op_runtime / total_runs
                 output[runId] += str(self._groupId) + " " + str(runId) + " avg " + str(total_runs) + " " + str(avg_runtime) + " " + str(avg_op_runtime) + "\n"
 
+        logStr = "GroupId\trunId\tlogKey\ttotalRuns\tsrtAvg\tsrtStd\topAvg\topStd\n"
         for run in sorted(output.iterkeys()):
             logStr += "%s" % (output[run])    
         return logStr

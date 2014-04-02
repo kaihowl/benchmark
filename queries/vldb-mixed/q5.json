@@ -6,10 +6,11 @@
       "name": "mara"
     },
     "filter_matnr": {
-      "type": "SimpleTableScan",
-      "predicates" : [
-      { "type": "EQ", "in": 0, "f": "MATNR", "value": "%(rand_matnr_mara)s", "vtype": 2}
-      ]
+      "type": "IndexScan",
+      "vtype": 2,
+      "value": "%(rand_matnr_mara)s",
+      "index": "mara_matnr_idx",
+      "fields": ["MATNR"]
     }
   },
   "edges": [
