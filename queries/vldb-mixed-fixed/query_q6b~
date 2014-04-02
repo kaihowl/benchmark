@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "operators": {
+    "load_vbap" : {
+      "type" : "GetTable",
+      "name": "vbap"
+    },
+    "insert": {
+      "type": "InsertScan",
+      "data" : [
+        [800, "0050002208", "C300", 1.00, 555.00, 19951233] 
+        ]
+    },
+    "commit": {
+      "type": "Commit"
+    },
+    "noop": {
+      "type": "NoOp"
+    }
+  },
+  "edges": [
+    ["load_vbap", "insert"],
+  ["insert", "commit"],
+  ["commit", "noop"]
+    ]
+}

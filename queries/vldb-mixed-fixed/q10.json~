@@ -18,8 +18,8 @@
       "f1" : 3,//KUNNR
       "f2" : 2,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 10mill",
-      "v_f1" : "%(rand_kunnr_vbak)s",
-      "v_f2": 20031130,
+      "v_f1" : "TCSD23",
+      "v_f2": 20001108,
       "dynamic": true
     },
     "join_header_item": {
@@ -48,11 +48,11 @@
   "edges": [
     ["load_vbak", "filter_aedat"], 
     ["load_vbap", "validate_vbap"],
-    ["validate_vbap", "join_header_item"],
-    ["filter_aedat", "join_header_item"],
-    ["join_header_item", "hash_netwr"],
-    ["join_header_item", "groupby"],
-    ["hash_netwr", "groupby"]
-  ]
+  ["validate_vbap", "join_header_item"],
+  ["filter_aedat", "join_header_item"],
+  ["join_header_item", "hash_netwr"],
+  ["join_header_item", "groupby"],
+  ["hash_netwr", "groupby"]
+    ]
 }
 

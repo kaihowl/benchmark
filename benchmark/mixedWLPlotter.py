@@ -81,7 +81,7 @@ class MixedWLPlotter:
                     total_runs += stats["totalRuns"]
                     total_runtime += stats["srtAvg"] * stats["totalRuns"]
                     total_op_runtime += stats["opAvg"] * stats["totalRuns"]
-                    output[runId] += str(self._groupId) + " " + str(runId) + " " + query +  " " + str(stats["totalRuns"]) + " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + "\n"
+                    output[runId] += str(self._groupId) + " " + str(runId) + " " + query +  " " + str(stats["totalRuns"]) +  " " +str(stats["srtAvg"])  + " " + str(stats["srtStd"]) + " " + str(stats["opAvg"]) + " " +str(stats["opStd"]) + "\n"
             if(total_runs>0):
                 avg_runtime = total_runtime / total_runs
                 avg_op_runtime = total_op_runtime / total_runs

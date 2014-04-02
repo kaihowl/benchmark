@@ -1,0 +1,18 @@
+{
+  "priority": 1,
+  "operators": {
+    "load_kna1" : {
+      "type" : "GetTable",
+      "name": "kna1"
+    },
+    "filter_kunnr": {
+      "type": "SimpleTableScan",
+      "predicates" : [
+      { "type": "EQ", "in": 0, "f": "KUNNR", "value": "0000000001", "vtype": 2}
+      ]
+    }
+  },
+  "edges": [
+    ["load_kna1", "filter_kunnr"]
+    ]
+}

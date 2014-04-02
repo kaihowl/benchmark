@@ -1,0 +1,20 @@
+{
+  "priority": 1,
+  "operators": {
+    "load_vbak" : {
+      "type" : "GetTable",
+      "name": "vbak"
+    },
+    "sort_vbeln": {
+      "type": "SortScan",
+      "fields" : [1]
+    },
+    "nop": {
+      "type": "NoOp"
+    }
+  },
+  "edges": [
+    ["load_vbak", "sort_vbeln"],
+    ["sort_vbeln", "nop"]
+    ]
+}

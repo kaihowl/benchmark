@@ -1,0 +1,22 @@
+{
+  "operators": {
+    "load" : {
+      "type" : "GetTable",
+      "name": "vbap"
+    },
+    "distinct": {
+      "type": "Distinct",
+      "fields": ["ERDAT"]
+    },
+    "max": {
+      "type" : "GroupByScan",
+      "functions": [
+        {"type": "MAX", "field": "ERDAT"}
+      ]
+    }
+  },
+  "edges": [
+    ["load", "distinct"],
+  ["distinct", "max"]
+    ]
+}
