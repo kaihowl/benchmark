@@ -333,9 +333,9 @@ schedulers = [
 #for scheduler in schedulers:
 #    print "OLAP benchmark with " + scheduler 
 #    kwargs["scheduler"] = scheduler
-output += runBenchmark_varying_users_OLTP("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
-
-#output += runBenchmark_varying_mts("Var_mts", s1, **kwargs)
+#    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+#
+output += runBenchmark_varying_mts("Var_mts", s1, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
