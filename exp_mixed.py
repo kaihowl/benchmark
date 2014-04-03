@@ -26,7 +26,7 @@ def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
     output = ""
     kwargs["oltpQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
 
-    users = [32]#[1, 4, 8, 16, 24, 32, 64]
+    users = [64]#[1, 4, 8, 16, 24, 32, 64]
     for j in users:
         print "starting OLTP benchmark with " + str(j) + " users" 
         runId = str(j)
@@ -233,27 +233,27 @@ s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
 
 
 #gaza remote
-kwargs = {
-    "port"              : args["port"],
-    "manual"            : True,
-    "warmuptime"        : 5,
-    "runtime"           : 10,
-    "showStdout"        : False,
-    "showStderr"        : args["stderr"],
-    "rebuild"           : args["rebuild"],
-    "regenerate"        : args["regenerate"],
-    "noLoad"            : args["no_load"],
-    "serverThreads"     : args["threads"],
-    "collectPerfData"   : args["perfdata"],
-    "useJson"           : args["json"],
-    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-    "hyriseDBPath"      : "/home/Johannes.Wust/vldb-tables/scaler/output",#/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
-    "scheduler"         : "CentralScheduler",
-    "serverThreads"     : 30,
-    "remote"            : True,
-    "remoteUser"        : "Johannes.Wust",
-    "host"              : "gaza"
-}
+#kwargs = {
+#    "port"              : args["port"],
+#    "manual"            : True,
+#    "warmuptime"        : 5,
+#    "runtime"           : 10,
+#    "showStdout"        : False,
+#    "showStderr"        : args["stderr"],
+#    "rebuild"           : args["rebuild"],
+#    "regenerate"        : args["regenerate"],
+#    "noLoad"            : args["no_load"],
+#    "serverThreads"     : args["threads"],
+#    "collectPerfData"   : args["perfdata"],
+#    "useJson"           : args["json"],
+#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+#    "hyriseDBPath"      : "/home/Johannes.Wust/vldb-tables/scaler/output",#/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
+#    "scheduler"         : "CentralScheduler",
+#    "serverThreads"     : 30,
+#    "remote"            : True,
+#    "remoteUser"        : "Johannes.Wust",
+#    "host"              : "gaza"
+#}
 
 #gaza local
 #kwargs = {
@@ -278,26 +278,26 @@ kwargs = {
 #}
 
 ##begram local
-#kwargs = {
-#    "port"              : args["port"],
-#    "warmuptime"        : 1,
-#    "runtime"           : 10,
-#    "showStdout"        : True,
-#    "showStderr"        : args["stderr"],
-#    "rebuild"           : args["rebuild"],
-#    "regenerate"        : args["regenerate"],
-#    "noLoad"            : args["no_load"],
-#    "serverThreads"     : args["threads"],
-#    "collectPerfData"   : args["perfdata"],
-#    "useJson"           : args["json"],
-#    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
-#    "hyriseDBPath"      : "/home/Johannes.Wust/vldb-tables/scaler/output",
-#    "scheduler"         : "DynamicPriorityScheduler",
-#    "serverThreads"     : 12,
-#    "remote"            : False,
-#    "manual"            : False,
-#    "host"              : "127.0.0.1"
-#}
+kwargs = {
+    "port"              : args["port"],
+    "warmuptime"        : 1,
+    "runtime"           : 10,
+    "showStdout"        : True,
+    "showStderr"        : args["stderr"],
+    "rebuild"           : args["rebuild"],
+    "regenerate"        : args["regenerate"],
+    "noLoad"            : args["no_load"],
+    "serverThreads"     : args["threads"],
+    "collectPerfData"   : args["perfdata"],
+    "useJson"           : args["json"],
+    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+    "hyriseDBPath"      : "/home/Johannes.Wust/vldb-tables/scaler/output",
+    "scheduler"         : "DynamicPriorityScheduler",
+    "serverThreads"     : 12,
+    "remote"            : False,
+    "manual"            : False,
+    "host"              : "127.0.0.1"
+}
 
 
 output = ""
@@ -317,11 +317,11 @@ schedulers = [
     #    "ThreadLevelPriorityQueuesScheduler",
     #    "CoreBoundPriorityQueuesScheduler",
     #    "WSCoreBoundPriorityQueuesScheduler",
-    #    "CentralScheduler",
+        "CentralScheduler",
     #    "CentralPriorityScheduler",
     #    "ThreadPerTaskScheduler",
     #    "DynamicPriorityScheduler",
-        "DynamicScheduler",
+    #   "DynamicScheduler",
     #    "NodeBoundQueuesScheduler",
     #    "WSNodeBoundQueuesScheduler",
     #    "NodeBoundPriorityQueuesScheduler",
@@ -334,7 +334,7 @@ schedulers = [
 #for scheduler in schedulers:
 #    print "OLAP benchmark with " + scheduler 
 #    kwargs["scheduler"] = scheduler
-output += runBenchmark_varying_users_OLAP("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
+output += runBenchmark_varying_users_OLTP("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 
 #output += runBenchmark_varying_mts("Var_mts", s1, **kwargs)
 filename = "results_" + str(int(time.time()))

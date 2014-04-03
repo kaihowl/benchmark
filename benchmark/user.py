@@ -84,7 +84,11 @@ class User(multiprocessing.Process):
             else:
                 result = self._session.post("http://%s:%s/%s/" % (self._host, self._port, stored_procedure), data=data, timeout=100000)
         else:
-            result = self._session.post("http://%s:%s/" % (self._host, self._port), data=data, timeout=100000)
+            if self._write_to_file:
+               self.write_request_to_file_query(query, self._write_to_file)
+               return 
+            else:
+                result = self._session.post("http://%s:%s/" % (self._host, self._port), data=data, timeout=100000)
         self._totalQueryTime += time.time() - tStart
 
         if result.status_code == 200:
@@ -100,6 +104,25 @@ class User(multiprocessing.Process):
         postdata = "procedure=" + stored_procedure + "&query="+query
         postlen = len(postdata) + 4
         request = "POST /procedure/%s/ HTTP/1.0\r\nConnection: Keep-Alive\r\nContent-length: %s\r\nContent-type: application/x-www-form-urlencoded\r\nHost: 127.0.0.1:5000\r\nUser-Agent: ApacheBench/2.3\r\nAccept: */*\r\n\r\n" % (w_id, postlen)
+        requestlen = len(request)
+        self._queryfile.write('{:04d}'.format(requestlen)+'\0')
+        self._queryfile.write('{:04d}'.format(postlen)+'\0')
+        self._queryfile.write(request)
+        self._queryfile.write(postdata)
+        self._queryfile.write("\r\n\r\n")
+
+        self._written_to_file_count = self._written_to_file_count + 1
+        if self._written_to_file_count >= self._write_to_file_count:
+            self._queryfile.flush()
+            print "Terminating user. Generated " + str(self._written_to_file_count) + " of " + str(self._write_to_file_count) + " queries."
+            exit(0)
+
+    def write_request_to_file_query(self, query, filename):
+        if self._queryfile == None:
+            self._queryfile = open(filename, 'w+')
+        postdata = "&query="+query
+        postlen = len(postdata) + 4
+        request = "POST /jsonQuery/ HTTP/1.0\r\nConnection: Keep-Alive\r\nContent-length: %s\r\nContent-type: application/x-www-form-urlencoded\r\nHost: 127.0.0.1:5000\r\nUser-Agent: ApacheBench/2.3\r\nAccept: */*\r\n\r\n" % (postlen)
         requestlen = len(request)
         self._queryfile.write('{:04d}'.format(requestlen)+'\0')
         self._queryfile.write('{:04d}'.format(postlen)+'\0')

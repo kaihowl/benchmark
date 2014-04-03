@@ -8,15 +8,33 @@ import ast
 
 class MixedWLPlotter:
 
-    def __init__(self, benchmarkGroupId):
+    def __init__(self, benchmarkGroupId, ab = False):
         self._groupId = benchmarkGroupId
         self._dirOutput = os.path.join(os.getcwd(), "plots", str(self._groupId))
         self._varyingParameter = None
-        self._runs = self._collect()
-        self._buildIds = self._runs[self._runs.keys()[0]].keys()
+        if(ab):
+            self._runs = self._collect_ab()
+        else:
+            self._runs = self._collect()
+        #self._buildIds = self._runs[self._runs.keys()[0]].keys()
 
         if not os.path.isdir(self._dirOutput):
             os.makedirs(self._dirOutput)
+
+    def printABStatistics(self):
+        logStr = ""
+        output = {}
+        for runId, runData in sorted(self._runs.iteritems()):
+            scheduler, user, n = runId.split('_')
+            output.setdefault(scheduler, {})
+            output[scheduler].setdefault(user, [])
+            if len(runData.keys()) > 0:
+                output[scheduler][user].append(runData[runData.keys()[0]]['count'])
+
+        for scheduler in sorted(output.iterkeys()):
+            for user in sorted(output[scheduler].iterkeys()):
+                logStr += "%s %s %s %s\n" % (scheduler, user, average(output[scheduler][user]), std(output[scheduler][user]))
+        return logStr
 
     def printStatistics(self, queries):
         logStr = ""
@@ -403,4 +421,37 @@ class MixedWLPlotter:
                                 opStats[txId][opId]["rtStd"] = std(opData["rtTuples"])
                             txStats[txId]["operators"] = opStats[txId]
                         runs[run][build] = {"txStats": txStats, "numUsers": numUsers}
+        return runs
+
+    def _collect_ab(self):
+    
+        runs = {}
+        dirResults = os.path.join(os.getcwd(), "results", self._groupId)
+        if not os.path.isdir(dirResults):
+            raise Exception("Group result directory '%s' not found!" % dirResults)
+        sys.stdout.write('_collect from ab: \n')
+        sys.stdout.flush()
+        
+        # --- Runs --- #
+        for run in os.listdir(dirResults):
+        
+            dirRun = os.path.join(dirResults, run)
+            if not os.path.isdir(dirRun):
+                continue
+            runs[run] = {}
+            # --- Builds --- #
+            for build in os.listdir(dirRun):
+                dirBuild = os.path.join(dirRun, build)
+                if not os.path.isdir(dirBuild):
+                    continue
+                if not os.path.isfile(os.path.join(dirBuild, "ab.log")):
+                    print "WARNING: no transaction log found in %s!" % dirBuild
+                    continue
+                i = 0
+                for rawline in open(os.path.join(dirBuild, "ab.log")):
+                    if rawline.startswith("starttime"):
+                        continue
+                    i = i + 1
+                runs[run][build] = {"count" : i}
+
         return runs

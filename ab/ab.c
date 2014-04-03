@@ -1588,6 +1588,7 @@ static void read_connection(struct connection * c)
             s->waittime  = ap_max(0, c->beginread - c->endwrite);
             strcpy(s->respcode, respcode);
 
+            /*
             if (respcode[0] == '2') {
               // find and cpy tx name from buffer
               char * return_part = strstr(body_data, "{");
@@ -1618,6 +1619,7 @@ static void read_connection(struct connection * c)
               strcpy(s->txname, "ERROR");
               printf("ERROR Status %s: %s\n", respcode, body_data);
             }
+            */
 
             if (heartbeatres && !(done % heartbeatres)) {
                 fprintf(stderr, "Completed %d requests\n", done);

@@ -66,7 +66,7 @@ class Benchmark:
         self._remoteUser        = kwargs["remoteUser"] if kwargs.has_key("remoteUser") else "hyrise"
         self._remotePath        = kwargs["remotePath"] if kwargs.has_key("remotePath") else "/home/" + self._remoteUser + "/benchmark"
         self._abQueryFile       = kwargs["abQueryFile"] if kwargs.has_key("abQueryFile") else None
-        self._abCore            = kwargs["abCore"] if kwargs.has_key("abCore") else 2
+        self._abCore            = kwargs["abCore"] if kwargs.has_key("abCore") else 0
         self._verbose           = kwargs["verbose"] if kwargs.has_key("verbose") else 1
         self._write_to_file     = kwargs["write_to_file"] if kwargs.has_key("write_to_file") else None
         self._write_to_file_count = kwargs["write_to_file_count"] if kwargs.has_key("write_to_file_count") else None
@@ -142,7 +142,7 @@ class Benchmark:
 
         if not self._manual:
             # no support for building on remote machine yet
-            self._buildServer()
+            #self._buildServer()
             if self._abQueryFile != None:
                 self._buildAb()
             self._startServer()
@@ -167,7 +167,7 @@ class Benchmark:
                 print "Using ab with queryfile=" + self._abQueryFile + ", concurrency=" + str(self._numUsers) + ", time=" + str(self._runtime) +"s"
                 print "Output File: ", self._dirResults + "/ab.log"
                 print "---"
-                ab = subprocess.Popen(["./ab/ab","-g", self._dirResults + "/ab.log", "-l", str(self._abCore), "-v", str(self._verbose), "-k", "-t", str(self._runtime), "-n", "99999999", "-c", str(self._numUsers), "-m", self._abQueryFile, self._host+":"+str(self._port)+"/procedure/"])
+                ab = subprocess.Popen(["./ab/ab","-g", self._dirResults + "/ab.log", "-l", str(self._abCore), "-v", str(self._verbose), "-k", "-t", str(self._runtime), "-n", "99999999", "-c", str(self._numUsers), "-m", self._abQueryFile, self._host+":"+str(self._port)+"/jsonQuery/"])
                 ab.wait()
             else:
                 self._createUsers()
