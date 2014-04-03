@@ -26,7 +26,7 @@ class DynamicPlotter:
     # group they fall into as the value. This will then print statistics for the groups instead of 
     # individual queries.
     def printGroupFormatted(self, queryToGroupMapping):
-      logStr = "runId\tgroupName\tthroughput\tavgSRT\n"
+      logStr = ""
       runStats = {}
       for runId, runData in self._runs.iteritems():
         # key: group name
@@ -48,11 +48,14 @@ class DynamicPlotter:
 
         runStats[runId] = finalStats
 
-      for intRunId, runId in sorted([(_try_int(x), x) for x in runStats.keys()]):
-        stats = runStats[runId]
-        for groupName, statDict in stats.iteritems():
-          logStr += "%s\t%s\t%s\t%s\n" % (runId, groupName, statDict["throughput"], statDict["avgservertime"])
-
+      for groupName in set(queryToGroupMapping.values()):
+        logStr += "mts_%s\tthroughput\tavgSRT\n" % groupName
+        for intRunId, runId in sorted([(_try_int(x), x) for x in runStats.keys()]):
+          stats = runStats[runId]
+          statDict = stats[groupName]
+          logStr += "%s\t%s\t%s\n" % (runId, statDict["throughput"], statDict["avgservertime"])
+        logStr += "\n\n"
+ 
       return logStr
 
 
