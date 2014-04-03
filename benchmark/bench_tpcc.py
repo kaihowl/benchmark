@@ -34,6 +34,7 @@ class TPCCUser(User):
         self.config["execute"] = True
         self.perf = {}
         self.numErrors = 0
+        self.onlyNeworders   = kwargs["onlyNeworders"] if kwargs.has_key("onlyNeworders") else False
 
     def prepareUser(self):
         """ executed once when user starts """
@@ -44,6 +45,7 @@ class TPCCUser(User):
         self.lastResult = None
         self.lastHeader = None
         self.e = executor.Executor(self.driver, self.scaleParameters)
+        self.e.setOnlyNeworders(self.onlyNeworders)
         self.userStartTime = time.time()
 
     def runUser(self):
@@ -63,11 +65,13 @@ class TPCCUser(User):
             return
         except RuntimeWarning, e:
             # these are transaction errors, e.g. abort due to concurrent commits
-            self.log("failed", [txn, tStart-self.userStartTime])
+            tEnd = time.time()
+            self.log("failed", [txn, tEnd-tStart, tStart-self.userStartTime])
             return
         except RuntimeError, e:
             print "%s: %s" % (txn, e)
-            self.log("failed", [txn, tStart-self.userStartTime])
+            tEnd = time.time()
+            self.log("failed", [txn, tEnd-tStart, tStart-self.userStartTime])
             return
         except AssertionError, e:
             return
@@ -87,7 +91,7 @@ class TPCCUser(User):
             logStr += "\n"
             return logStr
         elif key == "failed":
-            return "%s;%f\n" % (value[0], value[1])
+            return "%s;%f;%f\n" % (value[0], value[1], value[2])
         else:
             return "%s\n" % str(value)
 
@@ -106,10 +110,15 @@ class TPCCUser(User):
                 if v == True:    v = 1;
                 elif v == False: v = 0;
 
-        result = self.fireQuery(querystr, paramlist, sessionContext=self.context, autocommit=commit, stored_procedure=stored_procedure).json()
-        self.addPerfData(result.get("performanceData", None))
-        return result
-
+        query_result = self.fireQuery(querystr, paramlist, sessionContext=self.context, autocommit=commit, stored_procedure=stored_procedure)
+        if query_result != None:
+            if query_result.status_code < 200 and query_result.status_code >= 300:
+                print "ERROR:", query_result
+                # result = query_result.json()
+                # self.addPerfData(result.get("performanceData", None))
+            return None
+        else:
+            return None
 
     def query(self, querystr, paramlist=None, commit=False):
         if paramlist:
@@ -177,9 +186,6 @@ class TPCCBenchmark(Benchmark):
     def __init__(self, benchmarkGroupId, benchmarkRunId, buildSettings, **kwargs):
         Benchmark.__init__(self, benchmarkGroupId, benchmarkRunId, buildSettings, **kwargs)
 
-        self._dirHyriseDB = os.path.join(os.getcwd(), "hyrise")
-        os.environ['HYRISE_DB_PATH'] = self._dirHyriseDB
-
         self.scalefactor     = kwargs["scalefactor"] if kwargs.has_key("scalefactor") else 1
         self.warehouses      = kwargs["warehouses"] if kwargs.has_key("warehouses") else 4
         self.driverClass     = createDriverClass("hyrise")
@@ -187,60 +193,65 @@ class TPCCBenchmark(Benchmark):
         self.scaleParameters = scaleparameters.makeWithScaleFactor(self.warehouses, self.scalefactor)
         self.regenerate      = False
         self.noLoad          = kwargs["noLoad"] if kwargs.has_key("noLoad") else False
+        self.table_dir       = kwargs["tabledir"] if kwargs.has_key("tabledir") else None
+        self.onlyNeworders   = kwargs["onlyNeworders"] if kwargs.has_key("onlyNeworders") else False
         self.setUserClass(TPCCUser)
+
+    def generateTables(self, path):
+        dirPyTPCC   = os.path.join(os.getcwd(), "pytpcc", "pytpcc")
+        dirTables   = path
+        
+        if not os.path.exists(dirTables):
+            os.makedirs(dirTables)
+        
+        rand.setNURand(nurand.makeForLoad())   
+        sys.stdout.write("generating... ")
+        sys.stdout.flush()
+        self.driver.setTableLocation(dirTables)
+        self.driver.deleteExistingTablefiles(dirTables)
+        self.driver.createFilesWithHeader(dirTables)
+        generator = loader.Loader(self.driver, self.scaleParameters, range(1,self.warehouses+1), True)
+        generator.execute()
+        print "done"
+
+    def createBinaryTableExport(self, import_path, export_path):
+        self._buildServer()
+        self._startServer()
+
+        sys.stdout.write("createBinaryTableExport... ")
+        sys.stdout.flush()
+        if not os.path.exists(export_path):
+            os.makedirs(export_path)
+        self.driver.executeLoadCSVExportBinary(import_path, export_path)
+        print "done"
+
 
     def benchPrepare(self):
         # make sure the TPC-C query and table directories are present
         dirPyTPCC   = os.path.join(os.getcwd(), "pytpcc", "pytpcc")
         dirTables   = os.path.join(self._dirHyriseDB, "test", "tpcc", "tables")
 
-        sys.stdout.write("Checking for table files... ")
-        sys.stdout.flush()
-        generate = False
-        if not os.path.isdir(dirTables):
-            print "no table files found"
-            generate = True
-            os.makedirs(dirTables)
-        elif self.regenerate:
-            print "table file regeneration requested"
-            generate = True
-        else:
-            for t in self.driver.tables:
-                if not os.path.isfile(os.path.join(dirTables, "%s.tbl" % t)): #or not os.path.isfile(os.path.join(dirTables, "%s.hdr" % t)):
-                    print "table files incomplete"
-                    generate = True
-                    break
-
-        rand.setNURand(nurand.makeForLoad())
         defaultConfig = self.driver.makeDefaultConfig()
+        rand.setNURand(nurand.makeForLoad())
         config = dict(map(lambda x: (x, defaultConfig[x][1]), defaultConfig.keys()))
         config["querylog"] = None
         config["print_load"] = False
         config["port"] = self._port
-        config["hyrise_builddir"] = self._dirHyriseDB
         config["table_location"] = dirTables
         config["query_location"] = os.path.join("queries", "tpcc-queries")
-        self.driver.loadConfig(config)
+        self.driver.loadConfig(config)        
 
-        if generate:
-            sys.stdout.write("regenerating... ")
-            sys.stdout.flush()
-            self.driver.deleteExistingTablefiles(dirTables)
-            self.driver.createFilesWithHeader(dirTables)
-            generator = loader.Loader(self.driver, self.scaleParameters, range(1,self.warehouses+1), True)
-            generator.execute()
-        print "done"
+        self.setUserArgs({
+            "scaleParameters": self.scaleParameters,
+            "config": config,
+            "onlyNeworders": self.onlyNeworders
+        })
 
+    def loadTables(self):
         if self.noLoad:
             print "Skipping table load"
         else:
             sys.stdout.write("Importing tables into HYRISE... ")
             sys.stdout.flush()
-            self.driver.executeStart()
+            self.driver.executeStart(self.table_dir, use_csv = self._csv)
             print "done"
-
-        self.setUserArgs({
-            "scaleParameters": self.scaleParameters,
-            "config": config
-        })
-

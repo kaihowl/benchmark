@@ -1,0 +1,20 @@
+{
+  "operators": {
+    "load" : {
+      "type" : "GetTable",
+      "name": "makt"
+    },
+    "distinct": {
+      "type": "Distinct",
+      "fields": ["MATNR"]
+    },
+    "project": {
+      "type" : "ProjectionScan",
+      "fields" : ["MATNR"]
+    }
+  },
+  "edges": [
+    ["load", "distinct"],
+  ["distinct", "project"]
+    ]
+}

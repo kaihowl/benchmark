@@ -1,0 +1,31 @@
+ {
+  "sessionId": 0,
+  "priority": 4,
+ "operators" : {
+      "loadvbak" : {
+        "type" : "LoadDumpedTable",
+        "name" : "VBAK_CBTR_SMALL"
+      },
+      "setvbak" : {
+        "type" : "SetTable",
+         "name" : "vbak"
+      },
+      "loadvbap" : {
+        "type" : "LoadDumpedTable",
+        "name" : "VBAP_CBTR_SMALL"
+      },
+      "setvbap" : {
+        "type" : "SetTable",
+         "name" : "vbap"
+      },
+     "nop": {
+      "type" : "NoOp"
+     }
+  },
+  "edges" : [
+    ["loadvbak", "setvbak"],
+    ["loadvbap", "setvbap"],
+    ["setvbap", "nop"],
+    ["setvbak", "nop"]
+  ]
+}

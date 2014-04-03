@@ -1,0 +1,16 @@
+query={
+  "priority": 1,
+  "operators": {
+    "load_vbak" : {
+      "type" : "GetTable",
+      "name": "vbak"
+    },
+    "getlast": {
+      "type": "GetLastRecords",
+      "records": 30
+    }
+  },
+  "edges": [
+    ["load_vbak", "getlast"]
+    ]
+}

@@ -69,13 +69,14 @@ class MixedWLUser(User):
             result = self.olap(element)
 
         #result = self.fireQuery(querystr, paramlist, sessionContext=self.context, autocommit=commit, stored_procedure=stored_procedure).json()
-        self.addPerfData(result.get("performanceData", None))
-        tEnd = time.time()
-        if not self._stopevent.is_set():
-            #print "user " + str(self._userId) + " logged!"
-            self.log("transactions", [element, tEnd-tStart, tStart-self.userStartTime, self.perf])
-        else: 
-            print "too late to log"
+        if not self._write_to_file:
+            if not self._stopevent.is_set():
+                #print "user " + str(self._userId) + " logged!"
+                tEnd = time.time()
+                self.addPerfData(result.get("performanceData", None))
+                self.log("transactions", [element, tEnd-tStart, tStart-self.userStartTime, self.perf])
+            else: 
+                print "too late to log"
 
     def oltp(self, predefined=None):
         if predefined == None:
@@ -93,8 +94,10 @@ class MixedWLUser(User):
         randFormatDict = self.getQueryFormatDict()
         
         query = self._oltpQC[queryid] % dict(initFormatDict.items() + randFormatDict.items())
-
-        result = self.fireQuery(query).json()
+        if self._write_to_file:
+            result = self.fireQuery(query)
+        else:
+            result = self.fireQuery(query).json()
         #  self._queries[queryid] += 1
         #self._queryRowsFile.write("%s %d\n" % (queryid,  len(result[0]["rows"])))
         #return result[1]
@@ -115,9 +118,10 @@ class MixedWLUser(User):
             "microsecs": str(self._microsecs)}
         randFormatDict = self.getQueryFormatDict()
         query = self._olapQC[queryid] % dict(initFormatDict.items() + randFormatDict.items())
-
-        result = self.fireQuery(query).json()
-        
+        if self._write_to_file:
+            result = self.fireQuery(query)
+        else:
+            result = self.fireQuery(query).json()
         return result
 
         #self._queries[queryid] += 1
@@ -157,7 +161,6 @@ class MixedWLUser(User):
 
         # Build the ordered list of all queryids                                                                                                                                                            
         query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
-
 
     def getQueryFormatDict(self):
         return {
@@ -213,33 +216,36 @@ class MixedWLBenchmark(Benchmark):
         self._oltpUser = kwargs["oltpUser"] if kwargs.has_key("oltpUser") else 0
         self._oltpQueries = kwargs["oltpQueries"] if kwargs.has_key("oltpQueries") else ()
         self._oltpThinkTime = kwargs["oltpThinkTime"] if kwargs.has_key("oltpThinkTime") else 0
-
+        self._setLogGroupName = kwargs["setLogGroupName"] if kwargs.has_key("setLogGroupName") else False
 
         self.setUserClass(MixedWLUser)
         self._queryDict = self.loadQueryDict()
 
     def _createUsers(self):
-
         self.initDistinctValues()
         self._userArgs["distincts"] = self._distincts
-
         for i in range(self._olapUser):
             self._userArgs["thinkTime"] = self._olapThinkTime 
             self._userArgs["queries"] = self._olapQueries
             self._userArgs["instances"] = self._olapInstances
-            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+            if self._setLogGroupName:
+                self._userArgs["logGroupName"] = "OLAP"
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **self._userArgs))
         for i in range(self._olapUser, self._olapUser + self._tolapUser):
             self._userArgs["thinkTime"] = self._tolapThinkTime 
             self._userArgs["queries"] = self._tolapQueries 
-            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+            if self._setLogGroupName:
+                self._userArgs["logGroupName"] = "TOLAP"
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **self._userArgs))
         for i in range(self._olapUser + self._tolapUser, self._olapUser + self._tolapUser + self._oltpUser):
             self._userArgs["thinkTime"] = self._oltpThinkTime 
-            self._userArgs["queries"] = self._oltpQueries 
-            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
-
+            self._userArgs["queries"] = self._oltpQueries
+            if self._setLogGroupName: 
+                self._userArgs["logGroupName"] = "OLTP"
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **self._userArgs))
         if (self._olapUser + self._oltpUser + self._tolapUser) == 0:
             for i in range(self._numUsers):
-                self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
+                self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **self._userArgs))
 
     def initDistinctValues(self):
         self._distincts = {}

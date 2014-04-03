@@ -12,6 +12,7 @@ from HyriseConnection import HyriseConnection
 
 #SKIP = True
 SKIP = False
+CHECK_RESULTS = False
 
 QUERY_FILES = {
   'DELIVERY': {'deleteNewOrder': 'Delivery-deleteNewOrder.json',
@@ -59,47 +60,56 @@ QUERY_FILES = {
 HEADERS = {
 "CUSTOMER":"""C_ID|C_D_ID|C_W_ID|C_FIRST|C_MIDDLE|C_LAST|C_STREET_1|C_STREET_2|C_CITY|C_STATE|C_ZIP|C_PHONE|C_SINCE|C_CREDIT|C_CREDIT_LIM|C_DISCOUNT|C_BALANCE|C_YTD_PAYMENT|C_PAYMENT_CNT|C_DELIVERY_CNT|C_DATA
 INTEGER|INTEGER|INTEGER|STRING|STRING|STRING|STRING|STRING|STRING|STRING|STRING|STRING|STRING|STRING|FLOAT|FLOAT|FLOAT|FLOAT|INTEGER|INTEGER|STRING
-0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C|5_C|6_C|7_C|8_C|9_C|10_C|11_C|12_C|13_C|14_C|15_C|16_C|17_C|18_C|19_C|20_C
+===
 """,
 
 "DISTRICT":"""D_ID|D_W_ID|D_NAME|D_STREET_1|D_STREET_2|D_CITY|D_STATE|D_ZIP|D_TAX|D_YTD|D_NEXT_O_ID
 INTEGER|INTEGER|STRING|STRING|STRING|STRING|STRING|STRING|FLOAT|FLOAT|INTEGER
-0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C|5_C|6_C|7_C|8_C|9_C|10_C
+===
 """,
 
 "HISTORY":"""H_C_ID|H_C_D_ID|H_C_W_ID|H_D_ID|H_W_ID|H_DATE|H_AMOUNT|H_DATA
 INTEGER|INTEGER|INTEGER|INTEGER|INTEGER|STRING|FLOAT|STRING
-0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C|5_C|6_C|7_C
+===
 """,
 
 "ITEM":"""I_ID|I_IM_ID|I_NAME|I_PRICE|I_DATA
 INTEGER|INTEGER|STRING|FLOAT|STRING
-0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C
+===
 """,
 
 "NEW_ORDER":"""NO_O_ID|NO_D_ID|NO_W_ID
 INTEGER|INTEGER|INTEGER
-0_R|0_R|0_R
+0_C|1_C|2_C
+===
 """,
 
 "ORDER_LINE":"""OL_O_ID|OL_D_ID|OL_W_ID|OL_NUMBER|OL_I_ID|OL_SUPPLY_W_ID|OL_DELIVERY_D|OL_QUANTITY|OL_AMOUNT|OL_DIST_INFO
 INTEGER|INTEGER|INTEGER|INTEGER|INTEGER|INTEGER|STRING|INTEGER|FLOAT|STRING
-0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C|5_C|6_C|7_C|8_C|9_C
+===
 """,
 
 "ORDERS":"""O_ID|O_C_ID|O_D_ID|O_W_ID|O_ENTRY_D|O_CARRIER_ID|O_OL_CNT|O_ALL_LOCAL
 INTEGER|INTEGER|INTEGER|INTEGER|STRING|INTEGER|INTEGER|INTEGER
-0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C|5_C|6_C|7_C
+===
 """,
 
 "STOCK":"""S_I_ID|S_W_ID|S_QUANTITY|S_DIST_01|S_DIST_02|S_DIST_03|S_DIST_04|S_DIST_05|S_DIST_06|S_DIST_07|S_DIST_08|S_DIST_09|S_DIST_10|S_YTD|S_ORDER_CNT|S_REMOTE_CNT|S_DATA
 INTEGER|INTEGER|INTEGER|STRING|STRING|STRING|STRING|STRING|STRING|STRING|STRING|STRING|STRING|INTEGER|INTEGER|INTEGER|STRING
-0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C|5_C|6_C|7_C|8_C|9_C|10_C|11_C|12_C|13_C|14_C|15_C|16_C
+===
 """,
 
 "WAREHOUSE":"""W_ID|W_NAME|W_STREET_1|W_STREET_2|W_CITY|W_STATE|W_ZIP|W_TAX|W_YTD
 INTEGER|STRING|STRING|STRING|STRING|STRING|STRING|FLOAT|FLOAT
-0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R|0_R
+0_C|1_C|2_C|3_C|4_C|5_C|6_C|7_C|8_C
+===
 """
 }
 
@@ -139,6 +149,15 @@ class HyriseDriver(AbstractDriver):
             except OSError as e:
                 if e.errno == 2: #FileNotFound
                     print 'Trying to delete {}. File not found. Skipping.'.format(tblname)
+
+    def setTableLocation(self, path):
+        self.table_location = path
+
+    def printInfo(self):
+        print "HyriseDriver"
+        print "\tTable location:", self.table_location
+        print "\tHyrise Builddir:", self.hyrise_builddir
+        print "\tQuery Dictionary:", self.query_directory
 
     def loadConfig(self, config):
         for key in HyriseDriver.DEFAULT_CONFIG.keys():
@@ -181,7 +200,6 @@ class HyriseDriver(AbstractDriver):
 
     def loadTuples(self, tableName, tuples):
         if len(tuples) == 0: return
-
         filename = os.path.join(self.table_location, tableName + '.tbl')
         with open(filename, 'a') as tblfile:
             for t in tuples:
@@ -191,9 +209,21 @@ class HyriseDriver(AbstractDriver):
         sys.stdout.write('.')
         sys.stdout.flush()
 
-    def executeStart(self):
-        loadjson = self.generateTableloadJson()
-        self.conn.query(loadjson)
+    def executeStart(self, tabledir, use_csv = False):
+        if not use_csv:
+            path = os.path.join(tabledir,"bin")
+            loadjson = self.generateTableloadBinaryJson(path)
+            self.conn.query(loadjson)
+        else:
+            path = os.path.join(tabledir,"csv")
+            loadcsvjson = self.generateTableloadCSVJson(path)
+            self.conn.query(loadcsvjson)
+
+    def executeLoadCSVExportBinary(self, import_path, export_path):
+        loadcsvjson = self.generateTableloadCSVJson(import_path)
+        self.conn.query(loadcsvjson)
+        exportbinaryjson = self.generateTableloadBinaryExportJson(export_path)
+        self.conn.query(exportbinaryjson)
 
     def executeFinish(self):
         """Callback after the execution phase finishes"""
@@ -284,6 +314,9 @@ class HyriseDriver(AbstractDriver):
                 items.append({"I_ID": i_ids[i], "I_W_ID": i_w_ids[i], "quantity": i_qtys[i]})
 
             r = self.conn.stored_procedure("TPCC-NewOrder", self.queries["STORED_PROCEDURES"]['newOrder'], {"w_id": w_id, "d_id": d_id, "c_id": c_id, "items": json.dumps(items)})
+
+            if not CHECK_RESULTS:
+                return []
 
             customer_info = {"C_CREDIT": r["C_CREDIT"], "C_DISCOUNT": r["C_DISCOUNT"], "C_LAST": r["C_LAST"]}
             misc = [ (r["W_TAX"], r["D_TAX"], r["D_NEXT_O_ID"], r["total-amount"]) ]
@@ -575,10 +608,22 @@ class HyriseDriver(AbstractDriver):
             #self.conn.commit()
             return int(result[0]) if result else 0
 
-    def generateTableloadJson(self):
-        filename = "Load-Load.json"
+    def generateTableloadBinaryJson(self, path):
+        filename = "Load-LoadFromBinary.json"
         with open(os.path.abspath(os.path.join(self.query_directory, filename)), 'r') as jsonfile:
             loadstr = jsonfile.read()
-        return loadstr
+        return loadstr.replace("$PATH$", path)
+
+    def generateTableloadCSVJson(self, path):
+        filename = "Load-LoadFromCSV.json"
+        with open(os.path.abspath(os.path.join(self.query_directory, filename)), 'r') as jsonfile:
+            loadstr = jsonfile.read()
+        return loadstr.replace("$PATH$", path)
+
+    def generateTableloadBinaryExportJson(self, path):
+        filename = "Load-ExportTables.json"
+        with open(os.path.abspath(os.path.join(self.query_directory, filename)), 'r') as jsonfile:
+            loadstr = jsonfile.read()
+        return loadstr.replace("$PATH$", path)
 
 ## CLAS

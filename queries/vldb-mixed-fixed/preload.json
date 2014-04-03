@@ -1,0 +1,69 @@
+ {
+ "operators" : {
+   "loadvbak" : {
+     "type" : "LoadDumpedTable",
+     "name" : "vbak"
+   },
+   "setvbak" : {
+     "type" : "SetTable",
+     "name" : "vbak"
+   },
+   "loadvbap" : {
+     "type" : "LoadDumpedTable",
+     "name" : "vbap"
+   },
+   "setvbap" : {
+     "type" : "SetTable",
+     "name" : "vbap"
+   }, 
+   "loadadrc" : {
+     "type" : "LoadDumpedTable",
+     "name" : "adrc"
+   },
+   "setadrc" : {
+     "type" : "SetTable",
+     "name" : "adrc"
+   },
+   "loadkna1" : {
+     "type" : "LoadDumpedTable",
+     "name" : "kna1"
+   },
+   "setkna1" : {
+     "type" : "SetTable",
+     "name" : "kna1"
+   },
+   "loadmakt" : {
+     "type" : "LoadDumpedTable",
+     "name" : "makt"
+   },
+   "setmakt" : {
+     "type" : "SetTable",
+     "name" : "makt"
+   },
+   "loadmara" : {
+     "type" : "LoadDumpedTable",
+     "name" : "mara"
+   },
+   "setmara" : {
+     "type" : "SetTable",
+     "name" : "mara"
+   },
+   "nop": {
+     "type" : "NoOp"
+   }
+  },
+  "edges" : [
+    ["loadvbak", "setvbak"],
+    ["loadvbap", "setvbap"],
+    ["loadadrc", "setadrc"],
+    ["loadkna1", "setkna1"],
+    ["loadmakt", "setmakt"],
+    ["loadmara", "setmara"],
+    ["setvbap", "nop"],
+    ["setvbak", "nop"],
+    ["setadrc", "nop"],
+    ["setkna1", "nop"],
+    ["setmakt", "nop"],
+    ["setmara", "nop"]
+  ]
+}

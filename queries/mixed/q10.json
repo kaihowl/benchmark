@@ -10,14 +10,13 @@
         "type": "GetTable",
         "name": "vbap"
       },
-      "filter_aedat": {
-
-      "type": "TableScan",
+    "filter_aedat": {
+        "type": "TableScan",
         "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
-        "f1" : 47,//KUNNR
+        "f1" : 3,//KUNNR
         "f2" : 2,//ERDAT
-        "COMMENT": "from and to values are in the dictionary for 10mill",
-        "v_f1" : "0000001460",
+        "COMMENT": "from and to values are in the dictionary for 30 million / last 30 days",
+        "v_f1" : "%(rand_kunnr_vbak)s",
         "v_f2": 20031130,
         "instances": %(instances)s
       },
@@ -41,7 +40,7 @@
             "fields": ["KUNNR"],
             "functions": [
             //Be sure to choose the second NETWR of the joined label (currently only possible by referncing via position)
-            {"type": "SUM", "field": 43}
+            {"type": "SUM", "field": "NETWR"}
             ]
         }
 

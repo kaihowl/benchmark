@@ -34,6 +34,24 @@ PREPARE_QUERIES_SERVER = {
     }
 
 # locations for json query files sorted by OLTP (TPCC) and OLAP (TPC-H).                                                                                                                                      
+
+OLAP_QUERY_FILES = {
+    "q10"                    : "queries/mixed/q10.json",
+    "q11"                    : "queries/mixed/q11.json",
+    "q12"                    : "queries/mixed/q12.json",
+    "xselling"               : "queries/mixed/xselling.json",
+    "q6_ch"                  : "queries/mixed/q6_ch.json",
+    "ccsched1"               : "queries/other/ccsched_test.json",
+    "ccsched2"               : "queries/other/ccsched_test2.json",
+    "ccsched3"               : "queries/other/ccsched_test3.json",
+    "ccneutral"               : "queries/other/ccneutral.json",
+    "q10i":        "queries/mixed/q10.json",
+    "q11i":        "queries/mixed/q11.json",
+    "q12i":        "queries/mixed/q12.json",
+    "xsellingi":   "queries/mixed/xselling.json"
+    }
+
+
 OLTP_QUERY_FILES ={
       "q6a":  "queries/vldb-mixed/q6a.json",
       "q6b":  "queries/vldb-mixed/q6b.json",
@@ -41,14 +59,6 @@ OLTP_QUERY_FILES ={
       "q8":  "queries/vldb-mixed/q8.json",
       "q9":  "queries/vldb-mixed/q9.json"
 }
-
-OLAP_QUERY_FILES = {
-    "q10":        "queries/vldb-mixed/q10.json",
-    "q11":        "queries/vldb-mixed/q11.json",
-    "q12":        "queries/vldb-mixed/q12.json",
-    "xselling":   "queries/vldb-mixed/xselling.json"
-}
-
 
 
 # relative weights for queries in format (id, weight)                                                                                                                                                         
@@ -64,8 +74,13 @@ OLAP_WEIGHTS = (
     ("q10", 1),
     ("q11", 1),
     ("q12", 1),
-    ("xselling", 1)
-)
+    ("xselling", 1),
+    ("q6_ch", 1),
+    ("ccsched1", 1),
+    ("ccsched2", 1),
+    ("ccsched3", 1),
+    ("ccneutral", 1)
+    )
 
 # All queries                                                                                                                                                                                                 
 ALL_QUERIES = OLTP_WEIGHTS + OLAP_WEIGHTS                                                                                                                                                                     

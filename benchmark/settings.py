@@ -10,8 +10,8 @@ class Settings:
                 "PRODUCTION"           : 1,
                 "WITH_PROFILER"        : None,
                 "WITH_V8"              : None,
-                "WITH_PAPI"            : None,
-                "WITH_MYSQL"           : None,
+                "WITH_PAPI"            : 0,
+                "WITH_MYSQL"           : 0,
                 "VERBOSE_BUILD"        : None,
                 "PERSISTENCY"          : "NONE",
                 "NVRAM_MOUNTPOINT"     : None,
@@ -29,8 +29,8 @@ class Settings:
                 "BLD"                  : "release",
                 "WITH_PROFILER"        : None,
                 "WITH_V8"              : None,
-                "WITH_PAPI"            : None,
-                "WITH_MYSQL"           : None,
+                "WITH_PAPI"            : 0,
+                "WITH_MYSQL"           : 0,
                 "VERBOSE_BUILD"        : None,
                 "PERSISTENCY"          : "NONE",
                 "WITH_GROUP_COMMIT"    : 0,
@@ -38,6 +38,7 @@ class Settings:
                 "NVRAM_MOUNTPOINT"     : None,
                 "NVRAM_FILENAME"       : None,
                 "NVRAM_FILESIZE"       : None,
+                "NVRAM_FOLDER"         : None,
                 "NVSIMULATOR_FLUSH_NS" : None,
                 "NVSIMULATOR_READ_NS"  : None,
                 "NVSIMULATOR_WRITE_NS" : None,
@@ -74,6 +75,7 @@ class Settings:
         for k, v in self._dict.iteritems():
             if v != None:
                 s += "\n%s := %s" % (k, str(v))
+        s += "\nLIBS += jemalloc"
         return s
 
     def writeToFile(self, filename):

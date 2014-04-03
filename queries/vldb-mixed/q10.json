@@ -47,11 +47,11 @@
   "edges": [
     ["load_vbak", "filter_aedat"], 
     ["load_vbap", "validate_vbap"],
-  ["validate_vbap", "join_header_item"],
-  ["filter_aedat", "join_header_item"],
-  ["join_header_item", "hash_netwr"],
-  ["join_header_item", "groupby"],
-  ["hash_netwr", "groupby"]
-    ]
+    ["validate_vbap", "join_header_item"],
+    ["filter_aedat", "join_header_item"],
+    ["join_header_item", "hash_netwr"],
+    ["join_header_item", "groupby"],
+    ["hash_netwr", "groupby"]
+  ]
 }
 
