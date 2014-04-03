@@ -2,6 +2,8 @@ import ast
 import os
 import sys
 from pylab import *
+import matplotlib.pyplot as plt
+import time
 
 # tries to convert a number to int. 
 # returns the successful conversion result or original string
@@ -27,6 +29,55 @@ class DynamicPlotter:
     # individual queries.
     def printGroupFormatted(self, queryToGroupMapping):
       logStr = ""
+      runStats = self._aggregateToGroups(queryToGroupMapping)
+
+      for groupName in set(queryToGroupMapping.values()):
+        logStr += "mts_%s\tthroughput\tavgSRT\n" % groupName
+        for intRunId, runId in sorted([(_try_int(x), x) for x in runStats.keys()]):
+          stats = runStats[runId]
+          statDict = stats[groupName]
+          logStr += "%s\t%s\t%s\n" % (runId, statDict["throughput"], statDict["avgservertime"])
+        logStr += "\n\n"
+
+      return logStr
+
+    # expects a queryToGroupMapping containing all querynames to be mapped to either the string
+    # "OLAP", "OLTP", or "TOLAP". It will then plot a diagram with the throughput for OLAP, and#
+    # the responsetimes for TOLAP and OLTP.
+    def plotGroups(self, queryToGroupMapping):
+      runStats = self._aggregateToGroups(queryToGroupMapping)
+
+      fig = plt.figure(1, figsize=(10,10))
+      ax = fig.add_subplot(1,1,1)
+      ax.set_xlabel("MTS")
+      ax.set_ylabel("Throughput")
+      ax2 = ax.twinx()
+      ax2.set_ylabel("Response Time in s")
+      x_values = sorted([int(x) for x in runStats.keys()])
+
+      line_colors = { 
+          "OLAP": "b",
+          "OLTP": "g",
+          "TOLAP": "r"
+      }
+
+      for name in ("OLAP",):
+        y_values = [runStats[str(x)][name]["throughput"] for x in x_values]
+        ax.plot(x_values, y_values, line_colors[name], label=name)
+
+      for name in ("OLTP", "TOLAP"):
+        y_values = [runStats[str(x)][name]["avgservertime"] for x in x_values]
+        ax2.plot(x_values, y_values, line_colors[name], label=name)
+
+      lines, labels = ax.get_legend_handles_labels()
+      lines2, labels2 = ax2.get_legend_handles_labels()
+      ax2.legend(lines + lines2, labels + labels2, loc=2)
+
+      fname = "varying_mts_%s.pdf" % str(int(time.time()))
+      plt.savefig(fname)
+      plt.close()
+
+    def _aggregateToGroups(self, queryToGroupMapping):
       runStats = {}
       for runId, runData in self._runs.iteritems():
         # key: group name
@@ -48,16 +99,7 @@ class DynamicPlotter:
 
         runStats[runId] = finalStats
 
-      for groupName in set(queryToGroupMapping.values()):
-        logStr += "mts_%s\tthroughput\tavgSRT\n" % groupName
-        for intRunId, runId in sorted([(_try_int(x), x) for x in runStats.keys()]):
-          stats = runStats[runId]
-          statDict = stats[groupName]
-          logStr += "%s\t%s\t%s\n" % (runId, statDict["throughput"], statDict["avgservertime"])
-        logStr += "\n\n"
- 
-      return logStr
-
+      return runStats
 
     # prints a per query view of the degree of parallelism 
     # for a query and the average of the median runtimes 

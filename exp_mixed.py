@@ -184,6 +184,7 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     output += plotter.printGroupFormatted(groupMapping)
     output += "\n"
     output += plotter.printQueryOpStatistics(("NestedLoopEquiJoin", "TableScan"))
+    plotter.plotGroups(groupMapping)
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
