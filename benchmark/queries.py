@@ -11,6 +11,9 @@ PREPARE_DISTINCTS_SERVER = {
 }
 
 PREPARE_QUERIES_USER = {}
+TABLE_LOAD_QUERIES_SERVER = {
+    "preload" : "queries/vldb-mixed/preload.json"
+}
 
 PREPARE_QUERIES_SERVER = {
     #"distinct_kunnr_adrc" : "queries/mixed/distinct_kunnr_adrc.json",                                                                                                                                              
@@ -21,7 +24,6 @@ PREPARE_QUERIES_SERVER = {
 #    "preload_vbap" : "queries/mixed/preload_vbap.json",
 #    "preload_cbtr_small" : "queries/mixed/preload_cbtr_small.json",
 #    "preload_cbtr" : "queries/mixed/preload_cbtr.json",
-    "preload" : "queries/vldb-mixed/preload.json",
     "index-addrnumber-adrc": "queries/vldb-mixed/index-addrnumber-adrc.json",
     "index-kunnr-kna1": "queries/vldb-mixed/index-kunnr-kna1.json",
     "index-matnr-makt": "queries/vldb-mixed/index-matnr-makt.json",

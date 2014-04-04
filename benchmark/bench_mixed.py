@@ -259,6 +259,9 @@ class MixedWLBenchmark(Benchmark):
 
     def loadQueryDict(self):
         queryDict = {}
+        # read LOAD queries
+        for q in TABLE_LOAD_QUERIES_SERVER:
+            queryDict[q] = open(TABLE_LOAD_QUERIES_SERVER[q], "r").read()
         # read PREPARE queries
         for q in PREPARE_QUERIES_USER:
             queryDict[q] = open(PREPARE_QUERIES_USER[q], "r").read()

@@ -9,6 +9,7 @@ import time
 import user
 import multiprocessing
 import paramiko
+import grequests
 
 from queries import *
 import queries
@@ -34,7 +35,8 @@ class Benchmark:
         self._mysqlUser         = kwargs["mysqlUser"] if kwargs.has_key("mysqlUser") else "hyrise"
         self._mysqlPass         = kwargs["mysqlPass"] if kwargs.has_key("mysqlPass") else "hyrise"
         self._papi              = kwargs["papi"] if kwargs.has_key("papi") else "NO_PAPI"
-        self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.PREPARE_QUERIES_SERVER 
+        self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.PREPARE_QUERIES_SERVER
+        self._tableLoadQueries  = kwargs["tableLoadQueries"] if kwargs.has_key("tableLoadQueries") else queries.TABLE_LOAD_QUERIES_SERVER 
         self._prepArgs          = kwargs["prepareArgs"] if kwargs.has_key("prepareArgs") else {"db": "cbtr"}
         self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.ALL_QUERIES
         self._host              = kwargs["host"] if kwargs.has_key("host") else "127.0.0.1"
@@ -152,6 +154,7 @@ class Benchmark:
         else:
             print "---\nManual mode, expecting HYRISE server running on port %s\n---" % self._port
 
+        self._runTableLoadQueries()
         self._runPrepareQueries()
 
         print "Preparing benchmark..."
@@ -369,20 +372,26 @@ class Benchmark:
         for i in range(self._numUsers):
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
 
+    def _fireQueryParallel(self, queries):
+        rs = (grequests.post("http://%s:%s/" % (self._host, self._port), data={"query": q}) for q in queries)
+        return grequests.map(rs)
+
+    def _runTableLoadQueries(self):
+        if self._tableLoadQueries == None or len(self._tableLoadQueries) == 0:
+          return
+
+        sys.stdout.write("Loading tables...\r")
+        sys.stdout.flush()
+        self._fireQueryParallel([self._queryDict[q] for q in self._tableLoadQueries])
+        print "Loading queries... done                             "
+
     def _runPrepareQueries(self):
         if self._prepQueries == None or len(self._prepQueries) == 0:
             return
-        numQueries = len(self._prepQueries)
-        for i, q in enumerate(self._prepQueries):
-            sys.stdout.write("Running prepare queries... %i%%      \r" % ((i+1.0) / numQueries * 100))
-            sys.stdout.flush()
-            try:
-                r = self.fireQuery(self._queryDict[q], self._prepArgs)
-                #self._session.post("http://%s:%s/" % (self._host, self._port), data={"query": queryString})
-            except Exception:
-                print "Running prepare queries... %i%% --> Error" % ((i+1.0) / numQueries * 100)
-        print "Running prepare queries... done"
-
+        sys.stdout.write("Running prepare queries in parallel...              \r")
+        sys.stdout.flush()
+        self._fireQueryParallel([self._queryDict[q] % self._prepArgs for q in self._prepQueries])
+        print "Running prepare queries in parallel... done                             "
 
     def _createUsers(self):
         for i in range(self._numUsers):
