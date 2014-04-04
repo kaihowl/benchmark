@@ -162,7 +162,6 @@ class Benchmark:
         self.loadTables()
         self.benchAfterLoad()
 
-        print self._vtune
         if self._vtune is not None:
             subprocess.check_output("amplxe-cl -command resume", cwd=self._vtune, shell=True)
 
