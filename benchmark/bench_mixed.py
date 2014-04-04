@@ -204,6 +204,8 @@ class MixedWLBenchmark(Benchmark):
         #self._dirHyriseDB = os.path.join(os.getcwd(), "hyrise")
         os.environ['HYRISE_DB_PATH'] = self._dirHyriseDB
 
+        self._distincts = kwargs["distincts"] if kwargs.has_key("distincts") else None
+
         self._olapUser = kwargs["olapUser"] if kwargs.has_key("olapUser") else 0
         self._olapQueries = kwargs["olapQueries"] if kwargs.has_key("olapQueries") else ()
         self._olapThinkTime = kwargs["olapThinkTime"] if kwargs.has_key("olapThinkTime") else 0
@@ -220,8 +222,11 @@ class MixedWLBenchmark(Benchmark):
         self.setUserClass(MixedWLUser)
         self._queryDict = self.loadQueryDict()
 
+    def benchAfterLoad(self):
+        if self._distincts is None:
+            self.initDistinctValues()
+
     def _createUsers(self):
-        self.initDistinctValues()
         self._userArgs["distincts"] = self._distincts
         for i in range(self._olapUser):
             self._userArgs["thinkTime"] = self._olapThinkTime 
@@ -246,16 +251,16 @@ class MixedWLBenchmark(Benchmark):
         sys.stdout.write(status_string+"\r")
         sys.stdout.flush()
         num_prep = 0
-        for q in PREPARE_DISTINCTS_SERVER:
-            sys.stdout.write(status_string + " %i%%\r" % (num_prep / float(len(PREPARE_DISTINCTS_SERVER)) * 100))
-            sys.stdout.flush()
-            with open(PREPARE_DISTINCTS_SERVER[q], "r") as f:
-                query = f.read()
-            data = self.fireQuery(query).json()
-            if "rows" in data:
-                self._distincts[q] = data["rows"]
-            num_prep += 1
+        query_pairs = [(k, open(v, "r").read()) for (k,v) in PREPARE_DISTINCTS_SERVER.iteritems()]
+        resp_pairs = [(query_pairs[i][0], resp) for i, resp in enumerate(self._fireQueryParallel([v for (k,v) in query_pairs]))]
+        for queryName, resp in resp_pairs:
+          data = resp.json()
+          if "rows" in data:
+            self._distincts[queryName] = data["rows"]
         print "finished prepare for placeholders ...                                            "
+
+    def getDistinctValues(self):
+        return self._distincts
 
     def loadQueryDict(self):
         queryDict = {}

@@ -164,15 +164,22 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     kwargs["olapQueries"] = ("vldb_q10", "vldb_q11", "vldb_q12")
     kwargs["olapUser"] = 32
 
+    distincts = None
+
     mts_list = [30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
     for mts in mts_list:
         print "starting benchmark with mts=" + str(mts)
+        if not distincts is None:
+          print "Reusing distincts from now on."
+          kwargs["distincts"] = distincts
         runId = str(mts)        
         kwargs["mts"] = mts
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
         b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
         b1.run()
         time.sleep(5)
+        # save distincts for next run
+        distincts = b1.getDistinctValues()
     groupMapping = {}
     for query in kwargs["oltpQueries"]:
      groupMapping[query] = "OLTP" 
