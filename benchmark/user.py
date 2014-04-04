@@ -21,6 +21,7 @@ class User(multiprocessing.Process):
         self._queryDict         = queryDict
         self._thinkTime         = kwargs["thinkTime"] if kwargs.has_key("thinkTime") else 0
         self._papi              = kwargs["papi"] if kwargs.has_key("papi") else "NO_PAPI"
+        self._startTime         = kwargs["startTime"] if kwargs.has_key("startTime") else 0
         self._stopevent         = multiprocessing.Event()
         self._logevent          = multiprocessing.Event()
         self._logging           = False
@@ -55,11 +56,18 @@ class User(multiprocessing.Process):
     def run(self):
         self._prepare()
         self.prepareUser()
+        started = False
+        print self._startTime
         while not self._stopevent.is_set():
             tStart = time.time()
+            if(self._startTime > 0 and not started):
+                time.sleep(self._startTime)
+                started = True
             self.runUser()
             self._totalTime += time.time() - tStart
             self._totalRuns += 1
+            if(self._thinkTime > 0):
+                time.sleep(self._thinkTime)
         self.stopUser()
         self._writeLogs()
         print "User runtime: ", self._totalTime, " User querytime: ", self._totalQueryTime
