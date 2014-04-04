@@ -22,9 +22,10 @@ def runbenchmarks(groupId, s1, **kwargs):
     output += plotter.printFormattedStatisticsAverage(kwargs["benchmarkQueries"])
     return output
 
+# NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
 def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
     output = ""
-    kwargs["oltpQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
+    kwargs["oltpQueries"] = ("vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
 
     users = [64]#[1, 4, 8, 16, 24, 32, 64]
     for j in users:
@@ -153,15 +154,15 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
 def runBenchmark_varying_mts(groupId, s1, **kwargs):
     output = ""
 
-    kwargs["oltpQueries"] = ("q6a", "q6b", "q7", "q8", "q9")
+    kwargs["oltpQueries"] = ("vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
     kwargs["oltpUser"] = 1
-    kwargs["tolapQueries"] = ("xselling",)
+    kwargs["tolapQueries"] = ("vldb_xselling",)
     # TODO why was that 0?
     kwargs["tolapUser"] = 1
     # TODO is this in seconds?
     kwargs["tolapThinkTime"] = 1
-    kwargs["olapQueries"] = ("q10", "q11", "q12")
-    kwargs["olapUser"] =   32
+    kwargs["olapQueries"] = ("vldb_q10", "vldb_q11", "vldb_q12")
+    kwargs["olapUser"] = 32
 
     mts_list = [30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
     for mts in mts_list:
@@ -308,7 +309,7 @@ output += "\n"
 output += "Varying MTS 31 OLTP users on 31 threads\n"
 output += "\n"
 
-schedulers = [
+#schedulers = [
     #    "WSThreadLevelQueuesScheduler",
     #    "ThreadLevelQueuesScheduler",
     #    "CoreBoundQueuesScheduler",
@@ -317,7 +318,7 @@ schedulers = [
     #    "ThreadLevelPriorityQueuesScheduler",
     #    "CoreBoundPriorityQueuesScheduler",
     #    "WSCoreBoundPriorityQueuesScheduler",
-        "CentralScheduler",
+    #    "CentralScheduler",
     #    "CentralPriorityScheduler",
     #    "ThreadPerTaskScheduler",
     #    "DynamicPriorityScheduler",
@@ -326,7 +327,7 @@ schedulers = [
     #    "WSNodeBoundQueuesScheduler",
     #    "NodeBoundPriorityQueuesScheduler",
     #    "WSNodeBoundPriorityQueuesScheduler"
-]
+#]
 
 #output += "\n"
 #output += "\n"

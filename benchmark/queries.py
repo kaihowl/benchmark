@@ -40,6 +40,10 @@ OLAP_QUERY_FILES = {
     "q11"                    : "queries/mixed/q11.json",
     "q12"                    : "queries/mixed/q12.json",
     "xselling"               : "queries/mixed/xselling.json",
+    "vldb_q10"               : "queries/vldb-mixed/q10.json",
+    "vldb_q11"               : "queries/vldb-mixed/q11.json",
+    "vldb_q12"               : "queries/vldb-mixed/q12.json",
+    "vldb_xselling"          : "queries/vldb-mixed/xselling.json",
     "q6_ch"                  : "queries/mixed/q6_ch.json",
     "ccsched1"               : "queries/other/ccsched_test.json",
     "ccsched2"               : "queries/other/ccsched_test2.json",
@@ -53,21 +57,21 @@ OLAP_QUERY_FILES = {
 
 
 OLTP_QUERY_FILES ={
-      "q6a":  "queries/vldb-mixed/q6a.json",
-      "q6b":  "queries/vldb-mixed/q6b.json",
-      "q7":  "queries/vldb-mixed/q7.json",
-      "q8":  "queries/vldb-mixed/q8.json",
-      "q9":  "queries/vldb-mixed/q9.json"
+      "vldb_q6a":  "queries/vldb-mixed/q6a.json",
+      "vldb_q6b":  "queries/vldb-mixed/q6b.json",
+      "vldb_q7":  "queries/vldb-mixed/q7.json",
+      "vldb_q8":  "queries/vldb-mixed/q8.json",
+      "vldb_q9":  "queries/vldb-mixed/q9.json"
 }
 
 
 # relative weights for queries in format (id, weight)                                                                                                                                                         
 OLTP_WEIGHTS = (
-    ("q6a", 1),
-    ("q6b", 1),
-    ("q7", 1),
-    ("q8", 1),
-    ("q9", 1)
+    ("vldb_q6a", 1),
+    ("vldb_q6b", 1),
+    ("vldb_q7", 1),
+    ("vldb_q8", 1),
+    ("vldb_q9", 1)
     )
 
 OLAP_WEIGHTS = (
@@ -75,6 +79,10 @@ OLAP_WEIGHTS = (
     ("q11", 1),
     ("q12", 1),
     ("xselling", 1),
+    ("vldb_q10", 1),
+    ("vldb_q11", 1),
+    ("vldb_q12", 1),
+    ("vldb_xselling", 1),
     ("q6_ch", 1),
     ("ccsched1", 1),
     ("ccsched2", 1),
