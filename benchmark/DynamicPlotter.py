@@ -53,6 +53,7 @@ class DynamicPlotter:
       ax.set_ylabel("Throughput")
       ax2 = ax.twinx()
       ax2.set_ylabel("Response Time in s")
+      ax2.set_yscale("log")
       x_values = sorted([int(x) for x in runStats.keys()])
 
       line_colors = { 
@@ -71,7 +72,7 @@ class DynamicPlotter:
 
       lines, labels = ax.get_legend_handles_labels()
       lines2, labels2 = ax2.get_legend_handles_labels()
-      ax2.legend(lines + lines2, labels + labels2, loc=2)
+      ax2.legend(lines + lines2, labels + labels2, loc=4)
 
       fname = "varying_mts_%s.pdf" % str(int(time.time()))
       plt.savefig(fname)
