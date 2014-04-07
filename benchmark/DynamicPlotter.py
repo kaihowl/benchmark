@@ -32,11 +32,12 @@ class DynamicPlotter:
       runStats = self._aggregateToGroups(queryToGroupMapping)
 
       for groupName in set(queryToGroupMapping.values()):
-        logStr += "mts_%s\tthroughput\tavgSRT\n" % groupName
+        logStr += "mts_%s\tthroughput\tavgSRT\tmedSRT\n" % groupName
         for intRunId, runId in sorted([(_try_int(x), x) for x in runStats.keys()]):
           stats = runStats[runId]
           statDict = stats[groupName]
-          logStr += "%s\t%s\t%s\n" % (runId, statDict["throughput"], statDict["avgservertime"])
+          logStr += "%s\t%s\t%s\t%s\n" % (runId, statDict["throughput"],
+              statDict["avgservertime"], statDict["medservertime"])
         logStr += "\n\n"
 
       return logStr
@@ -219,10 +220,12 @@ class DynamicPlotter:
                         txStats = {}
                         for txId, serverRunTimes in tmpTxStats.iteritems():
                           avgTime = average(serverRunTimes)
+                          medTime = median(serverRunTimes)
                           counts = len(serverRunTimes)
                           txStats[txId] = {
                               "throughput": counts,
-                              "avgservertime": avgTime}
+                              "avgservertime": avgTime, 
+                              "medservertime": medTime}
 
                         runs[run][build] = {
                             "opStats": opStats,
