@@ -69,14 +69,10 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
     
     kwargs["olapQueries"] = ("q10i","q11i","q12i")
-    kwargs["tolapUser"] = 0
-    kwargs["tolapThinkTime"] = 1
-    kwargs["tolapQueries"] = ("xsellingi",)
-    kwargs["oltpUser"] = 0
-    kwargs["oltpQueries"] = ("q7", "q8")
 
-    instances = [1]
-    users = [1]
+    # numbers chosen to match the original paper's datapoints
+    instances = [1, 8, 32, 128]
+    users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
     for i in instances:
         for j in users:
            print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
