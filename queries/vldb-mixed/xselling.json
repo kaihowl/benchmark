@@ -11,7 +11,7 @@
       "f1": 2,
       "COMMENT": "value is in the dictionary for 10mill",
       "v_f1": "%(rand_matnr_vbap)s",
-      "dynamic": true
+      "instances": 32
     },
     "3" : {
       "type" : "TableScan",
@@ -19,14 +19,16 @@
       "f1": 2,
       "COMMENT": "value is in the dictionary for 10mill",
       "v_f1": "%(rand_matnr_vbap_2)s",
-      "dynamic": true
+      "instances": 32
     },
     "4": {
       "type": "RadixJoin",
       "bits1": 10,
       "bits2": 5,
       "fields": [1,1], // Left and right
-      "dynamic": true
+      "hash_par": 32,
+      "probe_par": 32,
+      "join_par": 32
     },
     "5": {
       "type": "NoOp"
