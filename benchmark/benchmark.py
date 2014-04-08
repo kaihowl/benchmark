@@ -88,7 +88,7 @@ class Benchmark:
 
         self._session.headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
         if os.path.isdir(os.path.join(os.getcwd(), "results")):
-          print "\x1b[31;1mWARNING: Results folder exists. Final report might contain old, not overriden results\x1b[0m"
+          print "\x1b[31;1mWARNING: Results folder exists. Final report might contain old, not overridden results\x1b[0m"
         if not os.path.isdir(self._dirResults):
             os.makedirs(self._dirResults)
 
