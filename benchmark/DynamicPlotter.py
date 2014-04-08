@@ -95,9 +95,12 @@ class DynamicPlotter:
         for groupName, statList in tmpStats.iteritems():
           totalThroughput = sum([x["throughput"] for x in statList])
           totalAverage = sum([x["throughput"] * x["avgservertime"] for x in statList]) / totalThroughput
+          totalMedian = sum([x["throughput"] * x["medservertime"] for x in
+            statList]) / totalThroughput
           finalStats[groupName] = {
               "throughput": totalThroughput,
-              "avgservertime": totalAverage}
+              "avgservertime": totalAverage,
+              "medservertime": totalMedian}
 
         runStats[runId] = finalStats
 
@@ -216,7 +219,7 @@ class DynamicPlotter:
                           }
 
                         # key: queryname
-                        # value: throughput and avgservertime
+                        # value: throughput,  medservertime, and avgservertime
                         txStats = {}
                         for txId, serverRunTimes in tmpTxStats.iteritems():
                           avgTime = average(serverRunTimes)

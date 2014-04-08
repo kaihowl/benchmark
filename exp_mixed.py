@@ -177,17 +177,23 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
         # save distincts for next run
         distincts = b1.getDistinctValues()
     groupMapping = {}
+    identityMapping = {}
     for query in kwargs["oltpQueries"]:
      groupMapping[query] = "OLTP" 
+     identityMapping[query] = query 
     for query in kwargs["olapQueries"]:
       groupMapping[query] = "OLAP"
+      identityMapping[query] = query 
     for query in kwargs["tolapQueries"]:
       groupMapping[query] = "TOLAP"
+      identityMapping[query] = query 
     plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
     output += plotter.printGroupFormatted(groupMapping)
     output += "\n"
-    output += plotter.printQueryOpStatistics(("NestedLoopEquiJoin", "TableScan"))
+    output += plotter.printGroupFormatted(identityMapping)
+    output += "\n"
+    output += plotter.printQueryOpStatistics()
     plotter.plotGroups(groupMapping)
     return output
 
