@@ -147,7 +147,7 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     return output
 
 
-def runBenchmark_varying_mts(groupId, s1, **kwargs):
+def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
     output = ""
 
     kwargs["oltpQueries"] = ("vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
@@ -163,15 +163,18 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
     distincts = None
 
     mts_list = [30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
-    for mts in mts_list:
+
+    for run in range(1, numRuns+1):
+      print "Run %d" % run
+      for mts in mts_list:
         print "starting benchmark with mts=" + str(mts)
         if not distincts is None:
           print "Reusing distincts from now on."
           kwargs["distincts"] = distincts
-        runId = str(mts)        
+        runId = str(run) 
         kwargs["mts"] = mts
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
-        b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+        b1 = MixedWLBenchmark(groupId, runId, benchmark.Settings(str(mts)), **kwargs)
         b1.run()
         time.sleep(5)
         # save distincts for next run
@@ -189,12 +192,12 @@ def runBenchmark_varying_mts(groupId, s1, **kwargs):
       identityMapping[query] = query 
     plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
-    output += plotter.printGroupFormatted(groupMapping)
-    output += "\n"
-    output += plotter.printGroupFormatted(identityMapping)
-    output += "\n"
-    output += plotter.printQueryOpStatistics()
-    plotter.plotGroups(groupMapping)
+    #output += plotter.printGroupFormatted(groupMapping)
+    #output += "\n"
+    #output += plotter.printGroupFormatted(identityMapping)
+    #output += "\n"
+    #output += plotter.printQueryOpStatistics()
+    #plotter.plotGroups(groupMapping)
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
@@ -346,7 +349,8 @@ output += "\n"
 #    kwargs["scheduler"] = scheduler
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
-output += runBenchmark_varying_mts("Var_mts", s1, **kwargs)
+#runBenchmark_varying_users(groupId, numRuns, ...)
+output += runBenchmark_varying_mts("Var_mts", 3, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
