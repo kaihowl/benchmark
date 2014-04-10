@@ -1,4 +1,5 @@
 PREPARE_DISTINCTS_SERVER = {
+    "distinct-addrnumber-adrc": "queries/vldb-mixed/distinct-addrnumber-adrc.json",
     "distinct-name1-adrc": "queries/vldb-mixed/distinct-name1-adrc.json",
     "distinct-kunnr-kna1": "queries/vldb-mixed/distinct-kunnr-kna1.json",
     "distinct-kunnr-vbak": "queries/vldb-mixed/distinct-kunnr-vbak.json",
@@ -16,6 +17,7 @@ TABLE_LOAD_QUERIES_SERVER = {
 
 PREPARE_QUERIES_SERVER = {
     "index-name1-adrc": "queries/vldb-mixed/index-name1-adrc.json",
+    "index-addrnumber-adrc": "queries/vldb-mixed/index-addrnumber-adrc.json",
     "index-kunnr-kna1": "queries/vldb-mixed/index-kunnr-kna1.json",
     "index-matnr-makt": "queries/vldb-mixed/index-matnr-makt.json",
     "index-matnr-mara": "queries/vldb-mixed/index-matnr-mara.json",
