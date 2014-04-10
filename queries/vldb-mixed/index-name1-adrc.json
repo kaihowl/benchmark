@@ -6,8 +6,8 @@
     },
     "1": {
       "type": "CreateIndex",
-      "fields": ["ADDRNUMBER"],
-      "index_name": "adrc_addrnumber_idx"
+      "fields": ["NAME1"],
+      "index_name": "adrc_name1_idx"
     },
     "2": {
       "type" : "NoOp"

@@ -6,15 +6,15 @@
     },
     "distinct": {
       "type": "Distinct",
-      "fields": ["ADDRNUMBER"]
+      "fields": ["NAME1"]
     },
     "project": {
       "type" : "ProjectionScan",
-      "fields" : ["ADDRNUMBER"]
+      "fields" : ["NAME1"]
     }
   },
   "edges": [
     ["load", "distinct"],
-  ["distinct", "project"]
+    ["distinct", "project"]
     ]
 }

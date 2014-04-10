@@ -170,7 +170,7 @@ class MixedWLUser(User):
           'rand_matnr_vbap': random.choice(self._distincts['distinct-matnr-vbap'])[0],
           'rand_matnr_vbap_2': random.choice(self._distincts['distinct-matnr-vbap'])[0],
           'rand_kunnr_kna1': random.choice(self._distincts['distinct-kunnr-kna1'])[0],
-          'rand_addrnumber_adrc': random.choice(self._distincts['distinct-addrnumber-adrc'])[0],
+          'rand_name1_adrc': random.choice(self._distincts['distinct-name1-adrc'])[0],
           'rand_matnr_makt': random.choice(self._distincts['distinct-matnr-makt'])[0],
           'rand_matnr_mara': random.choice(self._distincts['distinct-matnr-mara'])[0],
           'rand_vbeln_vbap': random.choice(self._distincts['distinct-vbeln-vbap'])[0],

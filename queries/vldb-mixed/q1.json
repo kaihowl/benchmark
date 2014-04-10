@@ -1,0 +1,19 @@
+{
+  "priority": 1,
+  "operators": {
+    "load_adrc" : {
+      "type" : "GetTable",
+      "name": "adrc"
+    },
+    "filter_name1": {
+      "type": "IndexScan",
+      "vtype": 2,
+      "value": "%(rand_name1_adrc)s",
+      "index": "adrc_name1_idx",
+      "fields": ["NAME1"]
+    }
+  },
+  "edges": [
+    ["load_adrc", "filter_name1"]
+  ]
+}
