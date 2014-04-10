@@ -11,7 +11,7 @@
       "value": "%(rand_matnr_makt)s",
       "index": "makt_matnr_idx",
       "fields": ["MATNR"]
-    }
+    },
     "projection": {
       "type": "ProjectionScan",
       "fields": ["MATNR", "MAKTX"]
