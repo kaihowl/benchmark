@@ -1,4 +1,5 @@
 import httplib
+import json
 import logging
 import os
 import requests
@@ -254,7 +255,7 @@ class MixedWLBenchmark(Benchmark):
         query_pairs = [(k, open(v, "r").read()) for (k,v) in PREPARE_DISTINCTS_SERVER.iteritems()]
         resp_pairs = [(query_pairs[i][0], resp) for i, resp in enumerate(self._fireQueryParallel([v for (k,v) in query_pairs]))]
         for queryName, resp in resp_pairs:
-          data = resp.json()
+          data = json.loads(resp.text.encode('utf-8'))
           if "rows" in data:
             self._distincts[queryName] = data["rows"]
         print "finished prepare for placeholders ...                                            "
