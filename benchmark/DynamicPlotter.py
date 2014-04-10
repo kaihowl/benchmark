@@ -19,7 +19,6 @@ class DynamicPlotter:
         self._groupId = benchmarkGroupId
         self._dirOutput = os.path.join(os.getcwd(), "plots", str(self._groupId))
         self._runs = self._collect()
-        self._buildIds = self._runs[self._runs.keys()[0]].keys()
 
         if not os.path.isdir(self._dirOutput):
             os.makedirs(self._dirOutput)
@@ -28,16 +27,26 @@ class DynamicPlotter:
     # group they fall into as the value. This will then print statistics for the groups instead of 
     # individual queries.
     def printGroupFormatted(self, queryToGroupMapping):
-      logStr = ""
       runStats = self._aggregateToGroups(queryToGroupMapping)
+      numRuns = len(runStats[runStats.keys()[0]])
+      logStr = "Average of %i runs:\n" % numRuns
 
       for groupName in set(queryToGroupMapping.values()):
-        logStr += "mts_%s\tthroughput\tavgSRT\tmedSRT\n" % groupName
-        for intRunId, runId in sorted([(_try_int(x), x) for x in runStats.keys()]):
-          stats = runStats[runId]
-          statDict = stats[groupName]
-          logStr += "%s\t%s\t%s\t%s\n" % (runId, statDict["throughput"],
-              statDict["avgservertime"], statDict["medservertime"])
+        logStr += "mts_%s\tavgThroughput\tavgAvgServertime\tavgMedServertime\tavgStdServertime\n" % groupName
+        for mts in sorted(runStats.keys()):
+          statsList = runStats[mts]
+
+          def getValueOrDefault(x, key, defValue):
+            if groupName in x:
+              return x[groupName][key]
+            else:
+              return defValue
+          avgThroughput = average([getValueOrDefault(x, "throughput", 0) for x in statsList])
+          avgAvgServertime = average([getValueOrDefault(x, "avgservertime", 0) for x in statsList])
+          avgMedServertime = average([getValueOrDefault(x, "medservertime", 0) for x in statsList])
+          avgStdServertime = average([getValueOrDefault(x, "stdservertime", 0) for x in statsList])
+          logStr += "%s\t%s\t%s\t%s\t%s\n" % (mts, avgThroughput, avgAvgServertime,
+              avgMedServertime, avgStdServertime)
         logStr += "\n\n"
 
       return logStr
@@ -79,32 +88,36 @@ class DynamicPlotter:
       plt.savefig(fname)
       plt.close()
 
+    # returns a dictionary
+    # key: mts
+    # value: list of dictionaries with key: groupName and value: throughput,
+    # avgservertime, medianservertime
     def _aggregateToGroups(self, queryToGroupMapping):
-      runStats = {}
-      for runId, runData in self._runs.iteritems():
-        # key: group name
-        # value: list of throughput/averageservertime for all queries belonging to the group
-        tmpStats = {}
-        txStats = runData[runData.keys()[0]]["txStats"]
-        for txId, singleTxStat in txStats.iteritems():
-          curGroupName = queryToGroupMapping[txId]
-          tmpStats.setdefault(curGroupName, list())
-          tmpStats[curGroupName].append(singleTxStat)
+      mtsStats = {}
+      for run, mtsDict in self._runs.iteritems():
+        for mts, queries in mtsDict.iteritems():
+          stats = {}
+          for query in queries:
+            groupName = queryToGroupMapping[query["txId"]]
+            stats.setdefault(groupName, list())
+            for op in query["opData"]:
+              if op["id"] == "respond":
+                servertime = op["endTime"]
+                break
+            stats[groupName].append(servertime)
 
-        finalStats = {}
-        for groupName, statList in tmpStats.iteritems():
-          totalThroughput = sum([x["throughput"] for x in statList])
-          totalAverage = sum([x["throughput"] * x["avgservertime"] for x in statList]) / totalThroughput
-          totalMedian = sum([x["throughput"] * x["medservertime"] for x in
-            statList]) / totalThroughput
-          finalStats[groupName] = {
-              "throughput": totalThroughput,
-              "avgservertime": totalAverage,
-              "medservertime": totalMedian}
+          finalStats = {}
+          for groupName, servertimes in stats.iteritems():
+            finalStats[groupName] = {
+                "throughput": len(servertimes),
+                "avgservertime": average(servertimes),
+                "medservertime": median(servertimes),
+                "stdservertime": std(servertimes)
+                }
 
-        runStats[runId] = finalStats
+          mtsStats.setdefault(int(mts), list()).append(finalStats)
 
-      return runStats
+      return mtsStats
 
     # prints a per query view of the degree of parallelism 
     # for a query and the average of the median runtimes 
@@ -125,13 +138,13 @@ class DynamicPlotter:
       return logStr
 
     def _collect(self):
-        runs = {}
+        data = {}
         dirResults = os.path.join(os.getcwd(), "results", self._groupId)
         if not os.path.isdir(dirResults):
             raise Exception("Group result directory '%s' not found!" % dirResults)
 
-        # --- Runs --- #
         for run in os.listdir(dirResults):
+          dirRun = os.path.join(dirResults, run)
 
             dirRun = os.path.join(dirResults, run)
             if os.path.isdir(dirRun):
@@ -234,4 +247,38 @@ class DynamicPlotter:
                             "opStats": opStats,
                             "txStats": txStats}
 
-        return runs
+          data[run] = {}
+
+          for mts in os.listdir(dirRun):
+            dirMts = os.path.join(dirRun, mts)
+            if not os.path.isdir(dirMts):
+              continue
+
+            data[run][str(mts)] = list()
+            for user in os.listdir(dirMts):
+              dirUser = os.path.join(dirMts, user)
+              if not os.path.isdir(dirUser):
+                continue
+
+              logFileName = os.path.join(dirUser, "transactions.log")
+              if not os.path.isfile(logFileName):
+                print "WARNING: no transaction log found in %s!" % dirUser
+
+              for rawline in open(logFileName):
+                linedata = rawline.split(";")
+                if len(linedata) < 2:
+                  continue
+                txId = linedata[0]
+                runTime = float(linedata[1])
+                startTime = float(linedata[2])
+                opData = ast.literal_eval(linedata[3])
+
+                # add new item to main data list structure
+                data[run][mts].append({
+                  "user": user,
+                  "txId": txId,
+                  "runTime": runTime,
+                  "startTime": startTime,
+                  "opData": opData})
+
+        return data
