@@ -162,7 +162,7 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
 
     distincts = None
 
-    mts_list = [30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
+    mts_list = [10, 30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
 
     for run in range(1, numRuns+1):
       print "Run %d" % run
