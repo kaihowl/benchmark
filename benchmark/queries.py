@@ -53,7 +53,12 @@ OLTP_QUERY_FILES ={
       "vldb_q6b":  "queries/vldb-mixed/q6b.json",
       "vldb_q7":  "queries/vldb-mixed/q7.json",
       "vldb_q8":  "queries/vldb-mixed/q8.json",
-      "vldb_q9":  "queries/vldb-mixed/q9.json"
+      "vldb_q9":  "queries/vldb-mixed/q9.json",
+      "vldb_q1":  "queries/vldb-mixed/q1.json",
+      "vldb_q2":  "queries/vldb-mixed/q2.json",
+      "vldb_q3":  "queries/vldb-mixed/q3.json",
+      "vldb_q4":  "queries/vldb-mixed/q4.json",
+      "vldb_q5":  "queries/vldb-mixed/q5.json"
 }
 
 
@@ -63,7 +68,12 @@ OLTP_WEIGHTS = (
     ("vldb_q6b", 1),
     ("vldb_q7", 1),
     ("vldb_q8", 1),
-    ("vldb_q9", 1)
+    ("vldb_q9", 1),
+    ("vldb_q1", 1),
+    ("vldb_q2", 1),
+    ("vldb_q3", 1),
+    ("vldb_q4", 1),
+    ("vldb_q5", 1)
     )
 
 OLAP_WEIGHTS = (

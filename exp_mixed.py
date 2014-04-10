@@ -150,7 +150,7 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
 def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
     output = ""
 
-    kwargs["oltpQueries"] = ("vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
+    kwargs["oltpQueries"] = ("vldb_q1", "vldb_q2", "vldb_q3", "vldb_q4", "vldb_q5", "vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
     kwargs["oltpUser"] = 1
     kwargs["tolapQueries"] = ("vldb_xselling",)
     # TODO why was that 0?
