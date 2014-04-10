@@ -64,7 +64,8 @@ class DynamicPlotter:
       ax2 = ax.twinx()
       ax2.set_ylabel("Response Time in s")
       ax2.set_yscale("log")
-      x_values = sorted([int(x) for x in runStats.keys()])
+      #MTS values
+      x_values = sorted([x for x in runStats.keys()])
 
       line_colors = { 
           "OLAP": "b",
@@ -73,11 +74,11 @@ class DynamicPlotter:
       }
 
       for name in ("OLAP",):
-        y_values = [runStats[str(x)][name]["throughput"] for x in x_values]
+        y_values = [average([y[name]["throughput"] for y in runStats[x]]) for x in x_values]
         ax.plot(x_values, y_values, line_colors[name], label=name)
 
       for name in ("OLTP", "TOLAP"):
-        y_values = [runStats[str(x)][name]["avgservertime"] for x in x_values]
+        y_values = [average([y[name]["avgservertime"] for y in runStats[x]]) for x in x_values]
         ax2.plot(x_values, y_values, line_colors[name], label=name)
 
       lines, labels = ax.get_legend_handles_labels()
@@ -146,106 +147,8 @@ class DynamicPlotter:
         for run in os.listdir(dirResults):
           dirRun = os.path.join(dirResults, run)
 
-            dirRun = os.path.join(dirResults, run)
-            if os.path.isdir(dirRun):
-                runs[run] = {}
-
-                # --- Builds --- #
-                for build in os.listdir(dirRun):
-                    dirBuild = os.path.join(dirRun, build)
-                    if os.path.isdir(dirBuild):
-
-                        # -- Count Users --- #
-                        numUsers = 0
-                        for user in os.listdir(dirBuild):
-                            dirUser = os.path.join(dirBuild, user)
-                            if os.path.isdir(dirUser):
-                                numUsers += 1
-
-                        # key: queryname + "_" + operator name + "_" + operator id till underscore
-                        # value: list of count and median runtimes of the operator group
-                        tmpOpStats = {}
-
-                        # key: txId
-                        # value: server runtime
-                        tmpTxStats = {}
-
-                        # -- Users --- #
-                        for user in os.listdir(dirBuild):
-
-                            dirUser = os.path.join(dirBuild, user)
-                            if os.path.isdir(dirUser):
-                                if not os.path.isfile(os.path.join(dirUser, "transactions.log")):
-                                    print "WARNING: no transaction log found in %s!" % dirUser
-                                    continue
-                                for rawline in open(os.path.join(dirUser, "transactions.log")):
-
-                                    linedata = rawline.split(";")
-                                    if len(linedata) < 2:
-                                        continue
-
-                                    txId        = linedata[0]
-                                    runtime     = float(linedata[1])
-                                    starttime   = float(linedata[2])
-                                    
-                                    tmpTxStats.setdefault(txId, list())
-
-                                    if len(linedata) > 3:
-                                        opData = ast.literal_eval(linedata[3])
-                                        curOpStats = {}
-                                        for op in opData:
-                                            if op["name"].encode('utf8') == "ResponseTask":
-                                              queryEndTime = float(op["endTime"])
-                                            # uniquely identify all instances of an operator
-                                            # in a query
-                                            opGroupName = op["name"] + op["id"][:op["id"].rfind("_")]
-                                            curOpStats.setdefault(opGroupName, list())
-                                            opTime = float(op["endTime"]) - float(op["startTime"])
-                                            curOpStats[opGroupName].append(opTime)
-
-                                        for opGroupName, rtList in curOpStats.iteritems():
-                                          opStatName = txId + "_" + opGroupName
-                                          tmpOpStats.setdefault(opStatName, list())
-                                          tmpOpStats[opStatName].append({
-                                            "count": len(rtList),
-                                            "medianDur": median(rtList)
-                                          })
-
-                                    tmpTxStats[txId].append(queryEndTime)
-
-
-
-                        # key: queryname + "_" + operator name + "_" + operator id till underscore
-                        # value: count and avg-median server runtime
-                        opStats = {}
-                        for opStatName, tmpRuns in tmpOpStats.iteritems():
-                          countList = [x["count"] for x in tmpRuns]
-                          avgCount = average(countList)
-                          minCount = amin(countList)
-                          maxCount = amax(countList)
-
-                          opStats[opStatName] = {
-                              "avgCount": avgCount,
-                              "minCount": minCount,
-                              "maxCount": maxCount,
-                              "avgMedSrt": average([x["medianDur"] for x in tmpRuns])
-                          }
-
-                        # key: queryname
-                        # value: throughput,  medservertime, and avgservertime
-                        txStats = {}
-                        for txId, serverRunTimes in tmpTxStats.iteritems():
-                          avgTime = average(serverRunTimes)
-                          medTime = median(serverRunTimes)
-                          counts = len(serverRunTimes)
-                          txStats[txId] = {
-                              "throughput": counts,
-                              "avgservertime": avgTime, 
-                              "medservertime": medTime}
-
-                        runs[run][build] = {
-                            "opStats": opStats,
-                            "txStats": txStats}
+          if not os.path.isdir(dirRun):
+            continue
 
           data[run] = {}
 

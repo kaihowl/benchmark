@@ -192,12 +192,12 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
       identityMapping[query] = query 
     plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
-    #output += plotter.printGroupFormatted(groupMapping)
-    #output += "\n"
-    #output += plotter.printGroupFormatted(identityMapping)
-    #output += "\n"
+    output += plotter.printGroupFormatted(groupMapping)
+    output += "\n"
+    output += plotter.printGroupFormatted(identityMapping)
+    output += "\n"
     #output += plotter.printQueryOpStatistics()
-    #plotter.plotGroups(groupMapping)
+    plotter.plotGroups(groupMapping)
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
