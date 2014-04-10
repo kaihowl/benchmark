@@ -1,17 +1,8 @@
 import ast
 import os
-import sys
-from pylab import *
+from pylab import average, median, std
 import matplotlib.pyplot as plt
 import time
-
-# tries to convert a number to int. 
-# returns the successful conversion result or original string
-def _try_int(s):
-    try: 
-        return int(s)
-    except ValueError:
-        return s
 
 class DynamicPlotter:
 
@@ -126,17 +117,34 @@ class DynamicPlotter:
     # filterBySubStrings is a list of strings used as an output filter
     # only lines matching at least one substring in that list will show
     def printQueryOpStatistics(self, filterBySubStrings=list()):
-      logStr = "runId\topStatName\tminPar\tavgPar\tmaxPar\tavgMedSRT\n"
-      for intRunId, runId in sorted([(_try_int(x), x) for x in self._runs.keys()]):
-        runData = self._runs[runId]
-        opStats = runData[runData.keys()[0]]["opStats"]
-        for opStatName in sorted(opStats.keys()):
-          statDict = opStats[opStatName]
-          curLineStr = "%s\t%s\t%s\t%s\t%s\t%s\n" % (runId, opStatName, statDict["minCount"], statDict["avgCount"], statDict["maxCount"], statDict["avgMedSrt"])
-          if (len(filterBySubStrings)==0 or reduce(lambda x, el: x or el in curLineStr, filterBySubStrings, False)):
-            logStr += curLineStr
-
-      return logStr
+        logStr = "mts\trun\tquery_opname\tcount\tavgavgruntime\tavgstdruntime\n"
+        for run, mtsDict in self._runs.iteritems():
+            for mts, queryList in mtsDict.iteritems():
+                tmpOpStats = {}
+                for query in queryList:
+                    # collect runtimes of same operators in this query
+                    tmpQueryStats = {}
+                    for op in query["opData"]:
+                        runtime = op["endTime"] - op["startTime"]
+                        name = query["txId"] + "_" + op['name']
+                        tmpQueryStats.setdefault(name, list()).append(runtime)
+                    # insert parallelization degree and runtime for this query
+                    for opname, runtimes in tmpQueryStats.iteritems():
+                        tmpOpStats.setdefault(opname, list()).append({
+                                "count": len(runtimes),
+                                "avgruntime": average(runtimes),
+                                "stdruntime": std(runtimes)})
+                for opname, statDictList in tmpOpStats.iteritems():
+                    count = average([x["count"] for x in statDictList])
+                    avgavgruntime = average([x["avgruntime"] for x in statDictList])
+                    avgstdruntime = average([x["stdruntime"] for x in statDictList])
+                    to_format = (mts, run, opname, count, avgavgruntime, avgstdruntime)
+                    line_template = "%s\t" * len(to_format) + "\n"
+                    curLineStr = line_template % to_format
+                    # if current op is in filter
+                    if (len(filterBySubStrings)==0 or reduce(lambda x, el: x or el in curLineStr, filterBySubStrings, False)):
+                        logStr += curLineStr
+        return logStr
 
     def _collect(self):
         data = {}

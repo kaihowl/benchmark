@@ -196,7 +196,7 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
     output += "\n"
     output += plotter.printGroupFormatted(identityMapping)
     output += "\n"
-    #output += plotter.printQueryOpStatistics()
+    output += plotter.printQueryOpStatistics()
     plotter.plotGroups(groupMapping)
     return output
 
