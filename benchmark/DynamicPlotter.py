@@ -174,6 +174,7 @@ class DynamicPlotter:
               logFileName = os.path.join(dirUser, "transactions.log")
               if not os.path.isfile(logFileName):
                 print "WARNING: no transaction log found in %s!" % dirUser
+                continue
 
               for rawline in open(logFileName):
                 linedata = rawline.split(";")
