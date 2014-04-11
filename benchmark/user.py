@@ -69,7 +69,6 @@ class User(multiprocessing.Process):
                 time.sleep(self._thinkTime)
         self.stopUser()
         self._writeLogs()
-        print "User runtime: ", self._totalTime, " User querytime: ", self._totalQueryTime
 
     def stop(self):
         self._stopevent.set()

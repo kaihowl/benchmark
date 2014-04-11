@@ -77,7 +77,7 @@ class MixedWLUser(User):
                 self.addPerfData(result.get("performanceData", None))
                 self.log("transactions", [element, tEnd-tStart, tStart-self.userStartTime, self.perf])
             else: 
-                print "too late to log"
+                pass
 
     def oltp(self, predefined=None):
         if predefined == None:
