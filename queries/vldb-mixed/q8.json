@@ -8,7 +8,7 @@
     "filter_vbeln": {
       "type": "IndexScan",
       "vtype": 2,
-      "value": "%(rand_vbeln_vbap)s",
+      "value": %(rand_vbeln_vbap)s,
       "index": "vbap_vbeln_idx",
       "fields": ["VBELN"]
     }

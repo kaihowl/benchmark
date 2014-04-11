@@ -8,7 +8,7 @@
     "filter_kunnr": {
       "type": "IndexScan",
       "vtype": 2,
-      "value": "%(rand_kunnr_kna1)s",
+      "value": %(rand_kunnr_kna1)s,
       "index": "kna1_kunnr_idx",
       "fields": ["KUNNR"]
     }

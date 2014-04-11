@@ -8,7 +8,7 @@
     "filter_kunnr": {
       "type": "IndexScan",
       "vtype": 2,
-      "value": "%(rand_addrnumber_adrc)s",
+      "value": %(rand_addrnumber_adrc)s,
       "index": "adrc_addrnumber_idx",
       "fields": ["ADDRNUMBER"]
     }

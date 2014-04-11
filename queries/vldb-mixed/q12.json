@@ -11,7 +11,7 @@
       "f1" : 2,//MATNR
       "f2" : 5,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 30 mill / last 180 days",
-      "v_f1" : "%(rand_matnr_vbap)s",
+      "v_f1" : %(rand_matnr_vbap)s,
       "v_f2": 20030627,
       "dynamic": true
     },

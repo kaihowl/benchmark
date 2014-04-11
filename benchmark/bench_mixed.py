@@ -168,7 +168,7 @@ class MixedWLUser(User):
         #query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
 
     def getQueryFormatDict(self):
-        return {
+        unescaped_dict = {
           'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
           'rand_date': random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d"), # random date within today-360 days
           'rand_kunnr_vbak': random.choice(self._distincts['distinct-kunnr-vbak'])[0],
@@ -184,6 +184,10 @@ class MixedWLUser(User):
           'rand_netwr': random.normalvariate(100,5),
           'rand_kwmeng': random.normalvariate(100,5)
         }
+        format_dict = {}
+        for key, value in unescaped_dict.iteritems:
+            format_dict[key] = json.dumps(value)
+        return format_dict
 
     @staticmethod
     def weighted_choice(choices_and_weights):

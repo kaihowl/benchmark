@@ -8,7 +8,7 @@
     "filter_matnr": {
       "type": "IndexScan",
       "vtype": 2,
-      "value": "%(rand_matnr_mara)s",
+      "value": %(rand_matnr_mara)s,
       "index": "mara_matnr_idx",
       "fields": ["MATNR"]
     }

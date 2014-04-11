@@ -18,7 +18,7 @@
       "f1" : 3,//KUNNR
       "f2" : 2,//ERDAT
       "COMMENT": "from and to values are in the dictionary for 30 million / last 30 days",
-      "v_f1" : "%(rand_kunnr_vbak)s",
+      "v_f1" : %(rand_kunnr_vbak)s,
       "v_f2": 20031130,
       "dynamic": true
     },

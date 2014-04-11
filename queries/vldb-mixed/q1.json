@@ -8,7 +8,7 @@
     "filter_name1": {
       "type": "IndexScan",
       "vtype": 2,
-      "value": "%(rand_name1_adrc)s",
+      "value": %(rand_name1_adrc)s,
       "index": "adrc_name1_idx",
       "fields": ["NAME1"]
     }

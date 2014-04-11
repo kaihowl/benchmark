@@ -8,7 +8,7 @@
     "filter_maktx": {
       "type": "IndexScan",
       "vtype": 2,
-      "value": "%(rand_matnr_makt)s",
+      "value": %(rand_matnr_makt)s,
       "index": "makt_matnr_idx",
       "fields": ["MATNR"]
     },
