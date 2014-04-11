@@ -104,6 +104,7 @@ class User(multiprocessing.Process):
         elif result.status_code == 501:
             raise RuntimeWarning(result.text)
         else:
+            print query
             raise RuntimeError("Request failed --> %s" % result.text)
 
     def write_request_to_file(self, query, stored_procedure, filename, w_id):
