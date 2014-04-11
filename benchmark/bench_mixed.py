@@ -185,7 +185,7 @@ class MixedWLUser(User):
           'rand_kwmeng': random.normalvariate(100,5)
         }
         format_dict = {}
-        for key, value in unescaped_dict.iteritems:
+        for key, value in unescaped_dict.iteritems():
             format_dict[key] = json.dumps(value)
         return format_dict
 
