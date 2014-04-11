@@ -98,7 +98,9 @@ class MixedWLUser(User):
         if self._write_to_file:
             result = self.fireQuery(query)
         else:
-            result = json.loads(self.fireQuery(query).text.encode('utf-8'))
+            resp = self.fireQuery(query)
+            resp.encoding = 'ISO-8859-1'
+            result = resp.json()
         #  self._queries[queryid] += 1
         #self._queryRowsFile.write("%s %d\n" % (queryid,  len(result[0]["rows"])))
         #return result[1]
@@ -122,7 +124,9 @@ class MixedWLUser(User):
         if self._write_to_file:
             result = self.fireQuery(query)
         else:
-            result = json.loads(self.fireQuery(query).text.encode('utf-8'))
+            resp = self.fireQuery(query)
+            resp.encoding = 'ISO-8859-1'
+            result = resp.json()
         return result
 
         #self._queries[queryid] += 1
