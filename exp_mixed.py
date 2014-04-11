@@ -147,7 +147,43 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     return output
 
 
+def createPreloadArgs(num_users=0):
+    vertices_template = """
+       "loadvbak%(num)d" : {
+         "type" : "LoadDumpedTable",
+         "name" : "vbak"
+       },
+       "setvbak%(num)d" : {
+         "type" : "SetTable",
+         "name" : "vbak%(num)d"
+       },
+       "loadvbap%(num)d" : {
+         "type" : "LoadDumpedTable",
+         "name" : "vbap"
+       },
+       "setvbap%(num)d" : {
+         "type" : "SetTable",
+         "name" : "vbap%(num)d"
+       }, 
+    """
+    edges_template = """
+    ["loadvbak%(num)d", "setvbak%(num)d"],
+    ["loadvbap%(num)d", "setvbap%(num)d"],
+    ["setvbap%(num)d", "nop"],
+    ["setvbak%(num)d", "nop"],
+    """
+    preload_additional_vertices = "".join([vertices_template % {"num": i} for i in
+      range(num_users)])
+    preload_additional_edges = "".join([edges_template % {"num": i} for i in
+      range(num_users)])
+
+    return {
+        "preload_additional_vertices": preload_additional_vertices,
+        "preload_additional_edges": preload_additional_edges}
+
+
 def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
+    num_olap_users = 32
     output = ""
 
     kwargs["oltpQueries"] = ("vldb_q1", "vldb_q2", "vldb_q3", "vldb_q4", "vldb_q5", "vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
@@ -158,7 +194,8 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
     # TODO is this in seconds?
     kwargs["tolapThinkTime"] = 1
     kwargs["olapQueries"] = ("vldb_q10", "vldb_q11", "vldb_q12")
-    kwargs["olapUser"] = 32
+    kwargs["olapUser"] = num_olap_users
+    kwargs["tableLoadArgs"] = createPreloadArgs(num_olap_users)
 
     distincts = None
 

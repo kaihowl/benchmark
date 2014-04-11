@@ -37,6 +37,7 @@ class Benchmark:
         self._papi              = kwargs["papi"] if kwargs.has_key("papi") else "NO_PAPI"
         self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.PREPARE_QUERIES_SERVER
         self._tableLoadQueries  = kwargs["tableLoadQueries"] if kwargs.has_key("tableLoadQueries") else queries.TABLE_LOAD_QUERIES_SERVER 
+        self._tableLoadArgs     = kwargs["tableLoadArgs"] if kwargs.has_key("tableLoadArgs") else {"preload_additional_edges": "", "preload_additional_vertices": ""}
         self._prepArgs          = kwargs["prepareArgs"] if kwargs.has_key("prepareArgs") else {"db": "cbtr"}
         self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.ALL_QUERIES
         self._host              = kwargs["host"] if kwargs.has_key("host") else "127.0.0.1"
@@ -381,7 +382,7 @@ class Benchmark:
 
         sys.stdout.write("Loading tables...\r")
         sys.stdout.flush()
-        self._fireQueryParallel([self._queryDict[q] for q in self._tableLoadQueries])
+        self._fireQueryParallel([self._queryDict[q] % self._tableLoadArgs for q in self._tableLoadQueries])
         print "Loading queries... done                             "
 
     def _runPrepareQueries(self):

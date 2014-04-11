@@ -16,6 +16,7 @@
      "type" : "SetTable",
      "name" : "vbap"
    }, 
+  %(preload_additional_vertices)s
    "loadadrc" : {
      "type" : "LoadDumpedTable",
      "name" : "adrc"
@@ -59,6 +60,7 @@
     ["loadkna1", "setkna1"],
     ["loadmakt", "setmakt"],
     ["loadmara", "setmara"],
+    %(preload_additional_edges)s
     ["setvbap", "nop"],
     ["setvbak", "nop"],
     ["setadrc", "nop"],
