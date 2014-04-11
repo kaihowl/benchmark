@@ -26,7 +26,7 @@ class MixedWLUser(User):
         User.__init__(self, userId, host, port, dirOutput, queryDict, **kwargs)
 
 #        self.scaleParameters = kwargs["scaleParameters"]
-        self._benchmarkQueries = kwargs["queries"] if kwargs.has_key("queries") else queries.QUERIES_ALL
+        self._benchmarkQueries = kwargs["queries"] if kwargs.has_key("queries") else list()
             
        # print self._benchmarkQueries
 
@@ -154,18 +154,18 @@ class MixedWLUser(User):
      #          self.perf[op["name"]]["t"] += op["endTime"] - op["startTime"]
 
 
-    def stats(self):
-        """ Print some execution statistics about the User """
+    #def stats(self):
+        #""" Print some execution statistics about the User """
 
-        print "Overall tp/%ds (mean): %f" % (self._interval, numpy.array(self._throughputAll).mean())
-        print "Overall tp/%ds (median): %f" % (self._interval, numpy.median(numpy.array(self._throughputAll)))
+        #print "Overall tp/%ds (mean): %f" % (self._interval, numpy.array(self._throughputAll).mean())
+        #print "Overall tp/%ds (median): %f" % (self._interval, numpy.median(numpy.array(self._throughputAll)))
 
-        # Mean over all queries                                                                                                                                                                             
-        all_mean = numpy.array(self._throughputAll).mean()
-        all_median = numpy.median(numpy.array(self._throughputAll))
+        ## Mean over all queries                                                                                                                                                                             
+        #all_mean = numpy.array(self._throughputAll).mean()
+        #all_median = numpy.median(numpy.array(self._throughputAll))
 
-        # Build the ordered list of all queryids                                                                                                                                                            
-        query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
+        ## Build the ordered list of all queryids                                                                                                                                                            
+        #query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
 
     def getQueryFormatDict(self):
         return {
