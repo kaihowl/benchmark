@@ -300,7 +300,6 @@ kwargs = {
     "rebuild"           : args["rebuild"],
     "regenerate"        : args["regenerate"],
     "noLoad"            : args["no_load"],
-    "serverThreads"     : args["threads"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
     "dirBinary"         : "/home/Kai.Hoewelmeyer/hyrise/build/",
