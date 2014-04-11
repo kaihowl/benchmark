@@ -57,7 +57,6 @@ class User(multiprocessing.Process):
         self._prepare()
         self.prepareUser()
         started = False
-        print self._startTime
         while not self._stopevent.is_set():
             tStart = time.time()
             if(self._startTime > 0 and not started):
