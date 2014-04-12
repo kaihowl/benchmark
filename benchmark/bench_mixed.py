@@ -170,7 +170,7 @@ class MixedWLUser(User):
     def getQueryFormatDict(self):
         unescaped_dict = {
           'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
-          'rand_date': random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d"), # random date within today-360 days
+          'rand_date': int(random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d")), # random date within today-360 days
           'rand_kunnr_vbak': random.choice(self._distincts['distinct-kunnr-vbak'])[0],
           'rand_matnr_vbap': random.choice(self._distincts['distinct-matnr-vbap'])[0],
           'rand_matnr_vbap_2': random.choice(self._distincts['distinct-matnr-vbap'])[0],
