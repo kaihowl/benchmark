@@ -155,7 +155,7 @@ def createPreloadArgs(num_users=0):
        },
        "setvbak%(num)d" : {
          "type" : "SetTable",
-         "name" : "vbak%(num)d"
+         "name" : "vbak_%(num)d"
        },
        "loadvbap%(num)d" : {
          "type" : "LoadDumpedTable",
@@ -163,7 +163,7 @@ def createPreloadArgs(num_users=0):
        },
        "setvbap%(num)d" : {
          "type" : "SetTable",
-         "name" : "vbap%(num)d"
+         "name" : "vbap_%(num)d"
        }, 
     """
     edges_template = """
