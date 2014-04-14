@@ -405,12 +405,14 @@ class Benchmark:
                 self._serverProc.terminate()
                 time.sleep(0.5)
                 if self._serverProc.poll() is None:
-                    #print "Server still running. Waiting 2 sec and forcing shutdown..."
-                    time.sleep(2)
-                    self._serverProc.kill()
-                time.sleep(0.5)
+                    print "Server still running. Waiting 5 sec and forcing shutdown..."
+                    time.sleep(5)
                 if self._serverProc.poll() is None:
-                    subprocess.call(["killall", "hyrise-server_release"])
+                    self._serverProc.kill()
+                # Since pipes for stdin/stderr are used we shouldn't wait()
+                # This waits for the process to terminate
+                self._serverProc.communicate()
+
                 time.sleep(0.5)
         else:
             print "kill server, close connection"
