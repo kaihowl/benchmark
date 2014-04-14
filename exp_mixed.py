@@ -29,7 +29,7 @@ def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
 
     users = [64]#[1, 4, 8, 16, 24, 32, 64]
     for j in users:
-        print "starting OLTP benchmark with " + str(j) + " users" 
+        print "starting OLTP benchmark with " + str(j) + " users"
         runId = str(j)
         kwargs["oltpUser"] = j
         kwargs["numUsers"] = j
