@@ -152,20 +152,24 @@ class DynamicPlotter:
         if not os.path.isdir(dirResults):
             raise Exception("Group result directory '%s' not found!" % dirResults)
 
-        for run in os.listdir(dirResults):
-          dirRun = os.path.join(dirResults, run)
+        for str_run in os.listdir(dirResults):
+          dirRun = os.path.join(dirResults, str_run)
 
           if not os.path.isdir(dirRun):
             continue
 
+          run = int(str_run)
+
           data[run] = {}
 
-          for mts in os.listdir(dirRun):
-            dirMts = os.path.join(dirRun, mts)
+          for str_mts in os.listdir(dirRun):
+            dirMts = os.path.join(dirRun, str_mts)
             if not os.path.isdir(dirMts):
               continue
 
-            data[run][str(mts)] = list()
+            mts = int(str_mts)
+
+            data[run][mts] = list()
             for user in os.listdir(dirMts):
               dirUser = os.path.join(dirMts, user)
               if not os.path.isdir(dirUser):
