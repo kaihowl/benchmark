@@ -114,10 +114,9 @@ class DynamicPlotter:
     # prints a per query view of the degree of parallelism 
     # for a query and the average of the median runtimes 
     # of all operations in a query
-    # filterBySubStrings is a list of strings used as an output filter
-    # only lines matching at least one substring in that list will show
-    def printQueryOpStatistics(self, filterBySubStrings=list()):
+    def printQueryOpStatistics(self):
         logStr = "mts\trun\tquery_opname\tcount\tavgavgruntime\tavgstdruntime\n"
+        result_lines = []
         for run, mtsDict in self._runs.iteritems():
             for mts, queryList in mtsDict.iteritems():
                 tmpOpStats = {}
@@ -138,12 +137,13 @@ class DynamicPlotter:
                     count = average([x["count"] for x in statDictList])
                     avgavgruntime = average([x["avgruntime"] for x in statDictList])
                     avgstdruntime = average([x["stdruntime"] for x in statDictList])
-                    to_format = (mts, run, opname, count, avgavgruntime, avgstdruntime)
-                    line_template = "%s\t" * len(to_format) + "\n"
-                    curLineStr = line_template % to_format
-                    # if current op is in filter
-                    if (len(filterBySubStrings)==0 or reduce(lambda x, el: x or el in curLineStr, filterBySubStrings, False)):
-                        logStr += curLineStr
+                    result_lines.append((mts, run, opname, count, avgavgruntime, avgstdruntime))
+
+        for line in sorted(result_lines):
+            line_template = "%s\t" * len(line) + "\n"
+            curLineStr = line_template % line
+            logStr += curLineStr
+
         return logStr
 
     def _collect(self):
