@@ -1,0 +1,31 @@
+{
+  "operators": {
+    "load_orders" : {
+      "type" : "GetTable",
+      "name": "orders"
+    },
+    "load_lineitem" : {
+      "type" : "GetTable",
+      "name": "lineitem"
+    },
+    "hash": {
+      "type": "HashBuild",
+      "fields": [1],
+      "key": "join"
+    },
+    "join": {
+      "type": "HashJoinProbe",
+      "fields": [1]
+    },
+    "nop": {
+      "type": "NoOp"
+    }
+  },
+  "edges": [
+    ["load_orders", "hash"], 
+    ["hash", "join"],
+    ["load_lineitem", "join"],
+    ["join", "nop"]
+  ]
+}
+

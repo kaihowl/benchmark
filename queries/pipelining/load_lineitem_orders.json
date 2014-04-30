@@ -1,0 +1,29 @@
+ {
+ "operators" : {
+   "load_lineitem" : {
+     "type" : "LoadDumpedTable",
+     "name" : "lineitem"
+   },
+   "set_lineitem" : {
+     "type" : "SetTable",
+     "name" : "lineitem"
+   },
+   "load_orders" : {
+     "type" : "LoadDumpedTable",
+     "name" : "orders"
+   },
+   "set_orders" : {
+     "type" : "SetTable",
+     "name" : "orders"
+   }, 
+   "nop": {
+     "type" : "NoOp"
+   }
+  },
+  "edges" : [
+    ["load_lineitem", "set_lineitem"],
+    ["load_orders", "set_orders"],
+    ["set_lineitem", "nop"],
+    ["set_orders", "nop"]
+  ]
+}
