@@ -34,7 +34,7 @@ class Benchmark:
         self._papi              = kwargs["papi"] if kwargs.has_key("papi") else "NO_PAPI"
         self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.QUERIES_PREPARE
         self._prepArgs          = kwargs["prepareArgs"] if kwargs.has_key("prepareArgs") else {"db": "cbtr"}
-        self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.QUERIES_ALL
+        self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.ALL_QUERIES
         self._host              = kwargs["host"] if kwargs.has_key("host") else "127.0.0.1"
         self._port              = kwargs["port"] if kwargs.has_key("port") else 5000
         self._warmuptime        = kwargs["warmuptime"] if kwargs.has_key("warmuptime") else 0
