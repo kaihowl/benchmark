@@ -373,6 +373,7 @@ class Benchmark:
                 #self._session.post("http://%s:%s/" % (self._host, self._port), data={"query": queryString})
             except Exception:
                 print "Running prepare queries... %i%% --> Error" % ((i+1.0) / numQueries * 100)
+                sys.exit(1)
         print "Running prepare queries... done"
 
 
