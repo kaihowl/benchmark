@@ -24,7 +24,7 @@ class OperationsPlotter:
         plt.savefig('histograms.pdf')
 
     # returns a list of dictionaries with the following keys
-    # run, build, user, query_name, op_id, start, duration
+    # run, build, user, query_name, op_id, op_name, start, duration
     def _collect(self):
         data = list()
         dir_results = os.path.join(os.getcwd(), "results", self._group_id)
@@ -67,6 +67,7 @@ class OperationsPlotter:
                                 "user": str_user,
                                 "query_name": query_name,
                                 "op_id": op_data["id"],
+                                "op_name": op_data["name"],
                                 "start": op_data["startTime"],
                                 "duration": dur})
 
