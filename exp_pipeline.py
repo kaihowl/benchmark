@@ -32,9 +32,6 @@ def runbenchmarks(groupId, **kwargs):
     pl = OperationsPlotter(groupId)
     pl.plot_histograms()
 
-    return output
-
-
 
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
 aparser.add_argument('--duration', default=20, type=int, metavar='D',
@@ -93,10 +90,4 @@ kwargs = {
     "evaluationOnly"    : args["evaluation_only"]
 }
 
-output = runbenchmarks("ophistogram", **kwargs)
-
-filename = "results_" + str(int(time.time()))
-f = open(filename,'w')
-f.write(output) # python will convert \n to os.linesep
-f.close() # you can omit in most cases as the destructor will call if
-print output
+runbenchmarks("ophistogram", **kwargs)
