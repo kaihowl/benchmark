@@ -11,17 +11,19 @@ from benchmark.operations_plotter import OperationsPlotter
 
 def runbenchmarks(groupId, **kwargs):
     output = ""
-    users = [1]
+    instances = [1, 16, 32, 64, 128, 1024]
     settings = Settings("standard_release")
 
     # Benchmark
     if not kwargs["evaluationOnly"]:
-        for num_users in users:
-            kwargs["numUsers"] = num_users
+        for num_instances in instances:
+            print "Starting benchmark with %i instances for probe" \
+                % num_instances
             kwargs["userClass"] = ContinuousUser
             kwargs["prepareQueries"] = ("load_lineitem_orders", )
             kwargs["benchmarkQueries"] = ("join_lineitem_orders", )
-            b = Benchmark(groupId, "num_users_%d" % num_users, settings, **kwargs)
+            kwargs["userArgs"] = {"instances": num_instances}
+            b = Benchmark(groupId, "num_instances_%d" % num_instances, settings, **kwargs)
             b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
             b.addQueryFile("join_lineitem_orders", "queries/pipelining/join_lineitem_orders.json")
             b.run()

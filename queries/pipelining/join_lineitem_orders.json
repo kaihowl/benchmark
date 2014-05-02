@@ -16,7 +16,7 @@
     "join": {
       "type": "HashJoinProbe",
       "fields": [1],
-      "instances": 32
+      "instances": %(instances)d
     },
     "nop": {
       "type": "NoOp"
