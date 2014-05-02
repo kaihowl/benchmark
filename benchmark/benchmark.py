@@ -83,8 +83,10 @@ class Benchmark:
         self._exiting           = False
 
         self._session.headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+
         if os.path.exists(self._parentDirResults):
-            print "\x1b[33;1mWARNING: Results folder exists. If this is a subsequent run, you can ignore this message.\x1b[0m"
+            print "\x1b[31;1mWARNING: Results folder exists. If this is a subsequent run, you can ignore this message.\x1b[0m"
+
         if not os.path.isdir(self._dirResults):
             os.makedirs(self._dirResults)
 
