@@ -32,7 +32,7 @@ class Benchmark:
         self._mysqlUser         = kwargs["mysqlUser"] if kwargs.has_key("mysqlUser") else "hyrise"
         self._mysqlPass         = kwargs["mysqlPass"] if kwargs.has_key("mysqlPass") else "hyrise"
         self._papi              = kwargs["papi"] if kwargs.has_key("papi") else "NO_PAPI"
-        self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.QUERIES_PREPARE
+        self._prepQueries       = kwargs["prepareQueries"] if kwargs.has_key("prepareQueries") else queries.PREPARE_QUERIES_SERVER
         self._prepArgs          = kwargs["prepareArgs"] if kwargs.has_key("prepareArgs") else {"db": "cbtr"}
         self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.ALL_QUERIES
         self._host              = kwargs["host"] if kwargs.has_key("host") else "127.0.0.1"
@@ -261,7 +261,7 @@ class Benchmark:
         returncode = process.returncode
         if returncode != 0:
             print stderr
-            raise Exception("ERROR: building ab tool failed with return code %s:\n===\n%s" % (self._settings.getName(), returncode, stderr))
+            raise Exception("ERROR: building ab tool failed with return code %s:\n===\n%s \n(Stderr: %s)" % (self._buildSettings.getName(), returncode, stderr))
         else:
             print "done"
 
