@@ -13,15 +13,19 @@ class OperationsPlotter:
         self._df = pandas.DataFrame(self._data)
 
     def plot_histograms(self):
-        plt.figure()
-        plt.title("Histogram of probe instance durations")
-        plt.xlabel("probe instance duration")
-        plt.ylabel("Occurences in entire experiment")
-        def is_join(x):
-            return x.startswith('join_instance')
-        criterion = self._df['op_id'].map(is_join)
-        self._df[criterion]['duration'].hist()
-        plt.savefig('histograms.pdf')
+        from matplotlib.backends.backend_pdf import PdfPages
+        pp = PdfPages('histograms.pdf')
+        for run in self._df['run'].unique():
+            print "Plotting run %s" % run
+            fig = plt.figure()
+            plt.title("Histogram of probe instance durations for run %s" % run)
+            plt.xlabel("Probe Instance Duration")
+            plt.ylabel("Occurences in Entire Experiment")
+            data = self._df[self._df['run'] == run]
+            criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
+            data[criterion]['duration'].hist()
+            plt.savefig(pp, format='pdf')
+        pp.close()
 
     # returns a list of dictionaries with the following keys
     # run, build, user, query_name, op_id, op_name, start, duration
