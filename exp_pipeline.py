@@ -28,6 +28,7 @@ def runbenchmarks(groupId, **kwargs):
     
     # Evaluation
     pl = OperationsPlotter(groupId)
+    pl.plot_histograms()
 
     return output
 

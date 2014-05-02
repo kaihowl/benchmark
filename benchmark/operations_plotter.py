@@ -1,6 +1,8 @@
 import ast
 import os
 from pylab import average, median, std
+import pandas
+import matplotlib.pyplot as plt
 
 
 class OperationsPlotter:
@@ -8,6 +10,18 @@ class OperationsPlotter:
     def __init__(self, benchmark_group_id):
         self._group_id = benchmark_group_id
         self._data = self._collect()
+        self._df = pandas.DataFrame(self._data)
+
+    def plot_histograms(self):
+        plt.figure()
+        plt.title("Histogram of probe instance durations")
+        plt.xlabel("probe instance duration")
+        plt.ylabel("Occurences in entire experiment")
+        def is_join(x):
+            return x.startswith('join_instance')
+        criterion = self._df['op_id'].map(is_join)
+        self._df[criterion]['duration'].hist()
+        plt.savefig('histograms.pdf')
 
     # returns a list of dictionaries with the following keys
     # run, build, user, query_name, op_id, start, duration
