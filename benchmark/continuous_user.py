@@ -8,7 +8,8 @@ class ContinuousUser(User):
         query = self._queryDict[query_name] % self._userArgs
         result = self.fireQuery(query).json()
         perf = result.get("performanceData", None)
-        self.log("queries", [query_name,  perf])
+        if not self._stopevent.is_set():
+            self.log("queries", [query_name,  perf])
 
     def formatLog(self, key, value):
         return "%s;%s\n" % (value[0], value[1])
