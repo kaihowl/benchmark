@@ -10,13 +10,14 @@ from benchmark.settings import Settings
 
 def runbenchmarks(groupId, **kwargs):
     output = ""
-    users = [1, 32, 128]
+    users = [1]
+    settings = Settings("standard_release")
     for num_users in users:
         kwargs["numUsers"] = num_users
         kwargs["userClass"] = ContinuousUser
         kwargs["prepareQueries"] = ("load_lineitem_orders", )
         kwargs["benchmarkQueries"] = ("join_lineitem_orders", )
-        b = Benchmark(groupId, "1", Settings("user_%d" % num_users), **kwargs)
+        b = Benchmark(groupId, "num_users_%d" % num_users, settings, **kwargs)
         b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
         b.addQueryFile("join_lineitem_orders", "queries/pipelining/join_lineitem_orders.json")
         b.run()
@@ -65,8 +66,8 @@ print args["rebuild"]
 kwargs = {
     "port"              : args["port"],
     "manual"            : args["manual"],
-    "warmuptime"        : 2,
-    "runtime"           : 20,
+    "warmuptime"        : 20,
+    "runtime"           : 4 * 60,
     "showStdout"        : True,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
