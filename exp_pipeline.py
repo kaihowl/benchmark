@@ -27,7 +27,7 @@ def runbenchmarks(groupId, **kwargs):
             b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
             b.addQueryFile("join_lineitem_orders", "queries/pipelining/join_lineitem_orders.json")
             b.run()
-    
+
     # Evaluation
     pl = OperationsPlotter(groupId)
     pl.plot_histograms()
