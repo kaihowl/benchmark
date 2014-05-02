@@ -61,8 +61,6 @@ aparser.add_argument('--json', default=False, action='store_true',
                      help='Use JSON queries instead of stored procedures.')
 args = vars(aparser.parse_args())
 
-print args["rebuild"]
-
 kwargs = {
     "port"              : args["port"],
     "manual"            : args["manual"],
