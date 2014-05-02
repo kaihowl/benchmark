@@ -381,7 +381,7 @@ class Benchmark:
                 #self._session.post("http://%s:%s/" % (self._host, self._port), data={"query": queryString})
             except Exception:
                 print "Running prepare queries... %i%% --> Error" % ((i+1.0) / numQueries * 100)
-                sys.exit(1)
+                self._graceful_shutdown()
         print "Running prepare queries... done"
 
 
@@ -411,11 +411,7 @@ class Benchmark:
             self._stopSSHConnection()
         print "done."
 
-    def _signalHandler(self, signal, frame):
-        if os.getppid() == self._pid or self._exiting:
-            return
-        self._exiting = True
-        print "\n*** received SIGINT, initiating graceful shutdown"
+    def _graceful_shutdown(self):
         if self._build:
             self._build.unlink()
         for u in self._users:
@@ -425,6 +421,13 @@ class Benchmark:
         for u in self._users:
             u.join()
         exit()
+
+    def _signalHandler(self, signal, frame):
+        if os.getppid() == self._pid or self._exiting:
+            return
+        self._exiting = True
+        print "\n*** received SIGINT, initiating graceful shutdown"
+        self._graceful_shutdown()
 
     def _startSSHConnection(self):
         self._ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
