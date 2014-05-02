@@ -7,6 +7,7 @@ import time
 from benchmark.benchmark import Benchmark
 from benchmark.continuous_user import ContinuousUser
 from benchmark.settings import Settings
+from benchmark.operations_plotter import OperationsPlotter
 
 def runbenchmarks(groupId, **kwargs):
     output = ""
@@ -26,7 +27,8 @@ def runbenchmarks(groupId, **kwargs):
             b.run()
     
     # Evaluation
-    # TODO evalution
+    pl = OperationsPlotter(groupId)
+
     return output
 
 
