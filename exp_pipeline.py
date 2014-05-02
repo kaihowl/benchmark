@@ -12,16 +12,21 @@ def runbenchmarks(groupId, **kwargs):
     output = ""
     users = [1]
     settings = Settings("standard_release")
-    for num_users in users:
-        kwargs["numUsers"] = num_users
-        kwargs["userClass"] = ContinuousUser
-        kwargs["prepareQueries"] = ("load_lineitem_orders", )
-        kwargs["benchmarkQueries"] = ("join_lineitem_orders", )
-        b = Benchmark(groupId, "num_users_%d" % num_users, settings, **kwargs)
-        b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
-        b.addQueryFile("join_lineitem_orders", "queries/pipelining/join_lineitem_orders.json")
-        b.run()
-    # TODO benchmark evaluation
+
+    # Benchmark
+    if not kwargs["evaluationOnly"]:
+        for num_users in users:
+            kwargs["numUsers"] = num_users
+            kwargs["userClass"] = ContinuousUser
+            kwargs["prepareQueries"] = ("load_lineitem_orders", )
+            kwargs["benchmarkQueries"] = ("join_lineitem_orders", )
+            b = Benchmark(groupId, "num_users_%d" % num_users, settings, **kwargs)
+            b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
+            b.addQueryFile("join_lineitem_orders", "queries/pipelining/join_lineitem_orders.json")
+            b.run()
+    
+    # Evaluation
+    # TODO evalution
     return output
 
 
@@ -29,6 +34,8 @@ def runbenchmarks(groupId, **kwargs):
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
 aparser.add_argument('--duration', default=20, type=int, metavar='D',
                      help='How long to run the benchmark in seconds')
+aparser.add_argument('--evaluation-only', action='store_true',
+                     help='Do not run the experiment and only evaluate the results of the last run')
 aparser.add_argument('--no-load', action='store_true',
                      help='Disable loading the data')
 aparser.add_argument('--no-execute', action='store_true',
@@ -77,7 +84,8 @@ kwargs = {
     "scheduler"         : "CentralScheduler",
     "serverThreads"     : 31,
     "remote"            : False,
-    "remoteUser"        : "Kai.Hoewelmeyer"
+    "remoteUser"        : "Kai.Hoewelmeyer",
+    "evaluationOnly"    : args["evaluation_only"]
 }
 
 output = runbenchmarks("ophistogram", **kwargs)
