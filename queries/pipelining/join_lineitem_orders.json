@@ -23,7 +23,7 @@
     }
   },
   "edges": [
-    ["load_orders", "hash"], 
+    ["load_orders", "hash"],
     ["hash", "join"],
     ["load_lineitem", "join"],
     ["join", "nop"]
