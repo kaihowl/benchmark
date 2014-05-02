@@ -76,7 +76,7 @@ kwargs = {
     "warmuptime"        : 20,
     "runtime"           : 4 * 60,
     "showStdout"        : True,
-    "showStderr"        : args["stderr"],
+    "showStderr"        : True,
     "rebuild"           : args["rebuild"],
     "regenerate"        : args["regenerate"],
     "noLoad"            : args["no_load"],
