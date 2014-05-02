@@ -15,7 +15,8 @@
     },
     "join": {
       "type": "HashJoinProbe",
-      "fields": [1]
+      "fields": [1],
+      "instances": 32
     },
     "nop": {
       "type": "NoOp"
