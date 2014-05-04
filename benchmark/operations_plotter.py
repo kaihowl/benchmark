@@ -18,7 +18,9 @@ class OperationsPlotter:
         for run in self._df['run'].unique():
             print "Plotting run %s" % run
             plt.figure()
-            plt.title("Histogram of probe instance durations for run %s" % run)
+            escaped_title = run.replace("_", "\_")
+            title = "Histogram of probe durations for run %s" % escaped_title
+            plt.title(title)
             plt.xlabel("Probe Instance Duration")
             plt.ylabel("Occurences in Entire Experiment")
             data = self._df[self._df['run'] == run]
