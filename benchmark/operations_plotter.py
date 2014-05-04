@@ -17,14 +17,15 @@ class OperationsPlotter:
         pp = PdfPages('histograms.pdf')
         for run in self._df['run'].unique():
             print "Plotting run %s" % run
-            fig = plt.figure()
+            plt.figure()
             plt.title("Histogram of probe instance durations for run %s" % run)
             plt.xlabel("Probe Instance Duration")
             plt.ylabel("Occurences in Entire Experiment")
             data = self._df[self._df['run'] == run]
             criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
             data[criterion]['duration'].hist()
-            plt.savefig(pp, format='pdf')
+            pp.savefig()
+            plt.close()
         pp.close()
 
     # returns a list of dictionaries with the following keys
