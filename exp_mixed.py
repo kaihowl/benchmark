@@ -45,14 +45,14 @@ def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
 def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
-    
+
     kwargs["olapQueries"] = ("q10i","q11i","q12i")
 
     instances = [32]#[16, 32]
     users = [16]#, 32, 64, 128]#[1, 4, 8, 16, 24, 32, 64]
     for i in instances:
         for j in users:
-           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
+           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
            runId = str(i) + "_" + str(j)
            kwargs["olapInstances"] = i
            kwargs["olapUser"] = j
@@ -67,7 +67,7 @@ def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
 def runBenchmark_varying_users(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
-    
+
     kwargs["olapQueries"] = ("q10i","q11i","q12i")
 
     # numbers chosen to match the original paper's datapoints
@@ -75,7 +75,7 @@ def runBenchmark_varying_users(groupId, s1, **kwargs):
     users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
     for i in instances:
         for j in users:
-           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users" 
+           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
            runId = str(i) + "_" + str(j)
            kwargs["olapInstances"] = i
            kwargs["olapUser"] = j
@@ -105,8 +105,8 @@ def runBenchmark_prio(groupId, s1, **kwargs):
     kwargs["bench_users_a"] = [12]# 3,4 ,5, 6]#, 4, 8, 16, 24, 32, 40, 48, 56, 64, 96, 128]
     kwargs["bench_users_t"] = [12]
     for j in users:
-        print "starting benchmark with " + str(j) + " users" 
-        runId = str(j)        
+        print "starting benchmark with " + str(j) + " users"
+        runId = str(j)
         kwargs["olapUser"] = j
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
         b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
@@ -133,8 +133,8 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     #instances = [1, 2, 4, 8, 11, 12, 16, 20, 22, 28, 33]
     instances = [11]
     for j in instances:
-        print "starting benchmark with " + str(j) + " instances" 
-        runId = str(j)        
+        print "starting benchmark with " + str(j) + " instances"
+        runId = str(j)
         kwargs["olapInstances"] = j
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
         b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
@@ -164,7 +164,7 @@ def createPreloadArgs(num_users=0):
        "setvbap%(num)d" : {
          "type" : "SetTable",
          "name" : "vbap_%(num)d"
-       }, 
+       },
     """
     edges_template = """
     ["loadvbak%(num)d", "setvbak%(num)d"],
@@ -208,7 +208,7 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
         if not distincts is None:
           print "Reusing distincts from now on."
           kwargs["distincts"] = distincts
-        runId = str(run) 
+        runId = str(run)
         kwargs["mts"] = mts
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
         b1 = MixedWLBenchmark(groupId, runId, benchmark.Settings(str(mts)), **kwargs)
@@ -219,14 +219,14 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
     groupMapping = {}
     identityMapping = {}
     for query in kwargs["oltpQueries"]:
-     groupMapping[query] = "OLTP" 
-     identityMapping[query] = query 
+     groupMapping[query] = "OLTP"
+     identityMapping[query] = query
     for query in kwargs["olapQueries"]:
       groupMapping[query] = "OLAP"
-      identityMapping[query] = query 
+      identityMapping[query] = query
     for query in kwargs["tolapQueries"]:
       groupMapping[query] = "TOLAP"
-      identityMapping[query] = query 
+      identityMapping[query] = query
     plotter = DynamicPlotter(groupId)
     output += groupId + "\n"
     output += plotter.printGroupFormatted(groupMapping)
@@ -381,7 +381,7 @@ output += "\n"
 #output += "\n"
 #kwargs["runtime"] = 120
 #for scheduler in schedulers:
-#    print "OLAP benchmark with " + scheduler 
+#    print "OLAP benchmark with " + scheduler
 #    kwargs["scheduler"] = scheduler
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
