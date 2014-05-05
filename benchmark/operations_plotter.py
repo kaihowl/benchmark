@@ -14,7 +14,10 @@ class OperationsPlotter:
 
     def plot_histograms(self):
         from matplotlib.backends.backend_pdf import PdfPages
-        pp = PdfPages('histograms.pdf')
+        filename = 'histograms.pdf'
+        pp = PdfPages(filename)
+        # Tell notify wrapper to attach file to email
+        print "\n>>>%s\n" % filename
         for run in self._df['run'].unique():
             print "Plotting run %s" % run
             plt.figure()
