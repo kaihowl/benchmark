@@ -79,7 +79,7 @@ class DynamicPlotter:
       fname = "varying_mts_%s.pdf" % str(int(time.time()))
       plt.savefig(fname)
       # Output filename for notify to attach to email
-      print "\n>>>s\n" % fname
+      print "\n>>>%s\n" % fname
       plt.close()
 
     # returns a dictionary
