@@ -214,9 +214,6 @@ class MixedWLBenchmark(Benchmark):
     def __init__(self, benchmarkGroupId, benchmarkRunId, buildSettings, **kwargs):
         Benchmark.__init__(self, benchmarkGroupId, benchmarkRunId, buildSettings, **kwargs)
 
-        #self._dirHyriseDB = os.path.join(os.getcwd(), "hyrise")
-        os.environ['HYRISE_DB_PATH'] = self._dirHyriseDB
-
         self._distincts = kwargs["distincts"] if kwargs.has_key("distincts") else None
 
         self._olapUser = kwargs["olapUser"] if kwargs.has_key("olapUser") else 0
