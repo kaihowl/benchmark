@@ -23,6 +23,7 @@ class Settings:
                 "COMPILER"             : None,
                 "WITH_GROUP_COMMIT"    : None,
                 "GROUP_COMMIT_WINDOW"  : None,
+                "USE_JE_MALLOC"        : True,
             }
         else:
             self._dict = {
@@ -45,6 +46,7 @@ class Settings:
                 "COMPILER"             : None,
                 "WITH_GROUP_COMMIT"    : None,
                 "GROUP_COMMIT_WINDOW"  : None,
+                "USE_JE_MALLOC"        : True,
             }
         for k, v in kwargs.iteritems():
             self.__setitem__(k, v)
@@ -73,9 +75,12 @@ class Settings:
     def toString(self):
         s = "# settings.mk '" + self._name + "'"
         for k, v in self._dict.iteritems():
+            if k == "USE_JE_MALLOC":
+                continue
             if v != None:
                 s += "\n%s := %s" % (k, str(v))
-        s += "\nLIBS += jemalloc"
+        if self._dict["USE_JE_MALLOC"]:
+            s += "\nLIBS += jemalloc"
         return s
 
     def writeToFile(self, filename):
