@@ -162,6 +162,8 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, **kwargs):
     kwargs["olapUser"] = num_olap_users
     kwargs["separateOLAPTables"] = True
     output += "separateOLAPTables = %s\n" % str(kwargs["separateOLAPTables"])
+    # Rebuild only the first time
+    kwargs["rebuild"] = True
 
     distincts = None
 
@@ -181,6 +183,9 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, **kwargs):
         time.sleep(5)
         # save distincts for next run
         distincts = b1.getDistinctValues()
+        # do not rebuild on next run
+        kwargs["rebuild"] = False
+
     groupMapping = {}
     identityMapping = {}
     for query in kwargs["oltpQueries"]:
