@@ -232,7 +232,7 @@ class MixedWLBenchmark(Benchmark):
         self.setUserClass(MixedWLUser)
         self._queryDict = self.loadQueryDict()
 
-    def _createPreloadArgs(num_users=0):
+    def _createPreloadArgs(self, num_users=0):
         vertices_template = """
            "loadvbak%(num)d" : {
              "type" : "LoadDumpedTable",
@@ -268,7 +268,7 @@ class MixedWLBenchmark(Benchmark):
 
     def benchPrepare(self):
         # Preload separate tables for OLAP users
-        self._tableLoadArgs = _createPreloadArgs(self._olapUser)
+        self._tableLoadArgs = self._createPreloadArgs(self._olapUser)
 
     def benchAfterLoad(self):
         if self._distincts is None:
