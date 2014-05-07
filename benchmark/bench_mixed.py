@@ -312,7 +312,9 @@ class MixedWLBenchmark(Benchmark):
         resp_pairs = [(query_pairs[i][0], resp) for i, resp in enumerate(self._fireQueryParallel([v for (k,v) in query_pairs]))]
         for queryName, resp in resp_pairs:
           data = json.loads(resp.text.encode('utf-8'))
-          if "rows" in data:
+          if resp.status_code != 200:
+            sys.exit("Distinct query with name %s returned with error code %d!" % (queryName, resp.status_code))
+          if "rows" in data:  
             self._distincts[queryName] = data["rows"]
         print "finished prepare for placeholders ...                                            "
 
