@@ -147,7 +147,7 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     return output
 
 
-def runBenchmark_varying_mts(groupId, settings, numRuns=1, **kwargs):
+def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=True, **kwargs):
     num_olap_users = 32
     output = ""
 
@@ -359,7 +359,8 @@ output += "\n"
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
 #runBenchmark_varying_users(groupId, numRuns, ...)
-output += runBenchmark_varying_mts("Var_mts", s1, runs=3, **kwargs)
+output += runBenchmark_varying_mts("Var_mts", s1, separateOLAPTables=False, runs=3, **kwargs)
+output += runBenchmark_varying_mts("Var_mts", s1, separateOLAPTables=True, runs=3, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
