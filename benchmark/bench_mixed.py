@@ -232,6 +232,44 @@ class MixedWLBenchmark(Benchmark):
         self.setUserClass(MixedWLUser)
         self._queryDict = self.loadQueryDict()
 
+    def _createPreloadArgs(num_users=0):
+        vertices_template = """
+           "loadvbak%(num)d" : {
+             "type" : "LoadDumpedTable",
+             "name" : "vbak"
+           },
+           "setvbak%(num)d" : {
+             "type" : "SetTable",
+             "name" : "vbak_%(num)d"
+           },
+           "loadvbap%(num)d" : {
+             "type" : "LoadDumpedTable",
+             "name" : "vbap"
+           },
+           "setvbap%(num)d" : {
+             "type" : "SetTable",
+             "name" : "vbap_%(num)d"
+           },
+        """
+        edges_template = """
+        ["loadvbak%(num)d", "setvbak%(num)d"],
+        ["loadvbap%(num)d", "setvbap%(num)d"],
+        ["setvbap%(num)d", "nop"],
+        ["setvbak%(num)d", "nop"],
+        """
+        preload_additional_vertices = "".join([vertices_template % {"num": i} for i in
+          range(num_users)])
+        preload_additional_edges = "".join([edges_template % {"num": i} for i in
+          range(num_users)])
+
+        return {
+            "preload_additional_vertices": preload_additional_vertices,
+            "preload_additional_edges": preload_additional_edges}
+
+    def benchPrepare(self):
+        # Preload separate tables for OLAP users
+        self._tableLoadArgs = _createPreloadArgs(self._olapUser)
+
     def benchAfterLoad(self):
         if self._distincts is None:
             self.initDistinctValues()
