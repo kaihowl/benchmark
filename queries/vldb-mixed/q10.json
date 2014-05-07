@@ -3,11 +3,11 @@
   "operators": {
     "load_vbak" : {
       "type" : "GetTable",
-      "name": "vbak_%(sessionId)s"
+      "name": "vbak%(tableSuffix)s"
     },
     "load_vbap" : {
       "type" : "GetTable",
-      "name": "vbap_%(sessionId)s"
+      "name": "vbap%(tableSuffix)s"
     },
     "validate_vbap": {
       "type": "ValidatePositions"

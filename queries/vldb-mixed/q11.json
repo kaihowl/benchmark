@@ -3,7 +3,7 @@
   "operators": {
     "load_vbap" : {
       "type" : "GetTable",
-      "name": "vbap_%(sessionId)s"
+      "name": "vbap%(tableSuffix)s"
     },
     "filter_aedat": {
       "type": "TableScan",

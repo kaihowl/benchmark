@@ -175,6 +175,7 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
         runId = str(run)
         kwargs["mts"] = mts
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+        kwargs["separateOLAPTables"] = True
         b1 = MixedWLBenchmark(groupId, runId, benchmark.Settings(str(mts)), **kwargs)
         b1.run()
         time.sleep(5)

@@ -41,6 +41,7 @@ class MixedWLUser(User):
         self._instances = kwargs["instances"] if kwargs.has_key("instances") else multiprocessing.cpu_count()/2
         self._microsecs = kwargs["microsecs"] if kwargs.has_key("microsecs") else 1000
         self._db = kwargs["db"] if kwargs.has_key("db") else "cbtr"
+        self._tableSuffix = kwargs["tableSuffix"] if kwargs.has_key("tableSuffix") else ""
 
         self._oltpQC = {}
         for q in OLTP_QUERY_FILES:
@@ -89,6 +90,7 @@ class MixedWLUser(User):
             "papi": self._papi,
             "core": str(self._core),
             "db": self._db,
+            "tableSuffix": self._tableSuffix,
             "sessionId": str(self._userId),
             "priority": str(self._prio),
             "microsecs": str(self._microsecs)}
@@ -115,6 +117,7 @@ class MixedWLUser(User):
         initFormatDict = {
             'papi': self._papi,
             "db": self._db,
+            "tableSuffix": self._tableSuffix,
             "instances": self._instances,
             "sessionId": str(self._userId),
             "priority": str(self._prio),
@@ -232,6 +235,8 @@ class MixedWLBenchmark(Benchmark):
         self.setUserClass(MixedWLUser)
         self._queryDict = self.loadQueryDict()
 
+        self._seperateOLAPTables = kwargs["separateOLAPTables"] if kwargs.has_key("separateOLAPTables") else False
+
     def _createPreloadArgs(self, num_users=0):
         vertices_template = """
            "loadvbak%(num)d" : {
@@ -268,7 +273,10 @@ class MixedWLBenchmark(Benchmark):
 
     def benchPrepare(self):
         # Preload separate tables for OLAP users
-        self._tableLoadArgs = self._createPreloadArgs(self._olapUser)
+        if self._seperateOLAPTables:
+            self._tableLoadArgs = self._createPreloadArgs(self._olapUser)
+        else:
+            self._tableLoadArgs = {"preload_additional_edges": "", "preload_additional_vertices": ""}
 
     def benchAfterLoad(self):
         if self._distincts is None:
@@ -280,6 +288,7 @@ class MixedWLBenchmark(Benchmark):
             self._userArgs["thinkTime"] = self._olapThinkTime 
             self._userArgs["queries"] = self._olapQueries
             self._userArgs["instances"] = self._olapInstances
+            self._userArgs["tableSuffix"] = "_%d" % i if self._seperateOLAPTables else ""
             self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **self._userArgs))
         for i in range(self._olapUser, self._olapUser + self._tolapUser):
             self._userArgs["thinkTime"] = self._tolapThinkTime 
