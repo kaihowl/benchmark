@@ -147,7 +147,7 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     return output
 
 
-def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
+def runBenchmark_varying_mts(groupId, settings, numRuns=1, **kwargs):
     num_olap_users = 32
     output = ""
 
@@ -174,10 +174,9 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
         if not distincts is None:
           print "Reusing distincts from now on."
           kwargs["distincts"] = distincts
-        runId = str(run)
         kwargs["mts"] = mts
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
-        b1 = MixedWLBenchmark(groupId, runId, benchmark.Settings(str(mts)), **kwargs)
+        b1 = MixedWLBenchmark(groupId, "%d_%d" % (mts, run), settings, **kwargs)
         b1.run()
         time.sleep(5)
         # save distincts for next run
@@ -244,8 +243,12 @@ aparser.add_argument('--json', default=False, action='store_true',
                      help='Use JSON queries instead of stored procedures.')
 args = vars(aparser.parse_args())
 
-s1 = benchmark.Settings("Standard", PERSISTENCY="NONE", COMPILER="autog++")
-
+s1 = benchmark.Settings("Standard",
+        PERSISTENCY="NONE",
+        COMPILER="autog++",
+        WITH_PAPI=0,
+        USE_JE_MALLOC=True
+        )
 
 
 #gaza remote
@@ -305,7 +308,6 @@ kwargs = {
     "noLoad"            : args["no_load"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
-    "dirBinary"         : "/home/Kai.Hoewelmeyer/hyrise/build/",
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
     "scheduler"         : "DynamicPriorityScheduler",
     "serverThreads"     : 31,
@@ -352,7 +354,7 @@ output += "\n"
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
 #runBenchmark_varying_users(groupId, numRuns, ...)
-output += runBenchmark_varying_mts("Var_mts", 3, **kwargs)
+output += runBenchmark_varying_mts("Var_mts", s1, runs=2, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep

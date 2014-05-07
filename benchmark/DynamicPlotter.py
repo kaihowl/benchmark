@@ -3,6 +3,7 @@ import os
 from pylab import average, median, std
 import matplotlib.pyplot as plt
 import time
+import sys
 
 class DynamicPlotter:
 
@@ -154,49 +155,52 @@ class DynamicPlotter:
         if not os.path.isdir(dirResults):
             raise Exception("Group result directory '%s' not found!" % dirResults)
 
-        for str_run in os.listdir(dirResults):
-          dirRun = os.path.join(dirResults, str_run)
+        for str_mts_run in os.listdir(dirResults):
+          dirRun = os.path.join(dirResults, str_mts_run)
 
           if not os.path.isdir(dirRun):
             continue
 
+          str_mts, str_run = str_mts_run.split("_")
+          mts = int(str_mts)
           run = int(str_run)
 
-          data[run] = {}
+          data.setdefault(run, {})
 
-          for str_mts in os.listdir(dirRun):
-            dirMts = os.path.join(dirRun, str_mts)
-            if not os.path.isdir(dirMts):
+          # We expect only one build to exist
+          if len(os.listdir(dirRun)) > 1:
+              sys.exit("Expected exactly one build but found several!")
+
+          dirBuild = os.path.join(dirRun, os.listdir(dirRun)[0])
+          if not os.path.isdir(dirBuild):
+              sys.exit("Expected a build dir, but only found a file!")
+
+          data[run][mts] = list()
+          for user in os.listdir(dirBuild):
+            dirUser = os.path.join(dirBuild, user)
+            if not os.path.isdir(dirUser):
               continue
 
-            mts = int(str_mts)
+            logFileName = os.path.join(dirUser, "transactions.log")
+            if not os.path.isfile(logFileName):
+              print "WARNING: no transaction log found in %s!" % dirUser
+              continue
 
-            data[run][mts] = list()
-            for user in os.listdir(dirMts):
-              dirUser = os.path.join(dirMts, user)
-              if not os.path.isdir(dirUser):
+            for rawline in open(logFileName):
+              linedata = rawline.split(";")
+              if len(linedata) < 2:
                 continue
+              txId = linedata[0]
+              runTime = float(linedata[1])
+              startTime = float(linedata[2])
+              opData = ast.literal_eval(linedata[3])
 
-              logFileName = os.path.join(dirUser, "transactions.log")
-              if not os.path.isfile(logFileName):
-                print "WARNING: no transaction log found in %s!" % dirUser
-                continue
-
-              for rawline in open(logFileName):
-                linedata = rawline.split(";")
-                if len(linedata) < 2:
-                  continue
-                txId = linedata[0]
-                runTime = float(linedata[1])
-                startTime = float(linedata[2])
-                opData = ast.literal_eval(linedata[3])
-
-                # add new item to main data list structure
-                data[run][mts].append({
-                  "user": user,
-                  "txId": txId,
-                  "runTime": runTime,
-                  "startTime": startTime,
-                  "opData": opData})
+              # add new item to main data list structure
+              data[run][mts].append({
+                "user": user,
+                "txId": txId,
+                "runTime": runTime,
+                "startTime": startTime,
+                "opData": opData})
 
         return data
