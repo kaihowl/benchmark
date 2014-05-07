@@ -5,14 +5,19 @@
       "name": "vbak"
     },
     "1": {
-      "type": "CreateIndex",
+      "type": "CreateGroupkeyIndex",
       "fields": ["VBELN"],
-      "index_name": "vbak_vbeln_idx"
+      "index_name": "mcidx__vbak__main__VBELN"
     },
     "2": {
+      "type": "CreateDeltaIndex",
+      "fields": ["VBELN"],
+      "index_name": "mcidx__vbak__delta__VBELN"
+    },
+    "3": {
       "type" : "NoOp"
     }
   },
-  "edges": [["0", "1"], ["1", "2"]]
+  "edges": [["0", "1"], ["1", "3"], ["0", "2"], ["2", "3"]]
 }
 

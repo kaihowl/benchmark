@@ -6,11 +6,11 @@
       "name": "vbap"
     },
     "filter_vbeln": {
-      "type": "IndexScan",
-      "vtype": 2,
-      "value": %(rand_vbeln_vbap)s,
-      "index": "vbap_vbeln_idx",
-      "fields": ["VBELN"]
+      "type": "IndexAwareTableScan",
+      "tablename": "vbap",
+      "predicates": [
+        {"type": "EQ_V", "in": 0, "f": "VBELN", "value": %(rand_vbeln_vbap)s, "vtype": 2}
+      ]
     }
   },
   "edges": [
