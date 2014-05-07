@@ -359,7 +359,7 @@ output += "\n"
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
 #runBenchmark_varying_users(groupId, numRuns, ...)
-output += runBenchmark_varying_mts("Var_mts", s1, runs=2, **kwargs)
+output += runBenchmark_varying_mts("Var_mts", s1, runs=3, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
