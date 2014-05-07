@@ -147,7 +147,7 @@ class Benchmark:
 
         if not self._manual:
             # no support for building on remote machine yet
-            #self._buildServer()
+            self._buildServer()
             if self._abQueryFile != None:
                 self._buildAb()
             self._startServer()
