@@ -367,10 +367,6 @@ class Benchmark:
         time.sleep(1)
         print "done"
 
-    def _createUsers(self):
-        for i in range(self._numUsers):
-            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, **self._userArgs))
-
     def _fireQueryParallel(self, queries):
         rs = (grequests.post("http://%s:%s/" % (self._host, self._port), data={"query": q}) for q in queries)
         return grequests.map(rs)
