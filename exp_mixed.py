@@ -165,8 +165,8 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
 
     mts_list = [10, 30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
 
-    for run in range(1, numRuns+1):
-      print "Run %d" % run
+    for run in range(0, numRuns):
+      print "Run %d of %d" % (run+1, numRuns)
       for mts in mts_list:
         print "starting benchmark with mts=" + str(mts)
         if not distincts is None:
