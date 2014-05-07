@@ -160,6 +160,8 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
     kwargs["tolapThinkTime"] = 1
     kwargs["olapQueries"] = ("vldb_q10", "vldb_q11", "vldb_q12")
     kwargs["olapUser"] = num_olap_users
+    kwargs["separateOLAPTables"] = True
+    output += "separateOLAPTables = %s\n" % str(kwargs["separateOLAPTables"])
 
     distincts = None
 
@@ -175,7 +177,6 @@ def runBenchmark_varying_mts(groupId, numRuns, **kwargs):
         runId = str(run)
         kwargs["mts"] = mts
         kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
-        kwargs["separateOLAPTables"] = True
         b1 = MixedWLBenchmark(groupId, runId, benchmark.Settings(str(mts)), **kwargs)
         b1.run()
         time.sleep(5)
