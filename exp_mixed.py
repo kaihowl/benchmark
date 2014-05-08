@@ -8,62 +8,6 @@ from benchmark.bench_mixed import MixedWLBenchmark
 from benchmark.mixedWLPlotter import MixedWLPlotter
 from benchmark.DynamicPlotter import DynamicPlotter
 
-def runbenchmarks(groupId, s1, **kwargs):
-    output = ""
-    users = [1, 11]#, 48, 64, 96, 128]
-    #users = [512]
-    for i in users:
-        runId = str(i)
-        kwargs["numUsers"] = i
-        b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
-        b1.run()
-        time.sleep(1)
-    plotter = MixedWLPlotter(groupId)
-    output += plotter.printFormattedStatisticsAverage(kwargs["benchmarkQueries"])
-    return output
-
-# NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
-def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
-    output = ""
-    kwargs["oltpQueries"] = ("vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
-
-    users = [64]#[1, 4, 8, 16, 24, 32, 64]
-    for j in users:
-        print "starting OLTP benchmark with " + str(j) + " users"
-        runId = str(j)
-        kwargs["oltpUser"] = j
-        kwargs["numUsers"] = j
-        b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
-        b1.run()
-        time.sleep(3)
-    plotter = MixedWLPlotter(groupId)
-    output += plotter.printFormattedStatistics(kwargs["oltpQueries"])
-    return output
-
-
-
-def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
-    output = ""
-    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
-
-    kwargs["olapQueries"] = ("q10i","q11i","q12i")
-
-    instances = [32]#[16, 32]
-    users = [16]#, 32, 64, 128]#[1, 4, 8, 16, 24, 32, 64]
-    for i in instances:
-        for j in users:
-           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
-           runId = str(i) + "_" + str(j)
-           kwargs["olapInstances"] = i
-           kwargs["olapUser"] = j
-           kwargs["numUsers"] = kwargs["olapUser"]
-           b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
-           b1.run()
-           time.sleep(3)
-    plotter = MixedWLPlotter(groupId)
-    output += plotter.printFormattedStatistics(kwargs["olapQueries"])
-    return output
-
 def runBenchmark_varying_users(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
@@ -117,35 +61,6 @@ def runBenchmark_prio(groupId, s1, **kwargs):
     output += plotter.printFormattedStatisticsAverage(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
    # output += plotter.printOpStatistics ()
     return output
-
-def runBenchmark_task_sizes(groupId, s1, **kwargs):
-    output = ""
-    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
-
-    kwargs["olapQueries"] = ("q6_ch","q10","q12")
-    kwargs["olapUser"] = 0
-    kwargs["tolapUser"] = 11
-    kwargs["tolapThinkTime"] = 0
-    kwargs["tolapQueries"] = ("xselling",)
-    kwargs["oltpUser"] = 0
-    kwargs["oltpQueries"] = ("q7idx_vbak",)
-
-    #instances = [1, 2, 4, 8, 11, 12, 16, 20, 22, 28, 33]
-    instances = [11]
-    for j in instances:
-        print "starting benchmark with " + str(j) + " instances"
-        runId = str(j)
-        kwargs["olapInstances"] = j
-        kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
-        b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
-        b1.run()
-        time.sleep(5)
-    plotter = MixedWLPlotter(groupId)
-    output += groupId + "\n"
-    output += plotter.printStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
-   # output += plotter.printOpStatistics ()
-    return output
-
 
 def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=True, **kwargs):
     num_olap_users = 32
@@ -315,7 +230,7 @@ kwargs = {
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
 
-    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
+    "hyriseDBPath"      : "/home/Johannes.Wust/vldb-tables/scaler/output",
     # Set this value according to the data in hyriseDBPath
     "schema"            : "narrow",
 
