@@ -42,6 +42,7 @@ class MixedWLUser(User):
         self._microsecs = kwargs["microsecs"] if kwargs.has_key("microsecs") else 1000
         self._db = kwargs["db"] if kwargs.has_key("db") else "cbtr"
         self._tableSuffix = kwargs["tableSuffix"] if kwargs.has_key("tableSuffix") else ""
+        self._schema = kwargs["schema"] if kwargs.has_key("schema") else None
 
         self._oltpQC = {}
         for q in OLTP_QUERY_FILES:
@@ -86,17 +87,7 @@ class MixedWLUser(User):
         else:
             queryid = predefined
 
-        initFormatDict = {
-            "papi": self._papi,
-            "core": str(self._core),
-            "db": self._db,
-            "tableSuffix": self._tableSuffix,
-            "sessionId": str(self._userId),
-            "priority": str(self._prio),
-            "microsecs": str(self._microsecs)}
-        randFormatDict = self.getQueryFormatDict()
-        
-        query = self._oltpQC[queryid] % dict(initFormatDict.items() + randFormatDict.items())
+        query = self._oltpQC[queryid] % self.getQueryFormatDict()
         if self._write_to_file:
             result = self.fireQuery(query)
         else:
@@ -114,16 +105,7 @@ class MixedWLUser(User):
         else:
             queryid = predefined
 
-        initFormatDict = {
-            'papi': self._papi,
-            "db": self._db,
-            "tableSuffix": self._tableSuffix,
-            "instances": self._instances,
-            "sessionId": str(self._userId),
-            "priority": str(self._prio),
-            "microsecs": str(self._microsecs)}
-        randFormatDict = self.getQueryFormatDict()
-        query = self._olapQC[queryid] % dict(initFormatDict.items() + randFormatDict.items())
+        query = self._olapQC[queryid] % self.getQueryFormatDict()
         if self._write_to_file:
             result = self.fireQuery(query)
         else:
@@ -190,7 +172,48 @@ class MixedWLUser(User):
         format_dict = {}
         for key, value in unescaped_dict.iteritems():
             format_dict[key] = json.dumps(value)
+        format_dict.update({
+            "papi": self._papi,
+            "core": str(self._core),
+            "db": self._db,
+            "tableSuffix": self._tableSuffix,
+            "instances": self._instances,
+            "sessionId": str(self._userId),
+            "priority": str(self._prio),
+            "microsecs": str(self._microsecs)})
+
+        format_dict.update(self.get_col_numbers())
+        format_dict.update(self.get_formatted_insert_values(format_dict))
         return format_dict
+
+    def get_formatted_insert_values(self, format_dict):
+        if self._schema == "narrow":
+            vbak_data_line = "[800, %(rand_vbeln)s, %(rand_date)s, %(rand_kunnr_vbak)s]"
+            vbap_data_line = "[800, %(rand_vbeln)s, %(rand_matnr_vbap)s, %(rand_netwr)s, %(rand_kwmeng)s, %(rand_date)s]"
+        elif self._schema == "full":
+            vbak_data_line = "[800, %(rand_vbeln)s, %(rand_date)s, 0, \" \", 0, 0, 0, \" \", \" \", \" \", \" \", 0, \" \", \" \", \" \", 0.0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0, 0, \" \", 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0, \" \", \" \", \" \", 0, \" \", \" \", \" \", \" \", 0.0, 0, %(rand_kunnr_vbak)s, \" \", \" \", \" \", 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0, 0, 0, 0.0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0, \" \", \" \", \" \", \" \", \" \", 0, 0, 0, \" \", 0, \" \", \" \", \" \", \" \", 0, 0, \" \", \" \", \" \", \" \", \" \", 0.0, \" \", \" \", \" \", \" \", 0, \" \", 0, 0, \" \", \" \", \" \"]"
+            vbap_data_line = "[800, %(rand_vbeln)s, 0, %(rand_matnr_vbap)s, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0, 0, \" \", \" \", 0.0, 0.0, \" \", 0.0, 0.0, \" \", 0.0, 0.0, 0, 0.0, \" \", \" \", 0.0, 0.0, \" \", \" \", 0, \" \", \" \", 0.0, 0.0, \" \", \" \", \" \", \" \", \" \", %(rand_netwr)s, \" \", 0.0, \" \", \" \", %(rand_kwmeng)s, 0.0, 0.0, 0.0, \" \", 0.0, 0.0, 0.0, 0.0, \" \", 0.0, \" \", \" \", 0, \" \", 0, \" \", \" \", \" \", 0, \" \", \" \", \" \", \" \", \" \", 0, \" \", 0.0, 0, %(rand_date)s, \" \", 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0.0, 0.0, \" \", 0.0, 0.0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0.0, \" \", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0.0, \" \", \" \", \" \", 0, 0, \" \", \" \", \" \", \" \", 0.0, \" \", \" \", \" \", \" \", \" \", \" \", 0.0, \" \", \" \", 0.0, 0, 0, \" \", \" \", \" \", 0, \" \", \" \", \" \", \" \", \" \", \" \", 0, \" \", \" \", \" \", 0, \" \", \" \", \" \", 0, 0, \" \", 0, 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0.0, \" \", 0.0, \" \", \" \", \" \", \" \", \" \", 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0.0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", 0, 0, \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \", \" \"]"
+        else:
+            return {}
+
+        return {
+                "vbak_data_line": vbak_data_line % format_dict,
+                "vbap_data_line": vbap_data_line % format_dict}
+
+
+    def get_col_numbers(self):
+        if self._schema == "narrow":
+            return {
+                "vbak_erdat_colnr": 3,
+                "vbap_matnr_colnr": 2,
+                "vbap_erdat_colnr": 5}
+        elif self._schema == "full":
+            return {
+                "vbak_erdat_colnr": 47,
+                "vbap_matnr_colnr": 3,
+                "vbap_erdat_colnr": 77}
+        else:
+            return {}
 
     @staticmethod
     def weighted_choice(choices_and_weights):
@@ -233,6 +256,8 @@ class MixedWLBenchmark(Benchmark):
         self._queryDict = self.loadQueryDict()
 
         self._seperateOLAPTables = kwargs["separateOLAPTables"] if kwargs.has_key("separateOLAPTables") else False
+
+        self._schema = kwargs["schema"] if kwargs.has_key("schema") else None
 
     def _createPreloadArgs(self, num_users=0):
         vertices_template = """
@@ -281,6 +306,7 @@ class MixedWLBenchmark(Benchmark):
 
     def _createUsers(self):
         self._userArgs["distincts"] = self._distincts
+        self._userArgs["schema"] = self._schema
         for i in range(self._olapUser):
             self._userArgs["thinkTime"] = self._olapThinkTime 
             self._userArgs["queries"] = self._olapQueries

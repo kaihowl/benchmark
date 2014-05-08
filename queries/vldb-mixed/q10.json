@@ -15,8 +15,8 @@
     "filter_aedat": {
       "type": "TableScan",
       "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
-      "f1" : 3,//KUNNR
-      "f2" : 2,//ERDAT
+      "f1" : %(vbak_erdat_colnr)d,//KUNNR 3 on narrow schema and 47 on full schema
+      "f2" : 2,//ERDAT 2 on narrow schema and the same on full schema
       "COMMENT": "from and to values are in the dictionary for 30 million / last 30 days",
       "v_f1" : %(rand_kunnr_vbak)s,
       "v_f2": 20031130,
@@ -27,6 +27,7 @@
       "comment": "First edge is probe, second edge is hash",
       "bits1": 12,
       "bits2": 5,
+      /* same col number on narrow and wide schema */
       "fields": [1, 1],
       "dynamic": true
     },

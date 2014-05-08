@@ -314,7 +314,11 @@ kwargs = {
     "noLoad"            : args["no_load"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
+
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
+    # Set this value according to the data in hyriseDBPath
+    "schema"            : "narrow",
+
     "scheduler"         : "DynamicPriorityScheduler",
     "serverThreads"     : 31,
     "remote"            : False,
