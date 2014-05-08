@@ -306,7 +306,7 @@ kwargs = {
     "port"              : args["port"],
     "warmuptime"        : 20,
     "runtime"           : 120,
-    "showStdout"        : False,
+    "showStdout"        : True,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
     "regenerate"        : args["regenerate"],
