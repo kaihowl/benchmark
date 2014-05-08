@@ -161,7 +161,7 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=Tr
     kwargs["tolapThinkTime"] = 1
     kwargs["olapQueries"] = ("vldb_q10", "vldb_q11", "vldb_q12")
     kwargs["olapUser"] = num_olap_users
-    kwargs["separateOLAPTables"] = True
+    kwargs["separateOLAPTables"] = separateOLAPTables
     output += "separateOLAPTables = %s\n" % str(kwargs["separateOLAPTables"])
     # Rebuild only the first time
     kwargs["rebuild"] = True
