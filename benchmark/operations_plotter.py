@@ -34,16 +34,17 @@ class OperationsPlotter:
             pp.savefig()
             plt.close()
 
+            probes = data[criterion]
             # Plot single NUMA nodes
-            for node in data['node'].unique():
+            for node in probes['node'].unique():
+                print "Current run: %s, Current node: %d" % (run, node)
                 plt.figure()
                 subtitle = title + " for node %d" % node
                 plt.title(subtitle)
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
-                subdata = data[data['node'] == node]
-                subcrit = subdata['op_name'].map(lambda x: x=="HashJoinProbe")
-                subdata[subcrit]['duration'].hist()
+                cur_node_probes = probes[probes['node'] == node]
+                cur_node_probes['duration'].hist()
                 pp.savefig()
                 plt.close()
         pp.close()
