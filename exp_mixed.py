@@ -173,7 +173,7 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=Tr
     for run in range(0, numRuns):
       print "Run %d of %d" % (run+1, numRuns)
       for mts in mts_list:
-        print "starting benchmark with mts=" + str(mts)
+        print "starting benchmark with mts=%s and separateTables=%s" % (str(mts), str(separateOLAPTables))
         if not distincts is None:
           print "Reusing distincts from now on."
           kwargs["distincts"] = distincts
