@@ -24,13 +24,28 @@ class OperationsPlotter:
             escaped_title = run.replace("_", "\_")
             title = "Histogram of probe durations for run %s" % escaped_title
             plt.title(title)
-            plt.xlabel("Probe Instance Duration")
-            plt.ylabel("Occurences in Entire Experiment")
+            xlabel = "Probe Instance Duration"
+            plt.xlabel(xlabel)
+            ylabel = "Occurences in Entire Experiment"
+            plt.ylabel(ylabel)
             data = self._df[self._df['run'] == run]
             criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
             data[criterion]['duration'].hist()
             pp.savefig()
             plt.close()
+
+            # Plot single NUMA nodes
+            for node in data['node'].unique():
+                plt.figure()
+                subtitle = title + " for node %d" % node
+                plt.title(subtitle)
+                plt.xlabel(xlabel)
+                plt.ylabel(ylabel)
+                subdata = data[data['node'] == node]
+                subcrit = subdata['op_name'].map(lambda x: x=="HashJoinProbe")
+                subdata[subcrit]['duration'].hist()
+                pp.savefig()
+                plt.close()
         pp.close()
 
     # returns a list of dictionaries with the following keys
@@ -79,6 +94,8 @@ class OperationsPlotter:
                                 "op_id": op_data["id"],
                                 "op_name": op_data["name"],
                                 "start": op_data["startTime"],
+                                "core": op_data["lastCore"],
+                                "node": op_data["lastNode"],
                                 "duration": dur})
 
         return data
