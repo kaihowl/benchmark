@@ -38,6 +38,9 @@ class User(multiprocessing.Process):
         self._written_to_file_count = 0
         self._userArgs          = kwargs
 
+    def __del__(self):
+        self._session.close()
+
     def prepareUser(self):
         """ implement this in subclasses """
         pass
