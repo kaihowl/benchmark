@@ -93,6 +93,9 @@ class Benchmark:
         if not os.path.isdir(self._dirResults):
             os.makedirs(self._dirResults)
 
+    def __del__(self):
+        self._session.close()
+
     def benchPrepare(self):
         """ implement this in subclasses """
         pass

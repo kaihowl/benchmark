@@ -37,6 +37,9 @@ class User(multiprocessing.Process):
         self._write_to_file_count    = int(kwargs["write_to_file_count"]) if kwargs.has_key("write_to_file_count") and kwargs["write_to_file_count"]!=None else None
         self._written_to_file_count = 0
 
+    def __del__(self):
+        self._session.close()
+
     def prepareUser(self):
         """ implement this in subclasses """
         pass
