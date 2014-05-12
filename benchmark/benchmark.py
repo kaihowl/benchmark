@@ -278,7 +278,7 @@ class Benchmark:
         returncode = process.returncode
         if returncode != 0:
             print stderr
-            raise Exception("ERROR: building ab tool failed with return code %s:\n===\n%s" % (self._settings.getName(), returncode, stderr))
+            raise Exception("ERROR: building ab tool failed with return code %s:\n===\n%s \n(Stderr: %s)" % (self._buildSettings.getName(), returncode, stderr))
         else:
             print "done"
 
