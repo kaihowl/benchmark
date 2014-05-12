@@ -25,7 +25,8 @@ class Build:
         self._prepare()
 
     def _updateSubmodules(self):
-        process = subprocess.Popen("git submodule sync; git submodule update --init", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self._dirSource)
+        print "Fetching submodules..."
+        return subprocess.call("git submodule sync; git submodule update --init", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self._dirSource)
 
     def makeAll(self):
         self.link()
