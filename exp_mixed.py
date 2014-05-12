@@ -405,7 +405,7 @@ output += "\n"
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
 #runBenchmark_varying_users(groupId, numRuns, ...)
-output += runBenchmark_varying_mts("Var_mts_fullSchema_singleTable", s1, separateOLAPTables=False, numRuns=3, **kwargs)
+output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, numRuns=3, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
