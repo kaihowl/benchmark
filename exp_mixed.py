@@ -25,9 +25,16 @@ def runbenchmarks(groupId, s1, **kwargs):
     return output
 
 # Creates Figure 2 of DASFAA paper
-def runBenchmark_scaling_curve_Scan(groupId, s1, runs=5, **kwargs):
+def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
+
+    # TODO support full and narrow schema
 
     # TODO which scheduler should we use?
+    kwargs["scheduler"] = "DynamicPriorityScheduler"
+    kwargs["hyriseDBPath"] = "/home/vagrant/vldb-tables/scaler/output-range"
+
+    # This benchmark's users terminate themselves after a set number of runs
+    kwargs["runtime"] = 0
 
     rows = [100*10**3, 1*10**6, 10*10**6, 100*10**6]
     # len(instances) == 20
@@ -38,7 +45,7 @@ def runBenchmark_scaling_curve_Scan(groupId, s1, runs=5, **kwargs):
             kwargs["userClass"]        = RepeatingUser
             kwargs["numUsers"]         = 1
             kwargs["userArgs"]         = {
-                    "repetitions" : runs,
+                    "repetitions" : numRuns,
                     "instances"   : cur_instances,
                     "rows"        : cur_rows }
             kwargs["prepareQueries"]   = ("preload", )
