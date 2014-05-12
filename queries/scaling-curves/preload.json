@@ -1,0 +1,29 @@
+ {
+ "operators" : {
+      "loadvbak" : {
+        "type" : "LoadDumpedTable",
+        "name" : "vbak_%(rows)d"
+      },
+      "setvbak" : {
+        "type" : "SetTable",
+         "name" : "vbak_%(rows)d"
+      },
+      "loadvbap" : {
+        "type" : "LoadDumpedTable",
+        "name" : "vbap_%(rows)d"
+      },
+      "setvbap" : {
+        "type" : "SetTable",
+         "name" : "vbap_%(rows)d"
+      },
+     "nop": {
+      "type" : "NoOp"
+     }
+  },
+  "edges" : [
+    ["loadvbak", "setvbak"],
+    ["loadvbap", "setvbap"],
+    ["setvbap", "nop"],
+    ["setvbak", "nop"]
+  ]
+}

@@ -7,6 +7,8 @@ import time
 from benchmark.bench_mixed import MixedWLBenchmark
 from benchmark.mixedWLPlotter import MixedWLPlotter
 from benchmark.DynamicPlotter import DynamicPlotter
+from benchmark.benchmark import Benchmark
+from benchmark.repeating_user import RepeatingUser
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
@@ -21,6 +23,34 @@ def runbenchmarks(groupId, s1, **kwargs):
     plotter = MixedWLPlotter(groupId)
     output += plotter.printFormattedStatisticsAverage(kwargs["benchmarkQueries"])
     return output
+
+# Creates Figure 2 of DASFAA paper
+def runBenchmark_scaling_curve_Scan(groupId, s1, runs=5, **kwargs):
+
+    # TODO which scheduler should we use?
+
+    rows = [100*10**3, 1*10**6, 10*10**6, 100*10**6]
+    # len(instances) == 20
+    instances = [1] + range(2, 16, 2) + range(16, 256, 32) + range(256, 1025, 256)
+
+    for cur_rows in rows:
+        for cur_instances in instances:
+            kwargs["userClass"]        = RepeatingUser
+            kwargs["numUsers"]         = 1
+            kwargs["userArgs"]         = {
+                    "repetitions" : runs,
+                    "instances"   : cur_instances,
+                    "rows"        : cur_rows }
+            kwargs["prepareQueries"]   = ("preload", )
+            kwargs["prepareArgs"]      = {"rows": cur_rows}
+            kwargs["benchmarkQueries"] = ("scan", )
+
+            b = Benchmark(groupId, "rows_%d_instances_%d" % (cur_rows, cur_instances), s1, **kwargs)
+            b.addQueryFile("preload", "queries/scaling-curves/preload.json")
+            b.addQueryFile("scan",  "queries/scaling-curves/scan.json")
+            b.run()
+
+    # TODO eval
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
 def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
