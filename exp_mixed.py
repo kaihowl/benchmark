@@ -31,7 +31,7 @@ def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
 
     # TODO which scheduler should we use?
     kwargs["scheduler"] = "DynamicPriorityScheduler"
-    kwargs["hyriseDBPath"] = "/home/vagrant/vldb-tables/scaler/output-range"
+    kwargs["hyriseDBPath"] = "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output-range"
 
     # This benchmark's users terminate themselves after a set number of runs
     kwargs["runtime"] = 0
