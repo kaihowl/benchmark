@@ -226,6 +226,26 @@ class Benchmark:
                     sys.stdout.flush()
                     self._users[i].join()
                 print "Stopping %s user(s)... done     " % self._numUsers
+        else:  # users will stop themselves (e.g. RepeatingUser)
+                self._createusers()
+                print "Immediately starting to log!\n"
+                for i in range(self._numusers):
+                    self._users[i].startlogging()
+
+                sys.stdout.write("starting %s user(s)...\r" % self._numusers)
+                sys.stdout.flush()
+                for i in range(self._numusers):
+                    sys.stdout.write("starting %s user(s)... %i%%      \r" % (self._numusers, (i+1.0) / self._numusers * 100))
+                    sys.stdout.flush()
+                    self._users[i].start()
+                print "starting %s user(s)... done     " % self._numusers
+
+                for i in range(self._numusers):
+                    sys.stdout.write("waiting for %s user(s)... %i%%      \r" % (self._numusers, (i+1.0) / self._numusers * 100))
+                    sys.stdout.flush()
+                    self._users[i].join()
+                print "waiting for %s user(s)... done     " % self._numusers
+
         if self._vtune is not None:
             subprocess.check_output("amplxe-cl -command stop", cwd=self._vtune, shell=True)
         self.benchBeforeStop()
