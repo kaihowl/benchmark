@@ -47,7 +47,10 @@ class Benchmark:
         self._thinktime         = kwargs["thinktime"] if kwargs.has_key("thinktime") else 0
         self._manual            = kwargs["manual"] if kwargs.has_key("manual") else False
         self._rebuild           = kwargs["rebuild"] if kwargs.has_key("rebuild") else False
-        self._userArgs          = kwargs["userArgs"] if kwargs.has_key("userArgs") else {"queries": self._queries}
+        _user_args = {"queries": self._queries}
+        if kwargs.has_key("userArgs"):
+            _user_args.update(kwargs["userArgs"]) 
+        self._userArgs          = _user_args
         self._stdout            = kwargs["showStdout"] if kwargs.has_key("showStdout") else False
         self._stderr            = kwargs["showStderr"] if kwargs.has_key("showStderr") else True
         self._remote            = kwargs["remote"] if kwargs.has_key("remote") else False
