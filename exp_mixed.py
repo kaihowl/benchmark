@@ -48,8 +48,10 @@ def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
                     "repetitions" : numRuns,
                     "instances"   : cur_instances,
                     "rows"        : cur_rows }
-            kwargs["prepareQueries"]   = ("preload", )
-            kwargs["prepareArgs"]      = {"rows": cur_rows}
+
+            kwargs["tableLoadQueries"] = ("preload", )
+            kwargs["tableLoadArgs"]    = {"rows": cur_rows}
+            kwargs["prepareQueries"]   = list()
             kwargs["benchmarkQueries"] = ("scan", )
 
             b = Benchmark(groupId, "rows_%d_instances_%d" % (cur_rows, cur_instances), s1, **kwargs)
@@ -58,6 +60,7 @@ def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
             b.run()
 
     # TODO eval
+    return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
 def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
@@ -201,6 +204,7 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=Tr
     kwargs["separateOLAPTables"] = separateOLAPTables
     output += "separateOLAPTables = %s\n" % str(kwargs["separateOLAPTables"])
     # Rebuild only the first time
+    # TODO this seems like non-sense to me
     kwargs["rebuild"] = True
 
     distincts = None
