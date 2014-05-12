@@ -56,7 +56,8 @@ class Benchmark:
         self._remote            = kwargs["remote"] if kwargs.has_key("remote") else False
         self._dirBinary         = kwargs["dirBinary"] if kwargs.has_key("dirBinary") else os.path.join(os.getcwd(), "builds/%s" % buildSettings.getName())
         self._dirHyriseDB       = kwargs["hyriseDBPath"] if kwargs.has_key("hyriseDBPath") else self._dirBinary
-        self._dirResults        = os.path.join(os.getcwd(), "results", self._id, self._runId, buildSettings.getName())
+        self._parentDirResults  = os.path.join(os.getcwd(), "results", self._id)
+        self._dirResults        = os.path.join(self._parentDirResults, self._runId, buildSettings.getName())
         # self._queryDict         = self._readDefaultQueryFiles()
         self._queryDict         = {}
         self._session           = requests.Session()
@@ -91,8 +92,10 @@ class Benchmark:
         self._exiting           = False
 
         self._session.headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-        if os.path.isdir(os.path.join(os.getcwd(), "results")):
-          print "\x1b[31;1mWARNING: Results folder exists. Final report might contain old, not overridden results\x1b[0m"
+
+        if os.path.exists(self._parentDirResults):
+            print "\x1b[31;1mWARNING: Results folder exists. If this is a subsequent run, you can ignore this message.\x1b[0m"
+
         if not os.path.isdir(self._dirResults):
             os.makedirs(self._dirResults)
 
