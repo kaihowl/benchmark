@@ -316,7 +316,7 @@ kwargs = {
     "useJson"           : args["json"],
 
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
-    # Set this value according to the data in hyriseDBPath
+    # Set this value according to the data in hyriseDBPath: full/narrow
     "schema"            : "full",
 
     "scheduler"         : "DynamicPriorityScheduler",
@@ -364,7 +364,7 @@ output += "\n"
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
 #runBenchmark_varying_users(groupId, numRuns, ...)
-output += runBenchmark_varying_mts("Var_mts_fullSchema_separate", s1, separateOLAPTables=True, numRuns=3, **kwargs)
+output += runBenchmark_varying_mts("Var_mts_fullSchema_singleTable", s1, separateOLAPTables=False, numRuns=3, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
