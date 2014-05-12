@@ -26,6 +26,13 @@ def runbenchmarks(groupId, s1, **kwargs):
 
 # Creates Figure 2 of DASFAA paper
 def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
+    runBenchmark_scaling_curve("queries/scaling-curves/scan.json", groupId, s1, numRuns, **kwargs)
+
+# Creates Figure 3 of DASFAA paper
+def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
+    runBenchmark_scaling_curve("queries/scaling-curves/join.json", groupId, s1, numRuns, **kwargs)
+
+def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, **kwargs):
 
     # TODO support full and narrow schema
 
@@ -52,11 +59,11 @@ def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
             kwargs["tableLoadQueries"] = ("preload", )
             kwargs["tableLoadArgs"]    = {"rows": cur_rows}
             kwargs["prepareQueries"]   = list()
-            kwargs["benchmarkQueries"] = ("scan", )
+            kwargs["benchmarkQueries"] = ("mainQueryFile", )
 
             b = Benchmark(groupId, "rows_%d_instances_%d" % (cur_rows, cur_instances), s1, **kwargs)
             b.addQueryFile("preload", "queries/scaling-curves/preload.json")
-            b.addQueryFile("scan",  "queries/scaling-curves/scan.json")
+            b.addQueryFile("mainQueryFile",  mainQueryFile)
             b.run()
 
     # TODO eval
@@ -405,7 +412,8 @@ output += "\n"
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
 #runBenchmark_varying_users(groupId, numRuns, ...)
-output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, numRuns=3, **kwargs)
+output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
+output += runBenchmark_scaling_curve_Join("scalingcurve-join", s1, **kwargs)
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
