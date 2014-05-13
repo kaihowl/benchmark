@@ -5,6 +5,7 @@ import pandas
 import matplotlib.pyplot as plt
 import time
 from scipy.optimize import curve_fit
+import scipy
 import numpy as np
 
 
@@ -56,10 +57,21 @@ class ScalingPlotter:
         # Avoid weights of zero! These are not defined with the used algos.
         weights = np.concatenate([[0.1], np.diff(x)])
         weights = np.subtract(weights.max()+1, weights)
-        fit_params, fit_covariances, infodict, errmsg, ier = \
-                curve_fit(fit_func, x, y, sigma=weights, full_output=True)
-        # TODO calculate the goodness of fit
+        fit_params, fit_covariances = curve_fit(fit_func, x, y, sigma=weights)
 
+        # Calculate goodness of fit with reduced Chi-Square
+        # Main ideas:
+        # http://www.physics.utoronto.ca/~phy326/python/curve_fit_to_data.py
+        print "Excluding first value"
+        y_exp = fit_func(x, *fit_params)
+        chisq = (np.square(y[1:]-y_exp[1:])/y_exp[1:]).sum()
+        dof = len(x[1:]) - len(fit_params)
+        print "Reduced Chi-Square: %.5f" % (chisq / dof)
+        cdf = scipy.special.chdtrc(dof,chisq)
+        print "CDF = %.5f" % cdf
+
+
+        # Plot
         plt.figure()
         measurement_label = 'Measured task execution time on %d rows' % rows
         group['duration'].plot(label=measurement_label)
