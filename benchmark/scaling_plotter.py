@@ -56,9 +56,7 @@ class ScalingPlotter:
         # Avoid weights of zero! These are not defined with the used algos.
         weights = np.concatenate([[0.1], np.diff(x)])
         weights = np.subtract(weights.max()+1, weights)
-        # TODO do we still need this?
-        p0 = [26550, 0.5]
-        fit_params, fit_covariances = curve_fit(fit_func, x, y, p0=p0, sigma=weights)
+        fit_params, fit_covariances = curve_fit(fit_func, x, y, sigma=weights)
         # TODO calculate the goodness of fit
 
         plt.figure()
