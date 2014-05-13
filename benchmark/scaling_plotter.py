@@ -16,12 +16,15 @@ class ScalingPlotter:
     """
 
     def __init__(self, benchmark_group_id, **kwargs):
-        self._legendTitle = kwargs['legendTitle'] if kwargs.has_key('legendTitle') else "rows"
+        self._legend_title = kwargs['legendTitle']  \
+            if kwargs.has_key('legendTitle') else "rows"
         self._group_id = benchmark_group_id
         self._data = self._collect()
         self._df = pandas.DataFrame(self._data)
-        self._df["rows"] = self._df['run'].map(lambda x: int(x.split("_")[1]))
-        self._df["instances"] = self._df['run'].map(lambda x: int(x.split("_")[3]))
+        self._df["rows"] = self._df['run'].map(
+                lambda x: int(x.split("_")[1]))
+        self._df["instances"] = self._df['run'].map(
+                lambda x: int(x.split("_")[3]))
 
     def plot_total_response_time(self):
         """ Plot the total response time vs the number of instances """
@@ -56,7 +59,7 @@ class ScalingPlotter:
         plt.xlabel("Number of Instances")
         plt.ylabel(y_label)
         plt.yscale('log')
-        plt.legend(title=self._legendTitle)
+        plt.legend(title=self._legend_title)
         fname = "%s_%s_%d.pdf" % (self._group_id, file_infix, int(time.time()))
         plt.savefig(fname)
         print ">>>%s" % fname
