@@ -21,10 +21,11 @@ class ScalingPlotter:
         self._group_id = benchmark_group_id
         self._data = self._collect()
         self._df = pandas.DataFrame(self._data)
-        self._df["rows"] = self._df['run'].map(
-                lambda x: int(x.split("_")[1]))
-        self._df["instances"] = self._df['run'].map(
-                lambda x: int(x.split("_")[3]))
+        # run are strings like "rows_<numberofrows>_instances_<numinstances>"
+        # expand column run in separate columns
+        self._df["rows"], self._df["instances"] = zip(* \
+                self._df['run'].map( \
+                    lambda x: [int(s) for s in x.split("_")[1:4:2] ]))
 
     def plot_total_response_time(self):
         """ Plot the total response time vs the number of instances """
