@@ -4,6 +4,8 @@ from pylab import average, median, std
 import pandas
 import matplotlib.pyplot as plt
 import time
+from scipy.optimize import curve_fit
+import numpy as np
 
 
 class ScalingPlotter:
@@ -26,6 +28,45 @@ class ScalingPlotter:
         self._df["rows"], self._df["instances"] = zip(* \
                 self._df['run'].map( \
                     lambda x: [int(s) for s in x.split("_")[1:4:2] ]))
+
+    def plot_fitting_for(self, eval_selection_lambda, rows=None):
+        if rows==None:
+            print "No rows specified for fitting. Assuming biggest size."
+            rows=self._df['rows'].max()
+
+        def fit_func(x, a, b):
+            return np.divide(float(a), x) + float(b)
+
+        def filter(x):
+            return x["rows"] == rows and eval_selection_lambda(x)
+
+        criterion = self._df.apply(filter, axis=1)
+        cur_data = self._df[criterion]
+        group = cur_data.groupby("instances").median()
+
+        x = np.array(group.index)
+        y = np.array(group['duration'])
+        # Get the distance of a value to it predecessor
+        # This will smooth out greater distances between higher number of
+        # instances. A bigger weight will be applied to measurements that have
+        # a wide distance to a previous measurement.
+        # This assumes a higher resolution of measurements in the lower
+        # instances range and a lower resolution in the higher instances range.
+        # This will also explictly drop the first value
+        weights = np.sqrt(np.concatenate([[0], np.diff(x)]))
+        print weights
+        fit_params, fitCovariances = curve_fit(fit_func, x, y, sigma=weights)
+
+        plt.figure()
+        measurement_label = 'Measured task execution time on %d rows' % rows
+        group['duration'].plot(label=measurement_label)
+        plt.plot(x, fit_func(x, *fit_params), label='Fitting')
+        plt.yscale('log')
+        plt.legend(loc='best')
+
+        fname = 'fitting.pdf'
+        print ">>>%s" % fname
+        plt.savefig(fname)
 
     def plot_total_response_time(self):
         """ Plot the total response time vs the number of instances """
