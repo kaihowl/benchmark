@@ -8,6 +8,13 @@ import time
 
 class ScalingPlotter:
 
+    """
+    Collection of routines to generate scaling-curve related diagrams.
+
+    These are specifically the Figures 2, 3, and 6 (each (a) and (b)).
+    The data is generated with benchmarks located in exp_mixed.py
+    """
+
     def __init__(self, benchmark_group_id, **kwargs):
         self._legendTitle = kwargs['legendTitle'] if kwargs.has_key('legendTitle') else "rows"
         self._group_id = benchmark_group_id
