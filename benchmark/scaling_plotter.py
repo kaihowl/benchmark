@@ -27,8 +27,23 @@ class ScalingPlotter:
         plt.savefig(filename)
         print ">>>%s" % filename
 
+    # selection_lambda takes a row in the dataframe and returns true for the
+    # tasks of which the mean task size should be plotted.
+    def plot_mean_task_size(self, selection_lambda):
+        criterion = self._df.apply(selection_lambda, axis=1)
+        tasks = self._df[criterion]
+        group = tasks.groupby(["rows", "instances"]).median()
+
+        group['duration'].unstack('rows').plot()
+        plt.xlabel("Number of Instances")
+        plt.ylabel("Mean Task Duration in ms")
+        plt.yscale('log')
+        filename = "%s_meantasksize_%d.pdf" % (self._group_id, int(time.time()))
+        plt.savefig(filename)
+        print ">>>%s" % filename
+
     # returns a list of dictionaries with the following keys
-    # run, build, user, query_name, op_id, op_name, start, end, duration
+    # run, build, user, query_name, op_id, op_name, start, duration
     def _collect(self):
         data = list()
         dir_results = os.path.join(os.getcwd(), "results", self._group_id)
@@ -77,4 +92,3 @@ class ScalingPlotter:
                                 "duration": dur})
 
         return data
-

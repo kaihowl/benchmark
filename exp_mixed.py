@@ -27,13 +27,15 @@ def runbenchmarks(groupId, s1, **kwargs):
 
 # Creates Figure 2 of DASFAA paper
 def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
-    return runBenchmark_scaling_curve("queries/scaling-curves/scan.json", groupId, s1, numRuns, **kwargs)
+    selection_lambda = lambda x: x["op_name"] == "TableScan"
+    return runBenchmark_scaling_curve("queries/scaling-curves/scan.json", selection_lambda, groupId, s1, numRuns, **kwargs)
 
 # Creates Figure 3 of DASFAA paper
 def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
-    return runBenchmark_scaling_curve("queries/scaling-curves/join.json", groupId, s1, numRuns, **kwargs)
+    selection_lambda = lambda x: x["op_name"] == "NestedLoopEquiJoin"
+    return runBenchmark_scaling_curve("queries/scaling-curves/join.json", selection_lambda, groupId, s1, numRuns, **kwargs)
 
-def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, **kwargs):
+def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1, numRuns=5, **kwargs):
     output = ""
 
     # TODO support full and narrow schema
@@ -70,6 +72,7 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, **kwargs):
 
     plotter = ScalingPlotter(groupId)
     plotter.plot_total_response_time()
+    plotter.plot_mean_task_size(eval_selection_lambda)
     return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
