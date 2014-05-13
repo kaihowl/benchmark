@@ -28,11 +28,13 @@ def runbenchmarks(groupId, s1, **kwargs):
 # Creates Figure 2 of DASFAA paper
 def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
     selection_lambda = lambda x: x["op_name"] == "TableScan"
+    kwargs["legendTitle"] = "Rows"
     return runBenchmark_scaling_curve("queries/scaling-curves/scan.json", selection_lambda, groupId, s1, numRuns, **kwargs)
 
 # Creates Figure 3 of DASFAA paper
 def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
     selection_lambda = lambda x: x["op_name"] == "NestedLoopEquiJoin"
+    kwargs["legendTitle"] = "Probe Rows"
     return runBenchmark_scaling_curve("queries/scaling-curves/join.json", selection_lambda, groupId, s1, numRuns, **kwargs)
 
 def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1, numRuns=5, **kwargs):
@@ -71,7 +73,7 @@ def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1
                 b.addQueryFile("mainQueryFile",  mainQueryFile)
                 b.run()
 
-    plotter = ScalingPlotter(groupId)
+    plotter = ScalingPlotter(groupId, **kwargs)
     plotter.plot_total_response_time()
     plotter.plot_mean_task_size(eval_selection_lambda)
     return output

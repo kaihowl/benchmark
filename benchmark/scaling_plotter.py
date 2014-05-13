@@ -8,7 +8,8 @@ import time
 
 class ScalingPlotter:
 
-    def __init__(self, benchmark_group_id):
+    def __init__(self, benchmark_group_id, **kwargs):
+        self._legendTitle = kwargs['legendTitle'] if kwargs.has_key('legendTitle') else "rows"
         self._group_id = benchmark_group_id
         self._data = self._collect()
         self._df = pandas.DataFrame(self._data)
@@ -23,13 +24,14 @@ class ScalingPlotter:
         plt.xlabel("Number of Instances")
         plt.ylabel("Total Respone Time in ms")
         plt.yscale('log')
+        plt.legend(title=self._legendTitle)
         filename = "%s_response_%d.pdf" % (self._group_id, int(time.time()))
         plt.savefig(filename)
         print ">>>%s" % filename
 
     # selection_lambda takes a row in the dataframe and returns true for the
     # tasks of which the mean task size should be plotted.
-    def plot_mean_task_size(self, selection_lambda):
+    def plot_mean_task_size(self, selection_lambda, **kwargs):
         criterion = self._df.apply(selection_lambda, axis=1)
         tasks = self._df[criterion]
         group = tasks.groupby(["rows", "instances"]).median()
@@ -38,6 +40,7 @@ class ScalingPlotter:
         plt.xlabel("Number of Instances")
         plt.ylabel("Mean Task Duration in ms")
         plt.yscale('log')
+        plt.legend(title=self._legendTitle)
         filename = "%s_meantasksize_%d.pdf" % (self._group_id, int(time.time()))
         plt.savefig(filename)
         print ">>>%s" % filename
