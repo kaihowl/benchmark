@@ -17,29 +17,30 @@ class ScalingPlotter:
         self._df["instances"] = self._df['run'].map(lambda x: int(x.split("_")[3]))
 
     def plot_total_response_time(self):
+        """ Plot the total response time vs the number of instances """
         selection_lambda = lambda x: x['op_name'] == "ResponseTask"
         y_label = "Median Respone Time in ms"
         field = 'end'
         file_infix = 'response'
         self._plot_row_functions(selection_lambda, field, y_label, file_infix)
 
-    # selection_lambda takes a row in the dataframe and returns true for the
-    # tasks of which the mean task size should be plotted.
     def plot_mean_task_size(self, selection_lambda):
+        """ Plot the mean task size of a task vs the number of instances
+        selection_lambda -- filter rows that should be plotted
+        """
         y_label = "Median Task Duration in ms"
         field = 'duration'
         file_infix = 'meantasksize'
         self._plot_row_functions(selection_lambda, field, y_label, file_infix)
 
-
-    # Plots the dataframe with a data series per row size
-    # x-axis is number of instances.
-    # y-axis is determined by the aggregated field
-    # selection_lambda: praedicate to filter rows of dataframe
-    # field: the field to aggregate and plot
-    # y_label: describe the aggregate of the field for the y-axis
-    # file_infix: string used to generate the middle portion of the filename
     def _plot_row_functions(self, selection_lambda, field, y_label, file_infix):
+        """ Plot an aggregated field vs the instances per row size
+
+        selection_lambda -- filter rows that should be plotted
+        field -- the field that should be aggregated
+        y_label -- describe the aggregate of the field for y-axis label
+        file_infix -- string used for the middle portion of the filename
+        """
         criterion = self._df.apply(selection_lambda, axis=1)
         tasks = self._df[criterion]
         group = tasks.groupby(["rows", "instances"]).median()
@@ -53,9 +54,15 @@ class ScalingPlotter:
         plt.savefig(fname)
         print ">>>%s" % fname
 
-    # returns a list of dictionaries with the following keys
-    # run, build, user, query_name, op_id, op_name, start, duration
     def _collect(self):
+        """ Return a list of dictionaries with the following keys
+
+        run
+        build
+        user
+        query_name
+        op_id, op_name, start, end, duration
+        """
         data = list()
         dir_results = os.path.join(os.getcwd(), "results", self._group_id)
         if not os.path.isdir(dir_results):
