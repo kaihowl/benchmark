@@ -51,24 +51,25 @@ def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1
     # len(instances) == 20
     instances = [1] + range(2, 16, 2) + range(16, 256, 32) + range(256, 1025, 256)
 
-    for cur_rows in rows:
-        for cur_instances in instances:
-            kwargs["userClass"]        = RepeatingUser
-            kwargs["numUsers"]         = 1
-            kwargs["userArgs"]         = {
-                    "repetitions" : numRuns,
-                    "instances"   : cur_instances,
-                    "rows"        : cur_rows }
+    if not kwargs["evaluationOnly"]:
+        for cur_rows in rows:
+            for cur_instances in instances:
+                kwargs["userClass"]        = RepeatingUser
+                kwargs["numUsers"]         = 1
+                kwargs["userArgs"]         = {
+                        "repetitions" : numRuns,
+                        "instances"   : cur_instances,
+                        "rows"        : cur_rows }
 
-            kwargs["tableLoadQueries"] = ("preload", )
-            kwargs["tableLoadArgs"]    = {"rows": cur_rows}
-            kwargs["prepareQueries"]   = list()
-            kwargs["benchmarkQueries"] = ("mainQueryFile", )
+                kwargs["tableLoadQueries"] = ("preload", )
+                kwargs["tableLoadArgs"]    = {"rows": cur_rows}
+                kwargs["prepareQueries"]   = list()
+                kwargs["benchmarkQueries"] = ("mainQueryFile", )
 
-            b = Benchmark(groupId, "rows_%d_instances_%d" % (cur_rows, cur_instances), s1, **kwargs)
-            b.addQueryFile("preload", "queries/scaling-curves/preload.json")
-            b.addQueryFile("mainQueryFile",  mainQueryFile)
-            b.run()
+                b = Benchmark(groupId, "rows_%d_instances_%d" % (cur_rows, cur_instances), s1, **kwargs)
+                b.addQueryFile("preload", "queries/scaling-curves/preload.json")
+                b.addQueryFile("mainQueryFile",  mainQueryFile)
+                b.run()
 
     plotter = ScalingPlotter(groupId)
     plotter.plot_total_response_time()
@@ -224,22 +225,23 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=Tr
 
     mts_list = [10, 30, 50, 70, 150, 200, 250, 350, 400, 450, 500, 750, 1000]
 
-    for run in range(0, numRuns):
-      print "Run %d of %d" % (run+1, numRuns)
-      for mts in mts_list:
-        print "starting benchmark with mts=%s and separateTables=%s" % (str(mts), str(separateOLAPTables))
-        if not distincts is None:
-          print "Reusing distincts from now on."
-          kwargs["distincts"] = distincts
-        kwargs["mts"] = mts
-        kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
-        b1 = MixedWLBenchmark(groupId, "%d_%d" % (mts, run), settings, **kwargs)
-        b1.run()
-        time.sleep(5)
-        # save distincts for next run
-        distincts = b1.getDistinctValues()
-        # do not rebuild on next run
-        kwargs["rebuild"] = False
+    if not kwargs["evaluationOnly"]:
+        for run in range(0, numRuns):
+          print "Run %d of %d" % (run+1, numRuns)
+          for mts in mts_list:
+            print "starting benchmark with mts=%s and separateTables=%s" % (str(mts), str(separateOLAPTables))
+            if not distincts is None:
+              print "Reusing distincts from now on."
+              kwargs["distincts"] = distincts
+            kwargs["mts"] = mts
+            kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+            b1 = MixedWLBenchmark(groupId, "%d_%d" % (mts, run), settings, **kwargs)
+            b1.run()
+            time.sleep(5)
+            # save distincts for next run
+            distincts = b1.getDistinctValues()
+            # do not rebuild on next run
+            kwargs["rebuild"] = False
 
     groupMapping = {}
     identityMapping = {}
@@ -301,6 +303,8 @@ aparser.add_argument('--perfdata', default=True, action='store_true',
                      help='Collect additional performance data. Slows down benchmark.')
 aparser.add_argument('--json', default=False, action='store_true',
                      help='Use JSON queries instead of stored procedures.')
+aparser.add_argument('--evaluation-only', default=False, action='store_true',
+                     help='Do not run the benchmark, only evaluate last results.')
 args = vars(aparser.parse_args())
 
 s1 = benchmark.Settings("Standard",
@@ -368,6 +372,7 @@ kwargs = {
     "noLoad"            : args["no_load"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
+    "evaluationOnly"    : args["evaluation_only"],
 
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
     # Set this value according to the data in hyriseDBPath: full/narrow
