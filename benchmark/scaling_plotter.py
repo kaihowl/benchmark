@@ -22,7 +22,7 @@ class ScalingPlotter:
 
         group['end'].unstack('rows').plot()
         plt.xlabel("Number of Instances")
-        plt.ylabel("Total Respone Time in ms")
+        plt.ylabel("Median Respone Time in ms")
         plt.yscale('log')
         plt.legend(title=self._legendTitle)
         filename = "%s_response_%d.pdf" % (self._group_id, int(time.time()))
@@ -38,7 +38,7 @@ class ScalingPlotter:
 
         group['duration'].unstack('rows').plot()
         plt.xlabel("Number of Instances")
-        plt.ylabel("Mean Task Duration in ms")
+        plt.ylabel("Median Task Duration in ms")
         plt.yscale('log')
         plt.legend(title=self._legendTitle)
         filename = "%s_meantasksize_%d.pdf" % (self._group_id, int(time.time()))
