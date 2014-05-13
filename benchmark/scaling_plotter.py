@@ -35,7 +35,7 @@ class ScalingPlotter:
             rows=self._df['rows'].max()
 
         def fit_func(x, a, b):
-            return np.divide(float(a), x) + float(b)
+            return np.divide(a, x) + b
 
         def filter(x):
             return x["rows"] == rows and eval_selection_lambda(x)
@@ -53,9 +53,13 @@ class ScalingPlotter:
         # This assumes a higher resolution of measurements in the lower
         # instances range and a lower resolution in the higher instances range.
         # This will also explictly drop the first value
-        weights = np.sqrt(np.concatenate([[0], np.diff(x)]))
-        print weights
-        fit_params, fitCovariances = curve_fit(fit_func, x, y, sigma=weights)
+        # Avoid weights of zero! These are not defined with the used algos.
+        weights = np.concatenate([[0.1], np.diff(x)])
+        weights = np.subtract(weights.max()+1, weights)
+        # TODO do we still need this?
+        p0 = [26550, 0.5]
+        fit_params, fit_covariances = curve_fit(fit_func, x, y, p0=p0, sigma=weights)
+        # TODO calculate the goodness of fit
 
         plt.figure()
         measurement_label = 'Measured task execution time on %d rows' % rows
