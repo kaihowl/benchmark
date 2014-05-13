@@ -9,6 +9,7 @@ from benchmark.mixedWLPlotter import MixedWLPlotter
 from benchmark.DynamicPlotter import DynamicPlotter
 from benchmark.benchmark import Benchmark
 from benchmark.repeating_user import RepeatingUser
+from benchmark.scaling_plotter import ScalingPlotter
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
@@ -26,13 +27,14 @@ def runbenchmarks(groupId, s1, **kwargs):
 
 # Creates Figure 2 of DASFAA paper
 def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
-    runBenchmark_scaling_curve("queries/scaling-curves/scan.json", groupId, s1, numRuns, **kwargs)
+    return runBenchmark_scaling_curve("queries/scaling-curves/scan.json", groupId, s1, numRuns, **kwargs)
 
 # Creates Figure 3 of DASFAA paper
 def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
-    runBenchmark_scaling_curve("queries/scaling-curves/join.json", groupId, s1, numRuns, **kwargs)
+    return runBenchmark_scaling_curve("queries/scaling-curves/join.json", groupId, s1, numRuns, **kwargs)
 
 def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, **kwargs):
+    output = ""
 
     # TODO support full and narrow schema
 
@@ -66,7 +68,8 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, **kwargs):
             b.addQueryFile("mainQueryFile",  mainQueryFile)
             b.run()
 
-    # TODO eval
+    plotter = ScalingPlotter(groupId)
+    plotter.plot_total_response_time()
     return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
