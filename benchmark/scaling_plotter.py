@@ -17,33 +17,41 @@ class ScalingPlotter:
         self._df["instances"] = self._df['run'].map(lambda x: int(x.split("_")[3]))
 
     def plot_total_response_time(self):
-        response_tasks = self._df[self._df['op_name'] == "ResponseTask"]
-        group = response_tasks.groupby(["rows", "instances"]).median()
-
-        group['end'].unstack('rows').plot()
-        plt.xlabel("Number of Instances")
-        plt.ylabel("Median Respone Time in ms")
-        plt.yscale('log')
-        plt.legend(title=self._legendTitle)
-        filename = "%s_response_%d.pdf" % (self._group_id, int(time.time()))
-        plt.savefig(filename)
-        print ">>>%s" % filename
+        selection_lambda = lambda x: x['op_name'] == "ResponseTask"
+        y_label = "Median Respone Time in ms"
+        field = 'end'
+        file_infix = 'response'
+        self._plot_row_functions(selection_lambda, field, y_label, file_infix)
 
     # selection_lambda takes a row in the dataframe and returns true for the
     # tasks of which the mean task size should be plotted.
-    def plot_mean_task_size(self, selection_lambda, **kwargs):
+    def plot_mean_task_size(self, selection_lambda):
+        y_label = "Median Task Duration in ms"
+        field = 'duration'
+        file_infix = 'meantasksize'
+        self._plot_row_functions(selection_lambda, field, y_label, file_infix)
+
+
+    # Plots the dataframe with a data series per row size
+    # x-axis is number of instances.
+    # y-axis is determined by the aggregated field
+    # selection_lambda: praedicate to filter rows of dataframe
+    # field: the field to aggregate and plot
+    # y_label: describe the aggregate of the field for the y-axis
+    # file_infix: string used to generate the middle portion of the filename
+    def _plot_row_functions(self, selection_lambda, field, y_label, file_infix):
         criterion = self._df.apply(selection_lambda, axis=1)
         tasks = self._df[criterion]
         group = tasks.groupby(["rows", "instances"]).median()
 
-        group['duration'].unstack('rows').plot()
+        group[field].unstack('rows').plot()
         plt.xlabel("Number of Instances")
-        plt.ylabel("Median Task Duration in ms")
+        plt.ylabel(y_label)
         plt.yscale('log')
         plt.legend(title=self._legendTitle)
-        filename = "%s_meantasksize_%d.pdf" % (self._group_id, int(time.time()))
-        plt.savefig(filename)
-        print ">>>%s" % filename
+        fname = "%s_%s_%d.pdf" % (self._group_id, file_infix, int(time.time()))
+        plt.savefig(fname)
+        print ">>>%s" % fname
 
     # returns a list of dictionaries with the following keys
     # run, build, user, query_name, op_id, op_name, start, duration
