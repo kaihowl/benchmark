@@ -1,6 +1,5 @@
 import ast
 import os
-from pylab import average, median, std
 import pandas
 import matplotlib.pyplot as plt
 import time
