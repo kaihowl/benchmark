@@ -42,7 +42,7 @@ class ScalingPlotter:
 
         criterion = self._df.apply(filter, axis=1)
         cur_data = self._df[criterion]
-        group = cur_data.groupby("instances").median()
+        group = cur_data.groupby("instances").mean()
 
         x = np.array(group.index)
         y = np.array(group['duration'])
@@ -85,7 +85,7 @@ class ScalingPlotter:
     def plot_total_response_time(self):
         """ Plot the total response time vs the number of instances """
         selection_lambda = lambda x: x['op_name'] == "ResponseTask"
-        y_label = "Median Respone Time in ms"
+        y_label = "Mean Respone Time in ms"
         field = 'end'
         file_infix = 'response'
         self._plot_row_functions(selection_lambda, field, y_label, file_infix)
@@ -94,7 +94,7 @@ class ScalingPlotter:
         """ Plot the mean task size of a task vs the number of instances
         selection_lambda -- filter rows that should be plotted
         """
-        y_label = "Median Task Duration in ms"
+        y_label = "Mean Task Duration in ms"
         field = 'duration'
         file_infix = 'meantasksize'
         self._plot_row_functions(selection_lambda, field, y_label, file_infix)
@@ -109,14 +109,15 @@ class ScalingPlotter:
         """
         criterion = self._df.apply(selection_lambda, axis=1)
         tasks = self._df[criterion]
-        group = tasks.groupby(["rows", "instances"]).median()
+        group = tasks.groupby(["rows", "instances"])
 
-        group[field].unstack('rows').plot()
+        group[field].mean().unstack('rows').plot()
         plt.xlabel("Number of Instances")
         plt.ylabel(y_label)
         plt.yscale('log')
         plt.legend(title=self._legend_title)
-        fname = "%s_%s_%d.pdf" % (self._group_id, file_infix, int(time.time()))
+        fprefix = "%s_%s_%d" % (self._group_id, file_infix, int(time.time()))
+        fname = fprefix + ".pdf"
         plt.savefig(fname)
         print ">>>%s" % fname
 
