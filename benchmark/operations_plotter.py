@@ -35,6 +35,25 @@ class OperationsPlotter:
             plt.close()
 
             probes = data[criterion]
+
+            # split for run num_instances_16 into duration < and >= 10000
+            if run == "num_instances_16":
+                def print_summary(data):
+                    print " duration: %d to %d" % (data['duration'].min(), data['duration'].max())
+                    print " start: %d to %d" % (data['start'].min(), data['start'].max())
+                    print " nodes: %s" % (data['node'].unique())
+                    print " cores: %s" % (data['core'].unique())
+                    print " data: %d to %d" % (data['data'].min(), data['data'].max())
+                    print " input data: %d to %d" % (data['inRows'].min(), data['inRows'].max())
+                    print " output data: %d to %d" % (data['outRows'].min(), data['outRows'].max())
+
+                lower_data = probes[probes['duration'] < 10000]
+                upper_data = probes[probes['duration'] >= 10000]
+                print "Lower data:"
+                print_summary(lower_data)
+                print "Upper data:"
+                print_summary(upper_data)
+
             # Plot single NUMA nodes
             for node in probes['node'].unique():
                 print "Current run: %s, Current node: %d" % (run, node)
@@ -97,6 +116,9 @@ class OperationsPlotter:
                                 "start": op_data["startTime"],
                                 "core": op_data["lastCore"],
                                 "node": op_data["lastNode"],
+                                "data": op_data["data"] if op_data["name"]!="ResponseTask" else 0,
+                                "inRows": op_data["inRows"],
+                                "outRows": op_data["outRows"],
                                 "duration": dur})
 
         return data
