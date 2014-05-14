@@ -48,8 +48,8 @@ def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1
     kwargs["runtime"] = 0
 
     rows = [100*10**3, 1*10**6, 10*10**6, 100*10**6]
-    # len(instances) == 20
-    instances = [1] + range(2, 16, 2) + range(16, 256, 32) + range(256, 1025, 256)
+    # len(instances) == 35
+    instances = [1] + range(2,32, 2)+ range(32, 64, 8) + range(64, 256, 32) + range(256,512,64) + range(512, 1025, 128)
 
     if not kwargs["evaluationOnly"]:
         for cur_rows in rows:
