@@ -82,30 +82,31 @@ class ScalingPlotter:
         print ">>>%s" % fname
         plt.savefig(fname)
 
-    def plot_total_response_time(self):
+    def plot_total_response_time(self, dump_to_csv=False):
         """ Plot the total response time vs the number of instances """
         selection_lambda = lambda x: x['op_name'] == "ResponseTask"
         y_label = "Mean Respone Time in ms"
         field = 'end'
         file_infix = 'response'
-        self._plot_row_functions(selection_lambda, field, y_label, file_infix)
+        self._plot_row_functions(selection_lambda, field, y_label, file_infix, dump_to_csv=dump_to_csv)
 
-    def plot_mean_task_size(self, selection_lambda):
+    def plot_mean_task_size(self, selection_lambda, dump_to_csv=False):
         """ Plot the mean task size of a task vs the number of instances
         selection_lambda -- filter rows that should be plotted
         """
         y_label = "Mean Task Duration in ms"
         field = 'duration'
         file_infix = 'meantasksize'
-        self._plot_row_functions(selection_lambda, field, y_label, file_infix)
+        self._plot_row_functions(selection_lambda, field, y_label, file_infix, dump_to_csv=dump_to_csv)
 
-    def _plot_row_functions(self, selection_lambda, field, y_label, file_infix):
+    def _plot_row_functions(self, selection_lambda, field, y_label, file_infix, dump_to_csv=False):
         """ Plot an aggregated field vs the instances per row size
 
         selection_lambda -- filter rows that should be plotted
         field -- the field that should be aggregated
         y_label -- describe the aggregate of the field for y-axis label
         file_infix -- string used for the middle portion of the filename
+        dump_to_csv -- Also dump the used data points to a csv file (default: False)
         """
         criterion = self._df.apply(selection_lambda, axis=1)
         tasks = self._df[criterion]
@@ -120,6 +121,11 @@ class ScalingPlotter:
         fname = fprefix + ".pdf"
         plt.savefig(fname)
         print ">>>%s" % fname
+
+        if dump_to_csv:
+            with open(fprefix+".csv", "w") as csv_file:
+                group[field].agg([np.median, np.mean]).reset_index().to_csv(csv_file)
+                print ">>>%s" % csv_file.name
 
     def _collect(self):
         """ Return a list of dictionaries with the following keys
