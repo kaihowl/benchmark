@@ -13,3 +13,5 @@ ab_queries/
 tables/
 *.swp
 results_*
+hyrise_server.pid
+hyrise_server.port
