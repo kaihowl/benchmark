@@ -380,7 +380,7 @@ kwargs = {
     "useJson"           : args["json"],
     "evaluationOnly"    : args["evaluation_only"],
 
-    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
+    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output-range",
     # Set this value according to the data in hyriseDBPath: full/narrow
     "schema"            : "full",
 
