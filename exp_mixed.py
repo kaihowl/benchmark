@@ -43,8 +43,6 @@ def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1
     # TODO support full and narrow schema
 
     # TODO which scheduler should we use?
-    kwargs["scheduler"] = "DynamicPriorityScheduler"
-    kwargs["hyriseDBPath"] = "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output-range"
 
     # This benchmark's users terminate themselves after a set number of runs
     kwargs["runtime"] = 0
