@@ -59,9 +59,11 @@ def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1
                 kwargs["userClass"]        = RepeatingUser
                 kwargs["numUsers"]         = 1
                 kwargs["userArgs"]         = {
-                        "repetitions" : numRuns,
-                        "instances"   : cur_instances,
-                        "rows"        : cur_rows }
+                        "repetitions"      : numRuns,
+                        "instances"        : cur_instances,
+                        # Capped instances are used in join.json
+                        "capped_instances" : min(cur_instances, 100),
+                        "rows"             : cur_rows }
 
                 kwargs["tableLoadQueries"] = ("preload", )
                 kwargs["tableLoadArgs"]    = {"rows": cur_rows}

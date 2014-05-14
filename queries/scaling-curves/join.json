@@ -14,8 +14,8 @@
       "bits1": 12,
       "bits2": 5,
       "fields": [1,1],
-      "hash_par": %(instances)d,
-      "probe_par": %(instances)d,
+      "hash_par": %(capped_instances)d,
+      "probe_par": %(capped_instances)d,
       "join_par": %(instances)d
     },
     "3": {
