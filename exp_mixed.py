@@ -76,7 +76,7 @@ def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1
     plotter = ScalingPlotter(groupId, **kwargs)
     plotter.plot_total_response_time(dump_to_csv=True)
     plotter.plot_mean_task_size(eval_selection_lambda, dump_to_csv=True)
-    plotter.plot_fitting_for(eval_selection_lambda, rows=max(rows))
+    plotter.plot_fitting_for(eval_selection_lambda)
     return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.

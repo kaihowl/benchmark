@@ -30,9 +30,28 @@ class ScalingPlotter:
                     lambda x: [int(s) for s in x.split("_")[1:4:2] ]))
 
     def plot_fitting_for(self, eval_selection_lambda, rows=None):
-        if rows==None:
-            print "No rows specified for fitting. Assuming biggest size."
-            rows=self._df['rows'].max()
+        """ Plot curve(s) and fitting of a task's size/duration
+
+            eval_selection_lambda -- Select the task whose duration shall be fit
+            rows -- Only plot and fit for the run(s) with this table size.
+                    Optional argument. Takes scalar and sequence-like values.
+                    Default is to print fitting for all table sizes
+        """
+        if not rows:
+            rows = self._df['rows'].unique()
+
+        try:
+            for cur_rows in rows:
+                self._plot_single_fitting_for(eval_selection_lambda, cur_rows)
+        except TypeError:  # no list but single element for rows
+            self._plot_single_fitting_for(eval_selection_lambda, rows)
+
+    def _plot_single_fitting_for(self, eval_selection_lambda, rows):
+        """ Plot curve and fitting for selected task's size/duration
+
+            eval_selection_lambda -- Select the task whose duration shall be fit
+            rows -- Only plot and fir for the run with this table size
+        """
 
         def fit_func(x, a, b):
             return np.divide(a, x) + b
@@ -61,12 +80,13 @@ class ScalingPlotter:
         # Calculate goodness of fit with reduced Chi-Square
         # Main ideas:
         # http://www.physics.utoronto.ca/~phy326/python/curve_fit_to_data.py
-        print "Excluding first value"
         y_exp = fit_func(x, *fit_params)
         chisq = (np.square(y[1:]-y_exp[1:])/y_exp[1:]).sum()
         dof = len(x[1:]) - len(fit_params)
-        print "Reduced Chi-Square: %.5f" % (chisq / dof)
         cdf = scipy.special.chdtrc(dof,chisq)
+        print "Excluding the first value"
+        print "For rows: %d" % rows
+        print "Reduced Chi-Square: %.5f" % (chisq / dof)
         print "CDF = %.5f" % cdf
 
 
@@ -76,9 +96,10 @@ class ScalingPlotter:
         group['duration'].plot(label=measurement_label)
         plt.plot(x, fit_func(x, *fit_params), label='Fitting')
         plt.yscale('log')
+        plt.ylabel("Mean Task Duration in ms")
         plt.legend(loc='best')
 
-        fname = 'fitting.pdf'
+        fname = '%s_fitting_%d_rows_%d.pdf' % (self._group_id, rows, int(time.time()))
         print ">>>%s" % fname
         plt.savefig(fname)
 
