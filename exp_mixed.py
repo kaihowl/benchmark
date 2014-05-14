@@ -205,6 +205,9 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
 
 
 def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=True, **kwargs):
+    if kwargs["scheduler"] != "DynamicPriorityScheduler":
+        print "\x1b[31;1mWARNING: Varying benchmark without DynamicPriorityScheduler?\x1b[0m"
+
     num_olap_users = 32
     output = ""
 
