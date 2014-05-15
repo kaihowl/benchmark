@@ -15,7 +15,7 @@ def runbenchmarks(groupId, **kwargs):
     settings = Settings("standard_release")
 
     # Benchmark
-    if not kwargs["evaluationOnly"]:
+    if kwargs["runBenchmark"]:
         for num_instances in instances:
             print "Starting benchmark with %i instances for probe" \
                 % num_instances
@@ -29,15 +29,18 @@ def runbenchmarks(groupId, **kwargs):
             b.run()
 
     # Evaluation
-    pl = OperationsPlotter(groupId)
-    pl.plot_histograms()
+    if kwargs["runEvaluation"]:
+        pl = OperationsPlotter(groupId)
+        pl.plot_histograms()
 
 
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
 aparser.add_argument('--duration', default=20, type=int, metavar='D',
                      help='How long to run the benchmark in seconds')
-aparser.add_argument('--evaluation-only', action='store_true',
-                     help='Do not run the experiment and only evaluate the results of the last run')
+aparser.add_argument('--benchmark', action='store_true',
+                     help='Run the benchmark part of the benchmark.')
+aparser.add_argument('--evaluation', action='store_true',
+                     help='Run the evaluation part of the benchmark.')
 aparser.add_argument('--no-load', action='store_true',
                      help='Disable loading the data')
 aparser.add_argument('--no-execute', action='store_true',
@@ -71,23 +74,24 @@ aparser.add_argument('--json', default=False, action='store_true',
 args = vars(aparser.parse_args())
 
 kwargs = {
-    "port"              : args["port"],
-    "manual"            : args["manual"],
-    "warmuptime"        : 20,
-    "runtime"           : 4 * 60,
-    "showStdout"        : True,
-    "showStderr"        : True,
-    "rebuild"           : args["rebuild"],
-    "regenerate"        : args["regenerate"],
-    "noLoad"            : args["no_load"],
-    "collectPerfData"   : args["perfdata"],
-    "useJson"           : args["json"],
-    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tpch/hyrise",
-    "scheduler"         : "CentralScheduler",
-    "serverThreads"     : 31,
-    "remote"            : False,
-    "remoteUser"        : "Kai.Hoewelmeyer",
-    "evaluationOnly"    : args["evaluation_only"]
+    "port"            : args["port"],
+    "manual"          : args["manual"],
+    "warmuptime"      : 20,
+    "runtime"         : 4 * 60,
+    "showStdout"      : True,
+    "showStderr"      : True,
+    "rebuild"         : args["rebuild"],
+    "regenerate"      : args["regenerate"],
+    "noLoad"          : args["no_load"],
+    "collectPerfData" : args["perfdata"],
+    "useJson"         : args["json"],
+    "hyriseDBPath"    : "/home/Kai.Hoewelmeyer/hyrise-tpch/hyrise",
+    "scheduler"       : "CentralScheduler",
+    "serverThreads"   : 31,
+    "remote"          : False,
+    "remoteUser"      : "Kai.Hoewelmeyer",
+    "runBenchmark"    : args["benchmark"],
+    "runEvaluation"   : args["evaluation"]
 }
 
 runbenchmarks("ophistogram", **kwargs)
