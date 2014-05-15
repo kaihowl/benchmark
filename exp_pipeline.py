@@ -14,6 +14,10 @@ def runbenchmarks(groupId, **kwargs):
     instances = [1, 4, 8, 16, 32]
     settings = Settings("standard_release")
 
+    # Optional clean of folder
+    if kwargs["cleanResultFolder"]:
+        Benchmark.cleanResultFolder(groupId)
+
     # Benchmark
     if kwargs["runBenchmark"]:
         for num_instances in instances:
@@ -41,6 +45,8 @@ aparser.add_argument('--benchmark', action='store_true',
                      help='Run the benchmark part of the benchmark.')
 aparser.add_argument('--evaluation', action='store_true',
                      help='Run the evaluation part of the benchmark.')
+aparser.add_argument('--clean-result-folder', action='store_true',
+                     help='Clean the folder of the benchmark before running it again.')
 aparser.add_argument('--no-load', action='store_true',
                      help='Disable loading the data')
 aparser.add_argument('--no-execute', action='store_true',
@@ -74,24 +80,25 @@ aparser.add_argument('--json', default=False, action='store_true',
 args = vars(aparser.parse_args())
 
 kwargs = {
-    "port"            : args["port"],
-    "manual"          : args["manual"],
-    "warmuptime"      : 20,
-    "runtime"         : 4 * 60,
-    "showStdout"      : True,
-    "showStderr"      : True,
-    "rebuild"         : args["rebuild"],
-    "regenerate"      : args["regenerate"],
-    "noLoad"          : args["no_load"],
-    "collectPerfData" : args["perfdata"],
-    "useJson"         : args["json"],
-    "hyriseDBPath"    : "/home/Kai.Hoewelmeyer/hyrise-tpch/hyrise",
-    "scheduler"       : "CentralScheduler",
-    "serverThreads"   : 31,
-    "remote"          : False,
-    "remoteUser"      : "Kai.Hoewelmeyer",
-    "runBenchmark"    : args["benchmark"],
-    "runEvaluation"   : args["evaluation"]
+    "port"              : args["port"],
+    "manual"            : args["manual"],
+    "warmuptime"        : 20,
+    "runtime"           : 4 * 60,
+    "showStdout"        : True,
+    "showStderr"        : True,
+    "rebuild"           : args["rebuild"],
+    "regenerate"        : args["regenerate"],
+    "noLoad"            : args["no_load"],
+    "collectPerfData"   : args["perfdata"],
+    "useJson"           : args["json"],
+    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tpch/hyrise",
+    "scheduler"         : "CentralScheduler",
+    "serverThreads"     : 31,
+    "remote"            : False,
+    "remoteUser"        : "Kai.Hoewelmeyer",
+    "runBenchmark"      : args["benchmark"],
+    "runEvaluation"     : args["evaluation"],
+    "cleanResultFolder" : args["clean_result_folder"]
 }
 
 runbenchmarks("ophistogram", **kwargs)
