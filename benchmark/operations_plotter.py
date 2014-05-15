@@ -46,6 +46,7 @@ class OperationsPlotter:
                     print " data: %d to %d" % (data['data'].min(), data['data'].max())
                     print " input data: %d to %d" % (data['inRows'].min(), data['inRows'].max())
                     print " output data: %d to %d" % (data['outRows'].min(), data['outRows'].max())
+                    print " line data: %d to %d" % (data['line'].min(), data['line'].max())
 
                 lower_data = probes[probes['duration'] < 10000]
                 upper_data = probes[probes['duration'] >= 10000]
@@ -69,7 +70,9 @@ class OperationsPlotter:
         pp.close()
 
     # returns a list of dictionaries with the following keys
-    # run, build, user, query_name, op_id, op_name, start, duration
+    # run, build, user, query_name, op_id, op_name, start, duration, line
+    # line identifies a run within a user as a line in the transaction log
+    # corresponds to a run within a user
     def _collect(self):
         data = list()
         dir_results = os.path.join(os.getcwd(), "results", self._group_id)
@@ -98,6 +101,7 @@ class OperationsPlotter:
                         print "WARNING: no queries log found in %s!" % dir_user
                         continue
 
+                    line = 0
                     for rawline in open(log_file_name):
                         linedata = rawline.split(";")
                         query_name = linedata[0]
@@ -119,6 +123,8 @@ class OperationsPlotter:
                                 "data": op_data["data"] if op_data["name"]!="ResponseTask" else 0,
                                 "inRows": op_data["inRows"],
                                 "outRows": op_data["outRows"],
+                                "line": line,
                                 "duration": dur})
+                        line += 1
 
         return data
