@@ -9,11 +9,23 @@ import time
 import user
 import multiprocessing
 import paramiko
+import shutil
 
 from queries import *
 import queries
 
 class Benchmark:
+
+    @staticmethod
+    def cleanResultFolder(groupId):
+        parent_folder = Benchmark.get_parent_result_folder(groupId)
+        shutil.rmtree(parent_folder, True)
+        print "Removed result folder: %s" % parent_folder
+
+    @staticmethod
+    def get_parent_result_folder(groupId):
+        return os.path.join(os.getcwd(), "results", groupId)
+
 
     def __init__(self, benchmarkGroupId, benchmarkRunId, buildSettings, **kwargs):
         if(kwargs.has_key("remote") and kwargs["remote"]==True and (kwargs.has_key("dirBinary") or kwargs.has_key("hyriseDBPath"))):
@@ -51,7 +63,7 @@ class Benchmark:
         self._remote            = kwargs["remote"] if kwargs.has_key("remote") else False
         self._dirBinary         = kwargs["dirBinary"] if kwargs.has_key("dirBinary") else os.path.join(os.getcwd(), "builds/%s" % buildSettings.getName())
         self._dirHyriseDB       = kwargs["hyriseDBPath"] if kwargs.has_key("hyriseDBPath") else self._dirBinary
-        self._parentDirResults  = os.path.join(os.getcwd(), "results", self._id)
+        self._parentDirResults  = Benchmark.get_parent_result_folder(self._id)
         self._dirResults        = os.path.join(self._parentDirResults, self._runId, buildSettings.getName())
         # self._queryDict         = self._readDefaultQueryFiles()
         self._queryDict         = {}
@@ -86,12 +98,6 @@ class Benchmark:
         self._exiting           = False
 
         self._session.headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-
-        if os.path.exists(self._parentDirResults):
-            print "\x1b[31;1mWARNING: Results folder exists. If this is a subsequent run, you can ignore this message.\x1b[0m"
-
-        if not os.path.isdir(self._dirResults):
-            os.makedirs(self._dirResults)
 
     def __del__(self):
         self._session.close()
@@ -136,6 +142,12 @@ class Benchmark:
         print "+------------------+"
         print "| HYRISE benchmark |"
         print "+------------------+\n"
+
+        if os.path.exists(self._parentDirResults):
+            print "\x1b[31;1mWARNING: Results folder exists. If this is a subsequent run, you can ignore this message.\x1b[0m"
+
+        if not os.path.isdir(self._dirResults):
+            os.makedirs(self._dirResults)
 
         if self._remote:
             subprocess.call(["mkdir", "-p", "remotefs/" + self._host])
