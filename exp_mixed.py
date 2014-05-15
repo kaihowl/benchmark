@@ -27,17 +27,50 @@ def runbenchmarks(groupId, s1, **kwargs):
 
 # Creates Figure 2 of DASFAA paper
 def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
-    selection_lambda = lambda x: x["op_name"] == "TableScan"
+    scan = (lambda x: x["op_name"] == "TableScan", "TableScan")
     kwargs["legendTitle"] = "Rows"
-    return runBenchmark_scaling_curve("queries/scaling-curves/scan.json", selection_lambda, groupId, s1, numRuns, **kwargs)
+    return runBenchmark_scaling_curve(
+            "queries/scaling-curves/scan.json",
+            groupId,
+            s1,
+            numRuns,
+            mean_tasks=[scan],
+            fit_tasks=[scan],
+            **kwargs)
 
 # Creates Figure 3 of DASFAA paper
 def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
-    selection_lambda = lambda x: x["op_name"] == "NestedLoopEquiJoin"
+    join = (lambda x: x["op_name"] == "NestedLoopEquiJoin", "NestedLoopEquiJoin")
+    # TODO what to select? hash or probe? hash first or second?
+    prefix = (lambda x: x["op_name"] == "PrefixSum", "PrefixSum")
+    # TODO what to select? hash or probe?
+    histogram = (lambda x: x["op_name"] == "Histogram", "Histogram")
+    # TODO what to selet? hash or probe?
+    cluster = (lambda x: x["op_name"] == "RadixCluster", "RadixCluster")
     kwargs["legendTitle"] = "Probe Rows"
-    return runBenchmark_scaling_curve("queries/scaling-curves/join.json", selection_lambda, groupId, s1, numRuns, **kwargs)
+    return runBenchmark_scaling_curve("queries/scaling-curves/join.json",
+            groupId,
+            s1,
+            numRuns,
+            mean_tasks=[join, prefix, histogram, cluster],
+            fit_tasks=[join, cluster],
+            **kwargs)
 
-def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1, numRuns=5, **kwargs):
+def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tasks=[],**kwargs):
+    """ Run a scaling curve benchmark.
+
+        Will output the mean response time for the provided query. For supplied
+        lambdas in mean_tasks, plot the mean task size. For the supplied lambdas
+        in fit_tasks, fit the a/x+b model to the mean task size.
+
+        mainQueryFile -- path to the main query json file
+        mean_tasks -- Sequence of pairs of lambdas and strings.
+                      The lambdas select the tasks, the strings are used for
+                      y axis labels
+        fit_tasks --  Sequence of pairs of lambdas and strings.
+                      The group of tasks selected by the lambda are fit with our
+                      model. The strings are used for the y axis labels.
+    """
     output = ""
 
     # TODO support full and narrow schema
@@ -75,8 +108,10 @@ def runBenchmark_scaling_curve(mainQueryFile, eval_selection_lambda, groupId, s1
 
     plotter = ScalingPlotter(groupId, **kwargs)
     plotter.plot_total_response_time(dump_to_csv=True)
-    plotter.plot_mean_task_size(eval_selection_lambda, dump_to_csv=True)
-    plotter.plot_fitting_for(eval_selection_lambda)
+    for (sel_lambda, name) in mean_tasks:
+        plotter.plot_mean_task_size(sel_lambda, task_name=name, dump_to_csv=True)
+    for (sel_lambda, name) in fit_tasks:
+        plotter.plot_fitting_for(sel_lambda, task_name=name)
     return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.

@@ -29,10 +29,11 @@ class ScalingPlotter:
                 self._df['run'].map( \
                     lambda x: [int(s) for s in x.split("_")[1:4:2] ]))
 
-    def plot_fitting_for(self, eval_selection_lambda, rows=None):
+    def plot_fitting_for(self, eval_selection_lambda, task_name, rows=None):
         """ Plot curve(s) and fitting of a task's size/duration
 
             eval_selection_lambda -- Select the task whose duration shall be fit
+            task_name -- Describe the task selected by the selection lambda
             rows -- Only plot and fit for the run(s) with this table size.
                     Optional argument. Takes scalar and sequence-like values.
                     Default is to print fitting for all table sizes
@@ -42,11 +43,11 @@ class ScalingPlotter:
 
         try:
             for cur_rows in rows:
-                self._plot_single_fitting_for(eval_selection_lambda, cur_rows)
+                self._plot_single_fitting_for(eval_selection_lambda, task_name, cur_rows)
         except TypeError:  # no list but single element for rows
-            self._plot_single_fitting_for(eval_selection_lambda, rows)
+            self._plot_single_fitting_for(eval_selection_lambda, task_name, rows)
 
-    def _plot_single_fitting_for(self, eval_selection_lambda, rows):
+    def _plot_single_fitting_for(self, eval_selection_lambda, task_name, rows):
         """ Plot curve and fitting for selected task's size/duration
 
             eval_selection_lambda -- Select the task whose duration shall be fit
@@ -96,10 +97,10 @@ class ScalingPlotter:
         group['duration'].plot(label=measurement_label)
         plt.plot(x, fit_func(x, *fit_params), label='Fitting')
         plt.yscale('log')
-        plt.ylabel("Mean Task Duration in ms")
+        plt.ylabel("Mean %s Duration in ms" % task_name)
         plt.legend(loc='best')
 
-        fname = '%s_fitting_%d_rows_%d.pdf' % (self._group_id, rows, int(time.time()))
+        fname = '%s_fitting_%s_%d_rows_%d.pdf' % (self._group_id, task_name, rows, int(time.time()))
         print ">>>%s" % fname
         plt.savefig(fname)
 
@@ -111,13 +112,14 @@ class ScalingPlotter:
         file_infix = 'response'
         self._plot_row_functions(selection_lambda, field, y_label, file_infix, dump_to_csv=dump_to_csv)
 
-    def plot_mean_task_size(self, selection_lambda, dump_to_csv=False):
+    def plot_mean_task_size(self, selection_lambda, task_name="mean", dump_to_csv=False):
         """ Plot the mean task size of a task vs the number of instances
         selection_lambda -- filter rows that should be plotted
+        task_name -- the name is used for y label construction and the file name
         """
-        y_label = "Mean Task Duration in ms"
+        y_label = "Mean %s Duration in ms" % task_name
         field = 'duration'
-        file_infix = 'meantasksize'
+        file_infix = 'meantasksize_%s' % task_name
         self._plot_row_functions(selection_lambda, field, y_label, file_infix, dump_to_csv=dump_to_csv)
 
     def _plot_row_functions(self, selection_lambda, field, y_label, file_infix, dump_to_csv=False):
