@@ -11,7 +11,7 @@ from benchmark.operations_plotter import OperationsPlotter
 
 def runbenchmarks(groupId, **kwargs):
     output = ""
-    instances = [1, 16, 32, 64, 128, 1024]
+    instances = [1, 4, 8, 16, 32]
     settings = Settings("standard_release")
 
     # Benchmark
