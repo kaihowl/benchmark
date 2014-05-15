@@ -401,13 +401,15 @@ class Benchmark:
                 self._serverProc.terminate()
                 time.sleep(0.5)
                 if self._serverProc.poll() is None:
-                    #print "Server still running. Waiting 2 sec and forcing shutdown..."
-                    time.sleep(2)
-                    self._serverProc.kill()
-                time.sleep(0.5)
+                    print "Server still running. Waiting 5 sec and forcing shutdown..."
+                    time.sleep(5)
                 if self._serverProc.poll() is None:
-                    subprocess.call(["killall", "-u", os.getlogin(), "hyrise-server_release"])
-                time.sleep(5)
+                    self._serverProc.kill()
+                # Since pipes for stdin/stderr are used we shouldn't wait()
+                # This waits for the process to terminate
+                self._serverProc.communicate()
+
+                time.sleep(0.5)
         else:
             print "kill server, close connection"
             self._ssh.exec_command("killall hyrise-server_release");
@@ -422,7 +424,10 @@ class Benchmark:
             u.stop()
         self._stopServer()
         for u in self._users:
-            u.join()
+            u.join(timeout=10)
+            if u.is_alive():
+                print "User did not finish in time. Terminating it."
+                u.terminate()
         exit()
 
     def _signalHandler(self, signal, frame):
