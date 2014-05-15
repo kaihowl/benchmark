@@ -75,8 +75,6 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks
 
     # TODO support full and narrow schema
 
-    # TODO which scheduler should we use?
-
     # This benchmark's users terminate themselves after a set number of runs
     kwargs["runtime"] = 0
 
