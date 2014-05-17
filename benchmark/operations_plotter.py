@@ -40,6 +40,7 @@ class OperationsPlotter:
             new_probe_hist(probes, 'duration')
             new_probe_hist(probes, 'duration1')
             new_probe_hist(probes, 'duration2')
+            new_probe_hist(probes, 'matchingRows')
 
             # Detect runs of non-zero counts and print stats if several of
             # those runs exist -> meaning, we have a multi-modal distribution
@@ -144,6 +145,7 @@ class OperationsPlotter:
                                 "line": line,
                                 "duration1": op_data["duration1"] if op_data["name"]!="ResponseTask" else 0,
                                 "duration2": op_data["duration2"] if op_data["name"]!="ResponseTask" else 0,
+                                "matchingRows": op_data["matchingRows"] if op_data["name"]!="ResponseTask" else 0,
                                 "duration": dur})
                         line += 1
 
