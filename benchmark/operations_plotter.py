@@ -3,6 +3,7 @@ import os
 from pylab import average, median, std
 import pandas
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class OperationsPlotter:
@@ -19,7 +20,6 @@ class OperationsPlotter:
         # Tell notify wrapper to attach file to email
         print "\n>>>%s\n" % filename
         for run in self._df['run'].unique():
-            print "Plotting run %s" % run
             plt.figure()
             escaped_title = run.replace("_", "\_")
             title = "Histogram of probe durations for run %s" % escaped_title
@@ -30,17 +30,26 @@ class OperationsPlotter:
             plt.ylabel(ylabel)
             data = self._df[self._df['run'] == run]
             criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
-            data[criterion]['duration'].hist()
+            probes = data[criterion]
+            hist = probes['duration'].hist()
             pp.savefig()
             plt.close()
 
-            probes = data[criterion]
+            # Detect runs of non-zero counts and print stats if several of
+            # those runs exist -> meaning, we have a multi-modal distribution
+            count, division = np.histogram(probes['duration'])
+            bounded_counts = np.hstack(([0], count, [0]))
+            run_sequence = np.diff((bounded_counts>0)*1)
+            sequences = zip(np.where(run_sequence==1)[0], np.where(run_sequence==-1)[0])
+            print count
+            print sequences
+            if len(sequences) > 1:
+                print "Found %d-modal distribution for run %s" % (len(sequences), run)
 
-            # split for run num_instances_16 into duration < and >= 10000
-            if run == "num_instances_16":
                 def print_summary(data):
-                    print " duration: %d to %d" % (data['duration'].min(), data['duration'].max())
-                    print " start: %d to %d" % (data['start'].min(), data['start'].max())
+                    print " duration: %.3f to %.3f" % (data['duration'].min(), data['duration'].max())
+                    print " start: %.3f to %.3f" % (data['start'].min(), data['start'].max())
+                    print " end: %.3f to %.3f" % (data['end'].min(), data['end'].max())
                     print " nodes: %s" % (data['node'].unique())
                     print " cores: %s" % (data['core'].unique())
                     print " data: %d to %d" % (data['data'].min(), data['data'].max())
@@ -48,16 +57,15 @@ class OperationsPlotter:
                     print " output data: %d to %d" % (data['outRows'].min(), data['outRows'].max())
                     print " line data: %d to %d" % (data['line'].min(), data['line'].max())
 
-                lower_data = probes[probes['duration'] < 10000]
-                upper_data = probes[probes['duration'] >= 10000]
-                print "Lower data:"
-                print_summary(lower_data)
-                print "Upper data:"
-                print_summary(upper_data)
+                for seq_start, seq_end in sequences:
+                    print "New sequence:"
+                    upper_probes = probes['duration'] >= division[seq_start]
+                    lower_probes = probes['duration'] < division[seq_end]
+                    data = probes[upper_probes & lower_probes]
+                    print_summary(data)
 
             # Plot single NUMA nodes
             for node in probes['node'].unique():
-                print "Current run: %s, Current node: %d" % (run, node)
                 plt.figure()
                 subtitle = title + " for node %d" % node
                 plt.title(subtitle)
@@ -118,6 +126,7 @@ class OperationsPlotter:
                                 "op_id": op_data["id"],
                                 "op_name": op_data["name"],
                                 "start": op_data["startTime"],
+                                "end": op_data["endTime"],
                                 "core": op_data["lastCore"],
                                 "node": op_data["lastNode"],
                                 "data": op_data["data"] if op_data["name"]!="ResponseTask" else 0,
