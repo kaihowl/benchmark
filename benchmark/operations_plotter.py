@@ -20,20 +20,26 @@ class OperationsPlotter:
         # Tell notify wrapper to attach file to email
         print "\n>>>%s\n" % filename
         for run in self._df['run'].unique():
-            plt.figure()
-            escaped_title = run.replace("_", "\_")
-            title = "Histogram of probe durations for run %s" % escaped_title
-            plt.title(title)
-            xlabel = "Probe Instance Duration"
-            plt.xlabel(xlabel)
-            ylabel = "Occurences in Entire Experiment"
-            plt.ylabel(ylabel)
+            escaped_run = run.replace("_", "\_")
             data = self._df[self._df['run'] == run]
+
+            def new_probe_hist(data, field_title):
+                plt.figure()
+                title = "Histogram of probes' %s for run %s" % (field_title, escaped_run)
+                plt.title(title)
+                xlabel = "Probe Instance %s" % field_title
+                plt.xlabel(xlabel)
+                ylabel = "Occurences in Entire Experiment"
+                plt.ylabel(ylabel)
+                hist = probes[field_title].hist()
+                pp.savefig()
+                plt.close()
+
             criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
             probes = data[criterion]
-            hist = probes['duration'].hist()
-            pp.savefig()
-            plt.close()
+            new_probe_hist(probes, 'duration')
+            new_probe_hist(probes, 'duration1')
+            new_probe_hist(probes, 'duration2')
 
             # Detect runs of non-zero counts and print stats if several of
             # those runs exist -> meaning, we have a multi-modal distribution
@@ -67,9 +73,12 @@ class OperationsPlotter:
             # Plot single NUMA nodes
             for node in probes['node'].unique():
                 plt.figure()
+                title = "Histogram of probes' duration for run %s" % escaped_run
                 subtitle = title + " for node %d" % node
                 plt.title(subtitle)
+                xlabel = "Probe Instance durations"
                 plt.xlabel(xlabel)
+                ylabel = "Occurences in Entire Experiment"
                 plt.ylabel(ylabel)
                 cur_node_probes = probes[probes['node'] == node]
                 cur_node_probes['duration'].hist()
@@ -133,6 +142,8 @@ class OperationsPlotter:
                                 "inRows": op_data["inRows"],
                                 "outRows": op_data["outRows"],
                                 "line": line,
+                                "duration1": op_data["duration1"] if op_data["name"]!="ResponseTask" else 0,
+                                "duration2": op_data["duration2"] if op_data["name"]!="ResponseTask" else 0,
                                 "duration": dur})
                         line += 1
 
