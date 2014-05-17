@@ -60,7 +60,7 @@ class OperationsPlotter:
                 for seq_start, seq_end in sequences:
                     print "New sequence:"
                     upper_probes = probes['duration'] >= division[seq_start]
-                    lower_probes = probes['duration'] < division[seq_end]
+                    lower_probes = probes['duration'] <= division[seq_end]
                     data = probes[upper_probes & lower_probes]
                     print_summary(data)
 
