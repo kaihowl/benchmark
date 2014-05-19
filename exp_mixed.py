@@ -105,6 +105,7 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks
                 b.run()
 
     plotter = ScalingPlotter(groupId, **kwargs)
+    plotter.plot_true_response_time(dump_to_csv=True)
     plotter.plot_total_response_time(dump_to_csv=True)
     for (sel_lambda, name) in mean_tasks:
         plotter.plot_mean_task_size(sel_lambda, task_name=name, dump_to_csv=True)

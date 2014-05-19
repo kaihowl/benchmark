@@ -110,7 +110,36 @@ class ScalingPlotter:
         y_label = "Mean Respone Time in ms"
         field = 'end'
         file_infix = 'response'
-        self._plot_row_functions(selection_lambda, field, y_label, file_infix, dump_to_csv=dump_to_csv)
+        self._plot_row_functions(self._filter_by_lambda(selection_lambda), field, y_label, file_infix, dump_to_csv=dump_to_csv)
+
+    def plot_true_response_time(self, dump_to_csv=False):
+        """ Plot the true response time vs the number of instances
+
+            The true response time is the difference between the startTime of
+            the ResponseTask and the endTime of the RequestParseTask. This
+            accounts for longer json transformation for bigger number of
+            instances.
+        """
+        group = self._df.groupby(['rows', 'instances', 'query_id'])
+
+        def true_response_time(query_df):
+            resp_tasks = query_df[query_df['op_name'] == "ResponseTask"]
+            assert len(resp_tasks) == 1, "There should be one ResponseTask"
+
+            req_p_tasks = query_df[query_df['op_name'] == "RequestParseTask"]
+            assert len(req_p_tasks) == 1, "There should be one RequestParseTask"
+
+            end_time = resp_tasks['start'].iloc[0]
+            start_time = req_p_tasks['end'].iloc[0]
+            return end_time - start_time
+
+        resp_times_series = group.apply(true_response_time)
+        resp_times_series.name = 'duration'
+        resp_times_df = resp_times_series.reset_index()
+        y_label = "True Mean Respone Time in ms"
+        field = 'duration'
+        file_infix = 'trueresponse'
+        self._plot_row_functions(resp_times_df, field, y_label, file_infix, dump_to_csv=dump_to_csv)
 
     def plot_mean_task_size(self, selection_lambda, task_name="mean", dump_to_csv=False):
         """ Plot the mean task size of a task vs the number of instances
@@ -120,20 +149,25 @@ class ScalingPlotter:
         y_label = "Mean %s Duration in ms" % task_name
         field = 'duration'
         file_infix = 'meantasksize_%s' % task_name
-        self._plot_row_functions(selection_lambda, field, y_label, file_infix, dump_to_csv=dump_to_csv)
+        self._plot_row_functions(self._filter_by_lambda(selection_lambda), field, y_label, file_infix, dump_to_csv=dump_to_csv)
 
-    def _plot_row_functions(self, selection_lambda, field, y_label, file_infix, dump_to_csv=False):
+    def _filter_by_lambda(self, selection_lambda):
+        """ Filter the current dataframe by applying the selection lambda
+
+            selection_lambda -- boolean lambda over panda dataframe rows
+        """
+        return self._df[self._df.apply(selection_lambda, axis=1)]
+
+    def _plot_row_functions(self, data, field, y_label, file_infix, dump_to_csv=False):
         """ Plot an aggregated field vs the instances per row size
 
-        selection_lambda -- filter rows that should be plotted
+        data -- pandas dataframe
         field -- the field that should be aggregated
         y_label -- describe the aggregate of the field for y-axis label
         file_infix -- string used for the middle portion of the filename
         dump_to_csv -- Also dump the used data points to a csv file (default: False)
         """
-        criterion = self._df.apply(selection_lambda, axis=1)
-        tasks = self._df[criterion]
-        group = tasks.groupby(["rows", "instances"])
+        group = data.groupby(["rows", "instances"])
 
         group[field].mean().unstack('rows').plot()
         plt.xlabel("Number of Instances")
@@ -186,7 +220,9 @@ class ScalingPlotter:
                         print "WARNING: no queries log found in %s!" % dir_user
                         continue
 
+                    query_id = 0
                     for rawline in open(log_file_name):
+                        query_id += 1
                         linedata = rawline.split(";")
                         query_name = linedata[0]
                         perf_data = ast.literal_eval(linedata[1])
@@ -198,6 +234,7 @@ class ScalingPlotter:
                                 "run": str_run,
                                 "build": str_build,
                                 "user": str_user,
+                                "query_id": query_id,
                                 "query_name": query_name,
                                 "op_id": op_data["id"],
                                 "op_name": op_data["name"],
