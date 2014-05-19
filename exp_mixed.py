@@ -3,6 +3,7 @@ import benchmark
 import os
 import pprint
 import time
+import datetime
 
 from benchmark.bench_mixed import MixedWLBenchmark
 from benchmark.mixedWLPlotter import MixedWLPlotter
@@ -464,8 +465,24 @@ output += "\n"
 #    output += runBenchmark_varying_users("Var_q3" + kwargs["scheduler"] + "_OLAP_" + str(kwargs["serverThreads"]), s1, **kwargs)
 #
 #runBenchmark_varying_users(groupId, numRuns, ...)
+BENCHMARK_START = 0
+def start_timing():
+    global BENCHMARK_START
+    BENCHMARK_START = time.time()
+
+def print_timing(title="Time taken:"):
+    global BENCHMARK_START
+    delta_seconds = time.time() - BENCHMARK_START
+    print "%s %s" % (title, str(datetime.timedelta(seconds=delta_seconds)))
+
+start_timing()
 output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
+print_timing(title='Scan took:')
+
+start_timing()
 output += runBenchmark_scaling_curve_Join("scalingcurve-join", s1, **kwargs)
+print_timing(title='Join took:')
+
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
 f.write(output) # python will convert \n to os.linesep
