@@ -24,21 +24,42 @@ class OperationsPlotter:
             escaped_run = run.replace("_", "\_")
             data = self._df[self._df['run'] == run]
 
-            def new_probe_hist(data, field_title):
-                plt.figure()
-                title = "Histogram of probes' %s for run %s" % (field_title, escaped_run)
-                plt.title(title)
-                xlabel = "Probe Instance %s" % field_title
-                plt.xlabel(xlabel)
-                ylabel = "Occurences in Entire Experiment"
-                plt.ylabel(ylabel)
-                hist = probes[field_title].hist()
-                pp.savefig()
-                plt.close()
+            criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
+            probes = data[criterion]
+            title = "Histogram of probes' duration for run %s" % escaped_run
+            self._new_probe_hist(probes['duration'], title, pp)
+
+        pp.close()
+
+    def plot_numa_histograms(self):
+        from matplotlib.backends.backend_pdf import PdfPages
+        filename = "histograms_numa.pdf"
+        pp = PdfPages(filename)
+        print "\n>>>%s\n" % filename
+
+        for run in self._df['run'].unique():
+            escaped_run = run.replace("_", "\_")
+            data = self._df[self._df['run'] == run]
 
             criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
             probes = data[criterion]
-            new_probe_hist(probes, 'duration')
+
+            for node in probes['node'].unique():
+                cur_node_probes = probes[probes['node'] == node]
+                title = "Histogram of probes' duration for run %s on node %s" % (escaped_run, node)
+                self._new_probe_hist(
+                        cur_node_probes['duration'],
+                        title,
+                        pp)
+        pp.close()
+
+    def print_modal_statistics(self):
+
+        for run in self._df['run'].unique():
+            escaped_run = run.replace("_", "\_")
+            data = self._df[self._df['run'] == run]
+            criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
+            probes = data[criterion]
 
             # Detect runs of non-zero counts and print stats if several of
             # those runs exist -> meaning, we have a multi-modal distribution
@@ -69,21 +90,25 @@ class OperationsPlotter:
                     data = probes[upper_probes & lower_probes]
                     print_summary(data)
 
-            # Plot single NUMA nodes
-            for node in probes['node'].unique():
-                plt.figure()
-                title = "Histogram of probes' duration for run %s" % escaped_run
-                subtitle = title + " for node %d" % node
-                plt.title(subtitle)
-                xlabel = "Probe Instance durations"
-                plt.xlabel(xlabel)
-                ylabel = "Occurences in Entire Experiment"
-                plt.ylabel(ylabel)
-                cur_node_probes = probes[probes['node'] == node]
-                cur_node_probes['duration'].hist()
-                pp.savefig()
-                plt.close()
-        pp.close()
+
+    def _new_probe_hist(self, series, title, pp):
+        """Plot a new histogram in a multi-page pdf
+
+            series -- Pandas series
+            title -- The title of the histogram
+            pp -- the PdfPages to plot to
+        """
+
+        plt.figure()
+        plt.title(title)
+        xlabel = "Probe Instance %s" % series.name
+        plt.xlabel(xlabel)
+        ylabel = "Occurences in Entire Experiment"
+        plt.ylabel(ylabel)
+        series.hist()
+        pp.savefig()
+        plt.close()
+
 
     # returns a list of dictionaries with the following keys
     # run, build, user, query_name, op_id, op_name, start, duration, line
