@@ -92,7 +92,7 @@ kwargs = {
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tpch/hyrise",
-    "scheduler"         : "CentralScheduler",
+    "scheduler"         : "CoreBoundQueuesScheduler",
     "serverThreads"     : 31,
     "remote"            : False,
     "remoteUser"        : "Kai.Hoewelmeyer",
