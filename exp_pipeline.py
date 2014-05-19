@@ -39,6 +39,32 @@ def run_join_histograms(**kwargs):
         pl = OperationsPlotter(groupId)
         pl.plot_histograms()
 
+def run_scheduler_modality(**kwargs):
+    groupId = "scheduler_modality"
+    output = ""
+    instances = [16]
+    settings = Settings("standard_release")
+    schedulers = ["CentralScheduler", "CoreBoundQueuesScheduler"]
+
+    if kwargs["cleanResultFolder"]:
+        Benchmark.cleanResultFolder(groupId)
+
+    if kwargs["runBenchmark"]:
+        for scheduler in schedulers:
+            kwargs["scheduler"] = scheduler
+            print "Starting benchmark for scheduler %s" % scheduler
+            kwargs["userClass"] = ContinuousUser
+            kwargs["prepareQueries"] = ("load_lineitem_orders", )
+            kwargs["benchmarkQueries"] = ("join_lineitem_orders", )
+            kwargs["userArgs"] = {"instances": 16}
+            b = Benchmark(groupId, "scheduler_%s" % scheduler, settings, **kwargs)
+            b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
+            b.addQueryFile("join_lineitem_orders", "queries/pipelining/join_lineitem_orders.json")
+            b.run()
+
+    if kwargs["runEvaluation"]:
+        pl = OperationsPlotter(groupId)
+        pl.plot_histograms()
 
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
 aparser.add_argument('benchmarks', metavar='benchmarks', type=str, nargs='+', help="Benchmarks to be run")
