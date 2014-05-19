@@ -301,7 +301,8 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=Tr
     output += plotter.printGroupFormatted(identityMapping)
     output += "\n"
     output += plotter.printQueryOpStatistics()
-    plotter.plotGroups(groupMapping)
+    title = "Varying MTS with separateOLAPTables=%s" % str(separateOLAPTables)
+    plotter.plotGroups(groupMapping, title=title)
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')

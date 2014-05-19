@@ -46,11 +46,12 @@ class DynamicPlotter:
     # expects a queryToGroupMapping containing all querynames to be mapped to either the string
     # "OLAP", "OLTP", or "TOLAP". It will then plot a diagram with the throughput for OLAP, and#
     # the responsetimes for TOLAP and OLTP.
-    def plotGroups(self, queryToGroupMapping):
+    def plotGroups(self, queryToGroupMapping, title='Varying MTS'):
       runStats = self._aggregateToGroups(queryToGroupMapping)
 
       fig = plt.figure(1, figsize=(10,10))
       ax = fig.add_subplot(1,1,1)
+      ax.set_title(title)
       ax.set_xlabel("MTS")
       ax.set_ylabel("Throughput")
       ax2 = ax.twinx()
