@@ -65,6 +65,8 @@ def run_scheduler_modality(**kwargs):
     if kwargs["runEvaluation"]:
         pl = OperationsPlotter(groupId)
         pl.plot_histograms()
+        pl.plot_numa_histograms()
+        pl.print_modal_statistics()
 
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
 aparser.add_argument('benchmarks', metavar='benchmarks', type=str, nargs='+', help="Benchmarks to be run")
