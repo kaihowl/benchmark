@@ -19,6 +19,7 @@ class OperationsPlotter:
         pp = PdfPages(filename)
         # Tell notify wrapper to attach file to email
         print "\n>>>%s\n" % filename
+
         for run in self._df['run'].unique():
             escaped_run = run.replace("_", "\_")
             data = self._df[self._df['run'] == run]
@@ -38,9 +39,6 @@ class OperationsPlotter:
             criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
             probes = data[criterion]
             new_probe_hist(probes, 'duration')
-            new_probe_hist(probes, 'duration1')
-            new_probe_hist(probes, 'duration2')
-            new_probe_hist(probes, 'matchingRows')
 
             # Detect runs of non-zero counts and print stats if several of
             # those runs exist -> meaning, we have a multi-modal distribution
