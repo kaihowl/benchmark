@@ -13,7 +13,7 @@ from benchmark.operations_plotter import OperationsPlotter
 def run_join_histograms(**kwargs):
     groupId = "histograms"
     output = ""
-    instances = [16]
+    instances = [1, 4, 8, 16, 32]
     settings = Settings("standard_release")
 
     # Optional clean of folder
