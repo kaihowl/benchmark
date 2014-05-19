@@ -475,9 +475,9 @@ def print_timing(title="Time taken:"):
     delta_seconds = time.time() - BENCHMARK_START
     print "%s %s" % (title, str(datetime.timedelta(seconds=delta_seconds)))
 
-start_timing()
-output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
-print_timing(title='Scan took:')
+#start_timing()
+#output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
+#print_timing(title='Scan took:')
 
 start_timing()
 output += runBenchmark_scaling_curve_Join("scalingcurve-join", s1, **kwargs)
