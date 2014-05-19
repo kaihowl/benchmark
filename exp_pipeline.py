@@ -3,13 +3,15 @@ import benchmark
 import os
 import pprint
 import time
+import sys
 
 from benchmark.benchmark import Benchmark
 from benchmark.continuous_user import ContinuousUser
 from benchmark.settings import Settings
 from benchmark.operations_plotter import OperationsPlotter
 
-def runbenchmarks(groupId, **kwargs):
+def run_join_histograms(**kwargs):
+    groupId = "histograms"
     output = ""
     instances = [16]
     settings = Settings("standard_release")
@@ -39,6 +41,7 @@ def runbenchmarks(groupId, **kwargs):
 
 
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
+aparser.add_argument('benchmarks', metavar='benchmarks', type=str, nargs='+', help="Benchmarks to be run")
 aparser.add_argument('--duration', default=20, type=int, metavar='D',
                      help='How long to run the benchmark in seconds')
 aparser.add_argument('--benchmark', action='store_true',
@@ -101,4 +104,14 @@ kwargs = {
     "cleanResultFolder" : args["clean_result_folder"]
 }
 
-runbenchmarks("ophistogram", **kwargs)
+method_names = ["run_%s" % b.replace("-", "_") for b in args['benchmarks']]
+for i, method_name in enumerate(method_names):
+    if not method_name in locals():
+        print "Could not find benchmark %s" % args['benchmarks'][i]
+        print "Possible benchmarks are:"
+        for name in [i[4:].replace("_", "-") for i in locals().keys() if i.startswith("run_")]:
+            print "- %s" % name
+        sys.exit("Unkown benchmark")
+
+for method_name in method_names:
+    locals()[method_name](**kwargs)
