@@ -166,9 +166,6 @@ class OperationsPlotter:
                                 "inRows": op_data["inRows"],
                                 "outRows": op_data["outRows"],
                                 "line": line,
-                                "duration1": op_data["duration1"] if op_data["name"]!="ResponseTask" else 0,
-                                "duration2": op_data["duration2"] if op_data["name"]!="ResponseTask" else 0,
-                                "matchingRows": op_data["matchingRows"] if op_data["name"]!="ResponseTask" else 0,
                                 "duration": dur})
                         line += 1
 
