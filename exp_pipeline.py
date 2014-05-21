@@ -10,8 +10,8 @@ from benchmark.continuous_user import ContinuousUser
 from benchmark.settings import Settings
 from benchmark.operations_plotter import OperationsPlotter
 
-def run_join_histograms(**kwargs):
-    groupId = "histograms"
+def run_probe_skew(**kwargs):
+    groupId = "probe-skew"
     output = ""
     instances = [1, 4, 8, 16, 32]
     settings = Settings("standard_release")
@@ -37,7 +37,7 @@ def run_join_histograms(**kwargs):
     # Evaluation
     if kwargs["runEvaluation"]:
         pl = OperationsPlotter(groupId)
-        pl.plot_histograms()
+        pl.plot_histogramsl("HashJoinProbe")
 
 def run_scheduler_modality(**kwargs):
     groupId = "scheduler_modality"
@@ -64,9 +64,10 @@ def run_scheduler_modality(**kwargs):
 
     if kwargs["runEvaluation"]:
         pl = OperationsPlotter(groupId)
-        pl.plot_histograms()
-        pl.plot_numa_histograms()
-        pl.print_modal_statistics()
+        op_name = "HashJoinProbe"
+        pl.plot_histograms(op_name)
+        pl.plot_numa_histograms(op_name)
+        pl.print_modal_statistics(op_name)
 
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
 aparser.add_argument('benchmarks', metavar='benchmarks', type=str, nargs='+', help="Benchmarks to be run")

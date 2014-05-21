@@ -3,6 +3,7 @@ import os
 from pylab import average, median, std
 import pandas
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 
 
@@ -13,10 +14,14 @@ class OperationsPlotter:
         self._data = self._collect()
         self._df = pandas.DataFrame(self._data)
 
-    def plot_histograms(self):
-        from matplotlib.backends.backend_pdf import PdfPages
-        filename = 'histograms.pdf'
+    def plot_histograms(self, op_name):
+        """ Plot one histogram of durations for op_name per run
+
+            op_name -- op_name to be plot
+        """
+        filename = '%s_histograms.pdf' % op_name
         pp = PdfPages(filename)
+
         # Tell notify wrapper to attach file to email
         print "\n>>>%s\n" % filename
 
@@ -24,16 +29,19 @@ class OperationsPlotter:
             escaped_run = run.replace("_", "\_")
             data = self._df[self._df['run'] == run]
 
-            criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
-            probes = data[criterion]
-            title = "Histogram of probes' duration for run %s" % escaped_run
-            self._new_probe_hist(probes['duration'], title, pp)
+            criterion = data['op_name'].map(lambda x: x==op_name)
+            ops = data[criterion]
+            title = "Histogram of %s' duration for run %s" % (op_name, escaped_run)
+            self._new_hist(ops['duration'], title, pp)
 
         pp.close()
 
-    def plot_numa_histograms(self):
-        from matplotlib.backends.backend_pdf import PdfPages
-        filename = "histograms_numa.pdf"
+    def plot_numa_histograms(self, op_name):
+        """ Plot histograms of durations for op_name per run and NUMA node
+
+            op_name -- name of the operation to be plot
+        """
+        filename = "%s_histograms_numa.pdf" % op_name
         pp = PdfPages(filename)
         print "\n>>>%s\n" % filename
 
@@ -41,29 +49,33 @@ class OperationsPlotter:
             escaped_run = run.replace("_", "\_")
             data = self._df[self._df['run'] == run]
 
-            criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
-            probes = data[criterion]
+            criterion = data['op_name'].map(lambda x: x == op_name)
+            ops = data[criterion]
 
-            for node in probes['node'].unique():
-                cur_node_probes = probes[probes['node'] == node]
-                title = "Histogram of probes' duration for run %s on node %s" % (escaped_run, node)
-                self._new_probe_hist(
-                        cur_node_probes['duration'],
+            for node in ops['node'].unique():
+                cur_ops = ops[ops['node'] == node]
+                title = "Histogram of %s' duration for run %s on node %s" % (op_name, escaped_run, node)
+                self._new_hist(
+                        cur_ops['duration'],
                         title,
                         pp)
         pp.close()
 
-    def print_modal_statistics(self):
+    def print_modal_statistics(self, op_name):
+        """ Print the characteristics of all modes in multi-modal histograms.
+
+            op_name -- Name of operation whose duration is used in histograms
+        """
 
         for run in self._df['run'].unique():
             escaped_run = run.replace("_", "\_")
             data = self._df[self._df['run'] == run]
-            criterion = data['op_name'].map(lambda x: x=="HashJoinProbe")
-            probes = data[criterion]
+            criterion = data['op_name'].map(lambda x: x == op_name)
+            ops = data[criterion]
 
             # Detect runs of non-zero counts and print stats if several of
             # those runs exist -> meaning, we have a multi-modal distribution
-            count, division = np.histogram(probes['duration'])
+            count, division = np.histogram(ops['duration'])
             bounded_counts = np.hstack(([0], count, [0]))
             run_sequence = np.diff((bounded_counts>0)*1)
             sequences = zip(np.where(run_sequence==1)[0], np.where(run_sequence==-1)[0])
@@ -85,13 +97,13 @@ class OperationsPlotter:
 
                 for seq_start, seq_end in sequences:
                     print "New sequence:"
-                    upper_probes = probes['duration'] >= division[seq_start]
-                    lower_probes = probes['duration'] <= division[seq_end]
-                    data = probes[upper_probes & lower_probes]
+                    upper_ops = ops['duration'] >= division[seq_start]
+                    lower_ops = ops['duration'] <= division[seq_end]
+                    data = ops[upper_ops & lower_ops]
                     print_summary(data)
 
 
-    def _new_probe_hist(self, series, title, pp):
+    def _new_hist(self, series, title, pp):
         """Plot a new histogram in a multi-page pdf
 
             series -- Pandas series
@@ -101,9 +113,9 @@ class OperationsPlotter:
 
         plt.figure()
         plt.title(title)
-        xlabel = "Probe Instance %s" % series.name
+        xlabel = "Operation Instance %s" % series.name
         plt.xlabel(xlabel)
-        ylabel = "Occurences in Entire Experiment"
+        ylabel = "Num Occurences in Entire Experiment"
         plt.ylabel(ylabel)
         series.hist()
         pp.savefig()
