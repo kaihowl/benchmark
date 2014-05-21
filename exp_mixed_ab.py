@@ -113,7 +113,7 @@ def run_benchmark_none(name, groupId, benchmark_kwargs, n):
 
 kwargs = {
     "port"              : args["port"],
-    "runtime"           : 30,
+    "runtime"           : 20,
     "showStdout"        : False,
     "showStderr"        : args["stderr"],
     "rebuild"           : args["rebuild"],
@@ -122,47 +122,48 @@ kwargs = {
     "serverThreads"     : args["threads"],
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
-    "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
+   # "dirBinary"         : "/home/Johannes.Wust/hyrise/build/",
     "hyriseDBPath"      : "/home/Johannes.Wust/vldb-tables/scaler/output",
     "scheduler"         : "CentralScheduler",
-    "serverThreads"     : 22,
+    "serverThreads"     : 11,
     "remote"            : False,
     "manual"            : False,
     "host"              : "127.0.0.1"
 }
 
-groupId = "ab_olap_throughput_tmp"
-kwargs["abQueryFile"] = "olapqueries.txt"
+groupId = "ab_nop_throughput_tmp"
+kwargs["abQueryFile2"] = "olapqueries.txt"
+kwargs["abQueryFile"] = "oltpqueries.txt"
 kwargs["abCore"] = 0
 
 output=""
 
 schedulers = [
-       "WSThreadLevelQueuesScheduler",
-       "ThreadLevelQueuesScheduler",
-       "CoreBoundQueuesScheduler",
-       "WSCoreBoundQueuesScheduler",
+   #    "WSThreadLevelQueuesScheduler",
+   # "ThreadLevelQueuesScheduler",
+   #    "CoreBoundQueuesScheduler",
+   #    "WSCoreBoundQueuesScheduler",
    #    "WSThreadLevelPriorityQueuesScheduler",
    #    "ThreadLevelPriorityQueuesScheduler",
    #    "CoreBoundPriorityQueuesScheduler",
    #    "WSCoreBoundPriorityQueuesScheduler",
-       "CentralScheduler",
-   #    "CentralPriorityScheduler",
-       "ThreadPerTaskScheduler",
+   # "CentralScheduler",
+       "CentralPriorityScheduler",
+    #   "ThreadPerTaskScheduler",
    #    "DynamicPriorityScheduler",
    #   "DynamicScheduler",
-       "NodeBoundQueuesScheduler",
-       "WSNodeBoundQueuesScheduler",
+   # "NodeBoundQueuesScheduler",
+      #   "WSNodeBoundQueuesScheduler",
    #     "NodeBoundPriorityQueuesScheduler",
     #    "WSNodeBoundPriorityQueuesScheduler"
 ]
 
-users = [1, 12, 24]
+users = [4, 8, 11, 12, 20]
 for scheduler in schedulers:
     kwargs["scheduler"] = scheduler
     for user in users:
         kwargs["numUsers"] = user
-        run_benchmark_none("None", groupId, kwargs, 5)
+        run_benchmark_none("None", groupId, kwargs, 1)
     
 
 output = "\n\n <<<<<<<< Output >>>>>>>\n"
