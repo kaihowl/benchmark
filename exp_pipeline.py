@@ -37,7 +37,7 @@ def run_probe_skew(**kwargs):
     # Evaluation
     if kwargs["runEvaluation"]:
         pl = OperationsPlotter(groupId)
-        pl.plot_histogramsl("HashJoinProbe")
+        pl.plot_histograms("HashJoinProbe")
 
 def run_scheduler_modality(**kwargs):
     groupId = "scheduler_modality"
