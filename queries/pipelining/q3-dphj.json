@@ -24,11 +24,6 @@
             "type": "PipelineStream",
             "chunkSize": %(chunkSize)s
         },
-        "hash_build_customer": {
-          "type": "HashBuild",
-          "fields": [0],
-          "key": "join"
-        },
         "join_lineitem_orders": {
           "type": "DoublePipelinedHashJoin",
           "fields": [0, 0]
