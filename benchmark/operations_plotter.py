@@ -111,7 +111,10 @@ class OperationsPlotter:
 
         criterion = self._df["op_name"] == "ResponseTask"
         response_tasks = self._df[criterion]
-        response_tasks.groupby("query_name").mean()["duration"].plot(kind='bar')
+        # We take the start to filter out varying times needed for JSON
+        # generation of perf data
+        durations = response_tasks.groupby("query_name").mean()["start"]
+        durations.plot(kind='bar')
 
         filename = 'mean_query_durations.pdf'
         plt.savefig(filename)
