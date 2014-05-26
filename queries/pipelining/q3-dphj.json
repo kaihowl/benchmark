@@ -1,0 +1,58 @@
+{
+    "operators": {
+        "load_lineitem": {
+          "type": "GetTable",
+          "name": "lineitem"
+        },
+        "load_orders": {
+          "type": "GetTable",
+          "name": "orders"
+        },
+        "load_customer": {
+          "type": "GetTable",
+          "name": "customer"
+        },
+        "stream_lineitem": {
+            "type": "PipelineStream",
+            "chunkSize": %(chunkSize)s
+        },
+        "stream_orders": {
+            "type": "PipelineStream",
+            "chunkSize": %(chunkSize)s
+        },
+        "stream_customer": {
+            "type": "PipelineStream",
+            "chunkSize": %(chunkSize)s
+        },
+        "hash_build_customer": {
+          "type": "HashBuild",
+          "fields": [0],
+          "key": "join"
+        },
+        "join_lineitem_orders": {
+          "type": "DoublePipelinedHashJoin",
+          "fields": [0, 0]
+        },
+        "join_customer": {
+          "type": "DoublePipelinedHashJoin",
+          "fields": [17, 0]
+        },
+        "union": {
+          "type": "PipelineUnion"
+        },
+        "noop": {
+          "type": "NoOp"
+        }
+    },
+    "edges": [
+      ["load_lineitem", "stream_lineitem"],
+      ["load_orders", "stream_orders"],
+      ["load_customer", "stream_customer"],
+      ["stream_lineitem", "join_lineitem_orders"],
+      ["stream_orders", "join_lineitem_orders"],
+      ["join_lineitem_orders", "join_customer"],
+      ["stream_customer", "join_customer"],
+      ["join_customer", "union"],
+      ["union", "noop"]
+    ]
+}
