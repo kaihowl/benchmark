@@ -74,7 +74,7 @@ def run_q3(**kwargs):
     groupId = "q3"
     output = ""
     # This will yield 32 workers per stream on the input size
-    chunk_size = 1874565
+    chunk_size = 100000
     settings = Settings("standard_release")
 
     if kwargs["cleanResultFolder"]:
