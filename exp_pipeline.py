@@ -7,6 +7,7 @@ import sys
 
 from benchmark.benchmark import Benchmark
 from benchmark.continuous_user import ContinuousUser
+from benchmark.repeating_user import RepeatingUser
 from benchmark.settings import Settings
 from benchmark.operations_plotter import OperationsPlotter
 
@@ -68,6 +69,34 @@ def run_scheduler_modality(**kwargs):
         pl.plot_histograms(op_name)
         pl.plot_numa_histograms(op_name)
         pl.print_modal_statistics(op_name)
+
+def run_q3(**kwargs):
+    groupId = "q3"
+    output = ""
+    # This will yield 32 workers per stream on the input size
+    chunk_size = 1874565
+    settings = Settings("standard_release")
+
+    if kwargs["cleanResultFolder"]:
+        Benchmark.cleanResultFolder(groupId)
+
+    if kwargs["runBenchmark"]:
+        print "Starting benchmark"
+        kwargs["userClass"] = RepeatingUser
+        kwargs["prepareQueries"] = ("load_lineitem_orders", )
+        kwargs["benchmarkQueries"] = ("q3-dphj", )
+        kwargs["userArgs"] = {
+                "repetitions" : 3,
+                "chunkSize"   : chunk_size}
+        b = Benchmark(groupId, "chunksize_%d" % chunk_size, settings, **kwargs)
+        b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
+        b.addQueryFile("q3-dphj", "queries/pipelining/q3-dphj.json")
+        b.run()
+
+    if kwargs["runEvaluation"]:
+        pl = OperationsPlotter(groupId)
+        pl.plot_mean_query_durations()
+
 
 aparser = argparse.ArgumentParser(description='Python benchmark for pipelining in Hyrise')
 aparser.add_argument('benchmarks', metavar='benchmarks', type=str, nargs='+', help="Benchmarks to be run")

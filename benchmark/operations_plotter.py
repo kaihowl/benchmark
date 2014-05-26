@@ -103,6 +103,20 @@ class OperationsPlotter:
                     print_summary(data)
 
 
+    def plot_mean_query_durations(self):
+        """ Plot bar chart for mean query durations of all different queries """
+
+        plt.figure()
+        plt.title("Mean query durations by query")
+
+        criterion = self._df["op_name"] == "ResponseTask"
+        response_tasks = self._df[criterion]
+        response_tasks.groupby("query_name").mean()["duration"].plot(kind='bar')
+
+        plt.savefig('mean_query_durations.pdf')
+        plt.close()
+
+
     def _new_hist(self, series, title, pp):
         """Plot a new histogram in a multi-page pdf
 
