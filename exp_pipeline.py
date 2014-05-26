@@ -84,13 +84,14 @@ def run_q3(**kwargs):
         print "Starting benchmark"
         kwargs["userClass"] = RepeatingUser
         kwargs["prepareQueries"] = ("load_lineitem_orders", )
-        kwargs["benchmarkQueries"] = ("q3-dphj", )
+        kwargs["benchmarkQueries"] = ("q3-dphj", "q3-piped-par")
         kwargs["userArgs"] = {
-                "repetitions" : 3,
+                "repetitions" : 3 * len(kwargs["benchmarkQueries"]),
                 "chunkSize"   : chunk_size}
         b = Benchmark(groupId, "chunksize_%d" % chunk_size, settings, **kwargs)
         b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
         b.addQueryFile("q3-dphj", "queries/pipelining/q3-dphj.json")
+        b.addQueryFile("q3-piped-par", "queries/pipelining/q3-piped-par.json")
         b.run()
 
     if kwargs["runEvaluation"]:

@@ -1,0 +1,59 @@
+{
+    "operators": {
+        "load_lineitem": {
+          "type": "GetTable",
+          "name": "lineitem"
+        },
+        "load_orders": {
+          "type": "GetTable",
+          "name": "orders"
+        },
+        "load_customer": {
+          "type": "GetTable",
+          "name": "customer"
+        },
+        "hash_build_orders": {
+          "type": "HashBuild",
+          "fields": [0],
+          "key": "join"
+        },
+        "hash_build_customer": {
+          "type": "HashBuild",
+          "fields": [0],
+          "key": "join"
+        },
+        "ps": {
+          "type": "PipelineStream",
+          "COMMENT": "there are 59986052 rows in lineitem. We want 32 workers.",
+          "chunkSize": 1874565
+        },
+        "join_lineitem_orders": {
+          "type": "PipeliningHashProbe",
+          "fields": [0],
+          "TODO": "should we split up further?",
+          "chunkSize": 100000
+        },
+        "join_customer": {
+          "type": "PipeliningHashProbe",
+          "fields": [17],
+          "chunkSize": 100000
+        },
+        "union": {
+          "type": "PipelineUnion"
+        },
+        "noop": {
+          "type": "NoOp"
+        }
+    },
+    "edges": [
+      ["load_lineitem", "ps"],
+      ["ps", "join_lineitem_orders"],
+      ["load_orders", "hash_build_orders"],
+      ["hash_build_orders", "join_lineitem_orders"],
+      ["join_lineitem_orders", "join_customer"],
+      ["load_customer", "hash_build_customer"],
+      ["hash_build_customer", "join_customer"],
+      ["join_customer", "union"],
+      ["union", "noop"]
+    ]
+}
