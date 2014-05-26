@@ -113,7 +113,9 @@ class OperationsPlotter:
         response_tasks = self._df[criterion]
         response_tasks.groupby("query_name").mean()["duration"].plot(kind='bar')
 
-        plt.savefig('mean_query_durations.pdf')
+        filename = 'mean_query_durations.pdf'
+        plt.savefig(filename)
+        print ">>>%s" % filename
         plt.close()
 
 
