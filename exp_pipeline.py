@@ -27,11 +27,11 @@ def run_probe_skew(**kwargs):
             print "Starting benchmark with %i instances for probe" \
                 % num_instances
             kwargs["userClass"] = ContinuousUser
-            kwargs["prepareQueries"] = ("load_lineitem_orders", )
+            kwargs["prepareQueries"] = ("load_q3", )
             kwargs["benchmarkQueries"] = ("join_lineitem_orders", )
             kwargs["userArgs"] = {"instances": num_instances}
             b = Benchmark(groupId, "num_instances_%d" % num_instances, settings, **kwargs)
-            b.addQueryFile("load_lineitem_orders", "queries/pipelining/load_lineitem_orders.json")
+            b.addQueryFile("load_q3", "queries/pipelining/load_q3.json")
             b.addQueryFile("join_lineitem_orders", "queries/pipelining/join_lineitem_orders.json")
             b.run()
 

@@ -1,0 +1,39 @@
+ {
+ "operators" : {
+   "load_lineitem" : {
+     "type" : "LoadDumpedTable",
+     "name" : "lineitem"
+   },
+   "set_lineitem" : {
+     "type" : "SetTable",
+     "name" : "lineitem"
+   },
+   "load_orders" : {
+     "type" : "LoadDumpedTable",
+     "name" : "orders"
+   },
+   "set_orders" : {
+     "type" : "SetTable",
+     "name" : "orders"
+   },
+   "load_customer" : {
+     "type" : "LoadDumpedTable",
+     "name" : "customer"
+   },
+   "set_customer" : {
+     "type" : "SetTable",
+     "name" : "customer"
+   },
+   "nop": {
+     "type" : "NoOp"
+   }
+  },
+  "edges" : [
+    ["load_lineitem", "set_lineitem"],
+    ["load_orders", "set_orders"],
+    ["load_customer", "set_customer"],
+    ["set_lineitem", "nop"],
+    ["set_orders", "nop"],
+    ["set_customer", "nop"]
+  ]
+}
