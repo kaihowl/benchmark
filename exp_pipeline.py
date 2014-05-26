@@ -82,7 +82,9 @@ def run_q3(**kwargs):
 
     if kwargs["runBenchmark"]:
         print "Starting benchmark"
+        kwargs["runtime"] = 0
         kwargs["userClass"] = RepeatingUser
+        kwargs["numUsers"] = 1
         kwargs["prepareQueries"] = ("load_q3", )
         kwargs["benchmarkQueries"] = ("q3-dphj", "q3-piped-par")
         kwargs["userArgs"] = {
