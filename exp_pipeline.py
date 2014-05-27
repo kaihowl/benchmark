@@ -76,6 +76,8 @@ def run_q3(**kwargs):
     # This will yield 32 workers per stream on the input size
     chunk_size = 100000
     settings = Settings("standard_release")
+    # One node vs two nodes
+    nums_threads = [5, 11]
 
     if kwargs["cleanResultFolder"]:
         Benchmark.cleanResultFolder(groupId)
@@ -90,11 +92,14 @@ def run_q3(**kwargs):
         kwargs["userArgs"] = {
                 "repetitions" : 3 * len(kwargs["benchmarkQueries"]),
                 "chunkSize"   : chunk_size}
-        b = Benchmark(groupId, "chunksize_%d" % chunk_size, settings, **kwargs)
-        b.addQueryFile("load_q3", "queries/pipelining/load_q3.json")
-        b.addQueryFile("q3-dphj", "queries/pipelining/q3-dphj.json")
-        b.addQueryFile("q3-piped-par", "queries/pipelining/q3-piped-par.json")
-        b.run()
+        for num_threads in nums_threads:
+            kwargs["serverThreads"] = num_threads
+            run_id = "threads_%d_chunksize_%d" % (num_threads, chunk_size)
+            b = Benchmark(groupId, run_id, settings, **kwargs)
+            b.addQueryFile("load_q3", "queries/pipelining/load_q3.json")
+            b.addQueryFile("q3-dphj", "queries/pipelining/q3-dphj.json")
+            b.addQueryFile("q3-piped-par", "queries/pipelining/q3-piped-par.json")
+            b.run()
 
     if kwargs["runEvaluation"]:
         pl = OperationsPlotter(groupId)
@@ -157,7 +162,7 @@ kwargs = {
     "useJson"           : args["json"],
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tpch/hyrise",
     "scheduler"         : "CoreBoundQueuesScheduler",
-    "serverThreads"     : 31,
+    "serverThreads"     : 31, # overridden in run_q3 benchmark
     "remote"            : False,
     "remoteUser"        : "Kai.Hoewelmeyer",
     "runBenchmark"      : args["benchmark"],
