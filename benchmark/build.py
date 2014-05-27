@@ -24,11 +24,16 @@ class Build:
         self._remotePath         = remotePath
         self._prepare()
 
+    def _updateSubmodules(self):
+        print "Fetching submodules..."
+        return subprocess.call("git submodule sync; git submodule update --init", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self._dirSource)
+
     def makeAll(self):
         self.link()
         env = os.environ.copy()
         env["LD_LIBRARY_PATH"] = self._dirResult + ":/usr/local/lib64"
         if self._ssh is None:
+            self._updateSubmodules()
             process = subprocess.Popen("make -j %s" % multiprocessing.cpu_count(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=self._dirSource, env=env)
             (stdout, stderr) = process.communicate()
             open(self._logfile, "w").write(stderr)
