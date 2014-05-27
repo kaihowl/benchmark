@@ -161,7 +161,7 @@ kwargs = {
     "collectPerfData"   : args["perfdata"],
     "useJson"           : args["json"],
     "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/hyrise-tpch/hyrise",
-    "scheduler"         : "CoreBoundQueuesScheduler",
+    "scheduler"         : "CentralScheduler",
     "serverThreads"     : 31, # overridden in run_q3 benchmark
     "remote"            : False,
     "remoteUser"        : "Kai.Hoewelmeyer",
