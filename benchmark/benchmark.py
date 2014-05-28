@@ -9,7 +9,9 @@ import time
 import user
 import multiprocessing
 import paramiko
-import grequests
+import Queue
+import threading
+from threading import Thread
 
 from queries import *
 import queries
@@ -39,6 +41,7 @@ class Benchmark:
         self._tableLoadQueries  = kwargs["tableLoadQueries"] if kwargs.has_key("tableLoadQueries") else queries.TABLE_LOAD_QUERIES_SERVER 
         self._tableLoadArgs     = kwargs["tableLoadArgs"] if kwargs.has_key("tableLoadArgs") else {}
         self._prepArgs          = kwargs["prepareArgs"] if kwargs.has_key("prepareArgs") else {"db": "cbtr"}
+        self._prepare_pool_size = kwargs["preparePoolSize"] if kwargs.has_key("preparePoolSize") else 20  # how many threads should run prepare in parallel?
         self._queries           = kwargs["benchmarkQueries"] if kwargs.has_key("benchmarkQueries") else queries.ALL_QUERIES
         self._host              = kwargs["host"] if kwargs.has_key("host") else "127.0.0.1"
         self._port              = kwargs["port"] if kwargs.has_key("port") else 5000
@@ -396,9 +399,38 @@ class Benchmark:
         time.sleep(1)
         print "done"
 
-    def _fireQueryParallel(self, queries):
-        rs = (grequests.post("http://%s:%s/" % (self._host, self._port), data={"query": q}) for q in queries)
-        return grequests.map(rs)
+    def _fireQueriesParallel(self, query_pairs):
+        """ Query server in parallel with values of key-value-pairs.
+            Return key-response-pairs
+        """
+        in_queue = Queue.Queue(self._prepare_pool_size*2)
+        out_list = list()
+        stop_event = threading.Event()
+        def do_query():
+            while not stop_event.is_set():
+                try:
+                    (key, querystring) = in_queue.get(timeout=1)
+                    resp_pair = (key, self.fireQuery(querystring))
+                    out_list.append(resp_pair)
+                    in_queue.task_done()
+                except Queue.Empty:
+                    pass
+
+        workers = []
+        for i in range(self._prepare_pool_size):
+            worker = Thread(target=do_query)
+            worker.start()
+            workers.append(worker)
+
+        for pair in query_pairs:
+            in_queue.put(pair)
+
+        in_queue.join()
+        stop_event.set()
+        for worker in workers:
+            worker.join()
+
+        return out_list
 
     def _runTableLoadQueries(self):
         if self._tableLoadQueries == None or len(self._tableLoadQueries) == 0:
@@ -406,7 +438,7 @@ class Benchmark:
 
         sys.stdout.write("Loading tables...\r")
         sys.stdout.flush()
-        self._fireQueryParallel([self._queryDict[q] % self._tableLoadArgs for q in self._tableLoadQueries])
+        self._fireQueriesParallel([(i, self._queryDict[q] % self._tableLoadArgs) for (i,q) in enumerate(self._tableLoadQueries)])
         print "Loading queries... done                             "
 
     def _runPrepareQueries(self):
@@ -414,7 +446,7 @@ class Benchmark:
             return
         sys.stdout.write("Running prepare queries in parallel...              \r")
         sys.stdout.flush()
-        self._fireQueryParallel([self._queryDict[q] % self._prepArgs for q in self._prepQueries])
+        self._fireQueriesParallel([(i, self._queryDict[q] % self._prepArgs) for (i, q) in enumerate(self._prepQueries)])
         print "Running prepare queries in parallel... done                             "
 
     def _createUsers(self):

@@ -332,7 +332,7 @@ class MixedWLBenchmark(Benchmark):
         sys.stdout.flush()
         num_prep = 0
         query_pairs = [(k, open(v, "r").read()) for (k,v) in PREPARE_DISTINCTS_SERVER.iteritems()]
-        resp_pairs = [(query_pairs[i][0], resp) for i, resp in enumerate(self._fireQueryParallel([v for (k,v) in query_pairs]))]
+        resp_pairs = self._fireQueriesParallel(query_pairs)
         for queryName, resp in resp_pairs:
           data = json.loads(resp.text.encode('utf-8'))
           if resp.status_code != 200:
