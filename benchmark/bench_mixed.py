@@ -206,12 +206,12 @@ class MixedWLUser(User):
     def get_col_numbers(self):
         if self._schema == "narrow":
             return {
-                "vbak_erdat_colnr": 3,
+                "vbak_kunnr_colnr": 3,
                 "vbap_matnr_colnr": 2,
                 "vbap_erdat_colnr": 5}
         elif self._schema == "full":
             return {
-                "vbak_erdat_colnr": 47,
+                "vbak_kunnr_colnr": 47,
                 "vbap_matnr_colnr": 3,
                 "vbap_erdat_colnr": 77}
         else:

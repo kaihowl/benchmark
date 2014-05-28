@@ -15,7 +15,7 @@
     "filter_aedat": {
       "type": "TableScan",
       "expression": "hyrise::Store_FLV_F1_EQ_STRING_AND_F2_GT_INT",
-      "f1" : %(vbak_erdat_colnr)d,//KUNNR 3 on narrow schema and 47 on full schema
+      "f1" : %(vbak_kunnr_colnr)d,//KUNNR 3 on narrow schema and 47 on full schema
       "f2" : 2,//ERDAT 2 on narrow schema and the same on full schema
       "COMMENT": "from and to values are in the dictionary for 30 million / last 30 days",
       "v_f1" : %(rand_kunnr_vbak)s,
