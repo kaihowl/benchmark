@@ -28,23 +28,26 @@ PREPARE_QUERIES_SERVER = {
 # locations for json query files sorted by OLTP (TPCC) and OLAP (TPC-H).                                                                                                                                      
 
 OLAP_QUERY_FILES = {
-    "q10"                    : "queries/mixed/q10.json",
-    "q11"                    : "queries/mixed/q11.json",
-    "q12"                    : "queries/mixed/q12.json",
-    "xselling"               : "queries/mixed/xselling.json",
-    "vldb_q10"               : "queries/vldb-mixed/q10.json",
-    "vldb_q11"               : "queries/vldb-mixed/q11.json",
-    "vldb_q12"               : "queries/vldb-mixed/q12.json",
-    "vldb_xselling"          : "queries/vldb-mixed/xselling.json",
-    "q6_ch"                  : "queries/mixed/q6_ch.json",
-    "ccsched1"               : "queries/other/ccsched_test.json",
-    "ccsched2"               : "queries/other/ccsched_test2.json",
-    "ccsched3"               : "queries/other/ccsched_test3.json",
-    "ccneutral"               : "queries/other/ccneutral.json",
-    "q10i":        "queries/mixed/q10.json",
-    "q11i":        "queries/mixed/q11.json",
-    "q12i":        "queries/mixed/q12.json",
-    "xsellingi":   "queries/mixed/xselling.json"
+    "q10"                : "queries/mixed/q10.json",
+    "q11"                : "queries/mixed/q11.json",
+    "q12"                : "queries/mixed/q12.json",
+    "xselling"           : "queries/mixed/xselling.json",
+    "vldb_q10"           : "queries/vldb-mixed/q10.json",
+    "vldb_q11"           : "queries/vldb-mixed/q11.json",
+    "vldb_q12"           : "queries/vldb-mixed/q12.json",
+    "vldb_q10_instances" : "queries/vldb-mixed/q10_instances.json",
+    "vldb_q11_instances" : "queries/vldb-mixed/q11_instances.json",
+    "vldb_q12_instances" : "queries/vldb-mixed/q12_instances.json",
+    "vldb_xselling"      : "queries/vldb-mixed/xselling.json",
+    "q6_ch"              : "queries/mixed/q6_ch.json",
+    "ccsched1"           : "queries/other/ccsched_test.json",
+    "ccsched2"           : "queries/other/ccsched_test2.json",
+    "ccsched3"           : "queries/other/ccsched_test3.json",
+    "ccneutral"          : "queries/other/ccneutral.json",
+    "q10i"               : "queries/mixed/q10.json",
+    "q11i"               : "queries/mixed/q11.json",
+    "q12i"               : "queries/mixed/q12.json",
+    "xsellingi"          : "queries/mixed/xselling.json"
     }
 
 
@@ -84,6 +87,9 @@ OLAP_WEIGHTS = (
     ("vldb_q10", 1),
     ("vldb_q11", 1),
     ("vldb_q12", 1),
+    ("vldb_q10_instances", 1),
+    ("vldb_q11_instances", 1),
+    ("vldb_q12_instances", 1),
     ("vldb_xselling", 1),
     ("q6_ch", 1),
     ("ccsched1", 1),

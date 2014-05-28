@@ -4,6 +4,7 @@ from pylab import average, median, std
 import matplotlib.pyplot as plt
 import time
 import sys
+import pandas
 
 class DynamicPlotter:
 
@@ -11,12 +12,13 @@ class DynamicPlotter:
         self._groupId = benchmarkGroupId
         self._dirOutput = os.path.join(os.getcwd(), "plots", str(self._groupId))
         self._runs = self._collect()
+        self._varying_users_dataframe = self._make_varying_users_dataframe()
 
         if not os.path.isdir(self._dirOutput):
             os.makedirs(self._dirOutput)
 
     # queryToGroupMapping is a dictionary that has query names as keys and the responding
-    # group they fall into as the value. This will then print statistics for the groups instead of 
+    # group they fall into as the value. This will then print statistics for the groups instead of
     # individual queries.
     def printGroupFormatted(self, queryToGroupMapping):
       runStats = self._aggregateToGroups(queryToGroupMapping)
@@ -60,7 +62,7 @@ class DynamicPlotter:
       #MTS values
       x_values = sorted([x for x in runStats.keys()])
 
-      line_colors = { 
+      line_colors = {
           "OLAP": "b",
           "OLTP": "g",
           "TOLAP": "r"
@@ -115,8 +117,8 @@ class DynamicPlotter:
 
       return mtsStats
 
-    # prints a per query view of the degree of parallelism 
-    # for a query and the average of the median runtimes 
+    # prints a per query view of the degree of parallelism
+    # for a query and the average of the median runtimes
     # of all operations in a query
     def printQueryOpStatistics(self):
         logStr = "mts\trun\tquery_opname\tcount\tavgavgruntime\tavgstdruntime\n"
@@ -149,6 +151,79 @@ class DynamicPlotter:
             logStr += curLineStr
 
         return logStr
+
+    def plot_throughput_per_run(self):
+        df = self._varying_users_dataframe
+
+        result = df.groupby(['instances', 'users']).count()['txId'].unstack(level=0)
+
+        self._plot_and_csv_result(result, "throughput", "Throughput")
+
+    def plot_meansize_per_run(self):
+        """ Plot the mean size of dependent tasks per run """
+        df = self._varying_users_dataframe
+
+        flat_dict_list = list()
+        def expand_op_data(row):
+            orig_row = dict(row)
+            for op in orig_row.pop('opData'):
+                flat_dict_list.append(dict(orig_row.items() + op.items()))
+
+        df.apply(expand_op_data, axis=1)
+        ops_df = pandas.DataFrame(flat_dict_list)
+
+        filter_op_names = ["TableScan", "PrefixSum", "RadixCluster", "Histogram", "NestedLoopEquiJoin" ]
+        criterion = ops_df["name"].apply(lambda x: x in filter_op_names)
+        filtered_ops = ops_df[criterion]
+        filtered_ops['opDuration'] = filtered_ops['endTime'] - filtered_ops['startTime']
+        result = filtered_ops.groupby(['instances', 'users']).mean()['opDuration'].unstack(level=0)
+
+        self._plot_and_csv_result(result, "meansize", "Mean Task Size")
+
+    def _plot_and_csv_result(self, df, fileinfix, y_label):
+        """ Plot and csv the dataframe
+
+            df -- the dataframe to be plot
+            fileinfix -- used to distinguish files
+            y_label -- the y label to be used
+        """
+
+        plt.figure()
+        df.plot()
+        fbasename = "%s_%s_%d" % (self._groupId, fileinfix, int(time.time()))
+        pdfname = "%s.pdf" % fbasename
+        plt.ylabel(y_label)
+        plt.savefig(pdfname)
+        print ">>>%s" % pdfname
+
+        csvname = "%s.csv" % fbasename
+        df.to_csv(csvname)
+        print ">>>%s" % csvname
+
+    def _flatruns(self):
+        """ Returns the result from _collect as a flat list of dictionaries.
+            This output can be consumed by pandas.
+        """
+        flat = list()
+        for run, run_data in self._runs.iteritems():
+            for mts, mts_list in run_data.iteritems():
+                for user_dict in mts_list:
+                    additions = {
+                            "run": run,
+                            "mts": mts}
+                    flat.append(dict(additions.items() + user_dict.items()))
+
+        return flat
+
+    def _make_varying_users_dataframe(self):
+        df = pandas.DataFrame(self._flatruns())
+
+        new_columns = list(df.columns)
+        new_columns[new_columns.index("mts")] = "instances"
+        new_columns[new_columns.index("run")] = "users"
+        df.columns = new_columns
+
+        return df
 
     def _collect(self):
         data = {}

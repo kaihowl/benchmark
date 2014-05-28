@@ -158,26 +158,33 @@ def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
 
 def runBenchmark_varying_users(groupId, s1, **kwargs):
     output = ""
-    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
 
-    kwargs["olapQueries"] = ("q10i","q11i","q12i")
+    kwargs["olapQueries"] = ("vldb_q10_instances", "vldb_q11_instances", "vldb_q12_instances")
+
+    distincts = None
 
     # numbers chosen to match the original paper's datapoints
-    instances = [1, 8, 32, 128]
-    users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
-    for i in instances:
-        for j in users:
-           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
-           runId = str(i) + "_" + str(j)
-           kwargs["olapInstances"] = i
-           kwargs["olapUser"] = j
-           kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
-           b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
-           b1.run()
-           time.sleep(3)
-    plotter = MixedWLPlotter(groupId)
-    output += plotter.printFormattedStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
-   # output += plotter.printOpStatistics ()
+    if not kwargs["evaluationOnly"]:
+        instances = [1, 8, 32, 128]
+        users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
+        for i in instances:
+            for j in users:
+                if not distincts is None:
+                    print "Reusing distincts from now on."
+                    kwargs["distincts"] = distincts
+                print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
+                runId = str(i) + "_" + str(j)
+                kwargs["olapInstances"] = i
+                kwargs["olapUser"] = j
+                kwargs["numUsers"] = kwargs["olapUser"]
+                b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+                b1.run()
+                time.sleep(3)
+                distincts = b1.getDistinctValues()
+
+    plotter = DynamicPlotter(groupId)
+    plotter.plot_throughput_per_run()
+    plotter.plot_meansize_per_run()
     return output
 
 def runBenchmark_prio(groupId, s1, **kwargs):
@@ -416,9 +423,9 @@ kwargs = {
     "useJson"           : args["json"],
     "evaluationOnly"    : args["evaluation_only"],
 
-    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output-range",
+    "hyriseDBPath"      : "/home/Kai.Hoewelmeyer/vldb-tables/scaler/output",
     # Set this value according to the data in hyriseDBPath: full/narrow
-    "schema"            : "full",
+    "schema"            : "narrow",
 
     "scheduler"         : "DynamicPriorityScheduler",
     "serverThreads"     : 31,
@@ -480,8 +487,8 @@ def print_timing(title="Time taken:"):
 #print_timing(title='Scan took:')
 
 start_timing()
-output += runBenchmark_scaling_curve_Join("scalingcurve-join", s1, **kwargs)
-print_timing(title='Join took:')
+output += runBenchmark_varying_users("var-users", s1, **kwargs)
+print_timing(title='varying users took:')
 
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
