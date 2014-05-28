@@ -153,25 +153,28 @@ class MixedWLUser(User):
         #query_ids = map(lambda k: k[0], OLTP_WEIGHTS) + map(lambda k: k[0], OLAP_WEIGHTS)
 
     def getQueryFormatDict(self):
-        unescaped_dict = {
-          'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
-          'rand_date': int(random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d")), # random date within today-360 days
-          'rand_kunnr_vbak': random.choice(self._distincts['distinct-kunnr-vbak'])[0],
-          'rand_matnr_vbap': random.choice(self._distincts['distinct-matnr-vbap'])[0],
-          'rand_matnr_vbap_2': random.choice(self._distincts['distinct-matnr-vbap'])[0],
-          'rand_kunnr_kna1': random.choice(self._distincts['distinct-kunnr-kna1'])[0],
-          'rand_addrnumber_adrc': random.choice(self._distincts['distinct-addrnumber-adrc'])[0],
-          'rand_name1_adrc': random.choice(self._distincts['distinct-name1-adrc'])[0],
-          'rand_matnr_makt': random.choice(self._distincts['distinct-matnr-makt'])[0],
-          'rand_matnr_mara': random.choice(self._distincts['distinct-matnr-mara'])[0],
-          'rand_vbeln_vbap': random.choice(self._distincts['distinct-vbeln-vbap'])[0],
-          'rand_vbeln_vbak': random.choice(self._distincts['distinct-vbeln-vbak'])[0],
-          'rand_netwr': random.normalvariate(100,5),
-          'rand_kwmeng': random.normalvariate(100,5)
-        }
         format_dict = {}
-        for key, value in unescaped_dict.iteritems():
-            format_dict[key] = json.dumps(value)
+        if self._distincts:
+            unescaped_dict = {
+              'rand_vbeln': "".join([str(random.choice(range(0,9))) for i in range(0,10)]),  # random 10 digit vbeln
+              'rand_date': int(random.choice([datetime.datetime.today()-datetime.timedelta(days=x) for x in range(0, 360)]).strftime("%Y%m%d")), # random date within today-360 days
+              'rand_kunnr_vbak': random.choice(self._distincts['distinct-kunnr-vbak'])[0],
+              'rand_matnr_vbap': random.choice(self._distincts['distinct-matnr-vbap'])[0],
+              'rand_matnr_vbap_2': random.choice(self._distincts['distinct-matnr-vbap'])[0],
+              'rand_kunnr_kna1': random.choice(self._distincts['distinct-kunnr-kna1'])[0],
+              'rand_addrnumber_adrc': random.choice(self._distincts['distinct-addrnumber-adrc'])[0],
+              'rand_name1_adrc': random.choice(self._distincts['distinct-name1-adrc'])[0],
+              'rand_matnr_makt': random.choice(self._distincts['distinct-matnr-makt'])[0],
+              'rand_matnr_mara': random.choice(self._distincts['distinct-matnr-mara'])[0],
+              'rand_vbeln_vbap': random.choice(self._distincts['distinct-vbeln-vbap'])[0],
+              'rand_vbeln_vbak': random.choice(self._distincts['distinct-vbeln-vbak'])[0],
+              'rand_netwr': random.normalvariate(100,5),
+              'rand_kwmeng': random.normalvariate(100,5)
+            }
+            for key, value in unescaped_dict.iteritems():
+                format_dict[key] = json.dumps(value)
+            format_dict.update(self.get_formatted_insert_values(format_dict))
+
         format_dict.update({
             "papi": self._papi,
             "core": str(self._core),
@@ -183,7 +186,6 @@ class MixedWLUser(User):
             "microsecs": str(self._microsecs)})
 
         format_dict.update(self.get_col_numbers())
-        format_dict.update(self.get_formatted_insert_values(format_dict))
         return format_dict
 
     def get_formatted_insert_values(self, format_dict):
