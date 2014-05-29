@@ -169,7 +169,7 @@ def runBenchmark_varying_users(groupId, s1, separateOLAPTables=False, **kwargs):
     # numbers chosen to match the original paper's datapoints
     if not kwargs["evaluationOnly"]:
         instances = [1, 8, 32, 128]
-        users = [32]
+        users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
         for i in instances:
             for j in users:
                 if not distincts is None:
@@ -490,7 +490,7 @@ def print_timing(title="Time taken:"):
 #print_timing(title='Scan took:')
 
 start_timing()
-output += runBenchmark_varying_users("var-users-single-separate", s1, separateOLAPTables=True, **kwargs)
+output += runBenchmark_varying_users("var-users-separate", s1, separateOLAPTables=True, **kwargs)
 print_timing(title='varying users took:')
 
 filename = "results_" + str(int(time.time()))
