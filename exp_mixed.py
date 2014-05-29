@@ -490,7 +490,7 @@ def print_timing(title="Time taken:"):
 #print_timing(title='Scan took:')
 
 start_timing()
-output += runBenchmark_varying_users("var-users", s1, separateOLAPTables=True, **kwargs)
+output += runBenchmark_varying_users("var-users-single-separate", s1, separateOLAPTables=True, **kwargs)
 print_timing(title='varying users took:')
 
 filename = "results_" + str(int(time.time()))
