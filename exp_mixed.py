@@ -156,10 +156,13 @@ def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
     output += plotter.printFormattedStatistics(kwargs["olapQueries"])
     return output
 
-def runBenchmark_varying_users(groupId, s1, **kwargs):
+def runBenchmark_varying_users(groupId, s1, separateOLAPTables=False, **kwargs):
     output = ""
 
     kwargs["olapQueries"] = ("vldb_q10_instances", "vldb_q11_instances", "vldb_q12_instances")
+
+    kwargs["separateOLAPTables"] = separateOLAPTables
+    print "Using separateOLAPTables=%s" % str(kwargs["separateOLAPTables"])
 
     distincts = None
 
