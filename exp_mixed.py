@@ -169,7 +169,7 @@ def runBenchmark_varying_users(groupId, s1, separateOLAPTables=False, **kwargs):
     # numbers chosen to match the original paper's datapoints
     if not kwargs["evaluationOnly"]:
         instances = [1, 8, 32, 128]
-        users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
+        users = [32]
         for i in instances:
             for j in users:
                 if not distincts is None:
