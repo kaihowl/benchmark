@@ -29,6 +29,15 @@ class ScalingPlotter:
                 self._df['run'].map( \
                     lambda x: [int(s) for s in x.split("_")[1:4:2] ]))
 
+        def task_size_fit_func(x, a, b):
+            return np.divide(a, x) + b
+
+        def table_size_fit_func(x, a, b):
+            return np.multiply(a, x) + b
+
+        self.task_size_fit_func = task_size_fit_func
+        self.table_size_fit_func = table_size_fit_func
+
     def plot_fitting_for(self, eval_selection_lambda, task_name, rows=None):
         """ Plot curve(s) and fitting of a task's size/duration
 
@@ -54,19 +63,18 @@ class ScalingPlotter:
             rows -- Only plot and fir for the run with this table size
         """
 
-    def _fit_single_data(self, data):
+    def _fit_single_data(self, data, fit_func):
         """ Fit data for selected task's size for a given number of rows.
             Returns the parameters for the fitting function, the expected
             y-values, the chi-square value, the probability of the cdf, and the
             reduced chi square value.
 
-            data -- Pandas groupby containing the to be fit data grouped by instances
+            data -- Pandas dataframe with x-values as index and single column as
+                    y values
+            fit_func -- The function to be fit to the data
         """
-        def fit_func(x, a, b):
-            return np.divide(a, x) + b
-
         x = np.array(data.index)
-        y = np.array(data['duration'])
+        y = np.array(data)
         # Get the distance of a value to it predecessor
         # This will smooth out greater distances between higher number of
         # instances. A bigger weight will be applied to measurements that have
@@ -108,7 +116,7 @@ class ScalingPlotter:
         cur_data = self._df[criterion]
         group = cur_data.groupby("instances").mean()
 
-        fitting = self._fit_single_data(group)
+        fitting = self._fit_single_data(group['duration'], self.task_size_fit_func)
 
         # Plot
         plt.figure()
