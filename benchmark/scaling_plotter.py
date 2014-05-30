@@ -54,18 +54,19 @@ class ScalingPlotter:
             rows -- Only plot and fir for the run with this table size
         """
 
+    def _fit_single_data(self, data):
+        """ Fit data for selected task's size for a given number of rows.
+            Returns the parameters for the fitting function, the expected
+            y-values, the chi-square value, the probability of the cdf, and the
+            reduced chi square value.
+
+            data -- Pandas groupby containing the to be fit data grouped by instances
+        """
         def fit_func(x, a, b):
             return np.divide(a, x) + b
 
-        def filter(x):
-            return x["rows"] == rows and eval_selection_lambda(x)
-
-        criterion = self._df.apply(filter, axis=1)
-        cur_data = self._df[criterion]
-        group = cur_data.groupby("instances").mean()
-
-        x = np.array(group.index)
-        y = np.array(group['duration'])
+        x = np.array(data.index)
+        y = np.array(data['duration'])
         # Get the distance of a value to it predecessor
         # This will smooth out greater distances between higher number of
         # instances. A bigger weight will be applied to measurements that have
@@ -85,17 +86,36 @@ class ScalingPlotter:
         chisq = (np.square(y[1:]-y_exp[1:])/y_exp[1:]).sum()
         dof = len(x[1:]) - len(fit_params)
         cdf = scipy.special.chdtrc(dof,chisq)
-        print "Excluding the first value"
-        print "For rows: %d" % rows
-        print "Reduced Chi-Square: %.5f" % (chisq / dof)
-        print "CDF = %.5f" % cdf
+        reduced_chi_square = chisq / dof
+        return {
+                "fit_params": fit_params,
+                "expected_y": y_exp,
+                "chisq": chisq,
+                "cdf": cdf,
+                "reduced_chi_square": reduced_chi_square}
 
+    def _plot_single_fitting_for(self, eval_selection_lambda, task_name, rows):
+        """ Plot curve and fitting for selected task's size/duration
+
+            eval_selection_lambda -- Select the task whose duration shall be fit
+            rows -- Only plot and fir for the run with this table size
+        """
+
+        def filter(x):
+            return x["rows"] == rows and eval_selection_lambda(x)
+
+        criterion = self._df.apply(filter, axis=1)
+        cur_data = self._df[criterion]
+        group = cur_data.groupby("instances").mean()
+
+        fitting = self._fit_single_data(group)
 
         # Plot
         plt.figure()
         measurement_label = 'Measured task execution time on %d rows' % rows
         group['duration'].plot(label=measurement_label)
-        plt.plot(x, fit_func(x, *fit_params), label='Fitting')
+        x = np.array(group.index)
+        plt.plot(x, fitting['expected_y'], label='Fitting')
         plt.yscale('log')
         plt.ylabel("Mean %s Duration in ms" % task_name)
         plt.legend(loc='best')
