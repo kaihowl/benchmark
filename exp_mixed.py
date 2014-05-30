@@ -112,6 +112,7 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks
         plotter.plot_mean_task_size(sel_lambda, task_name=name, dump_to_csv=True)
     for (sel_lambda, name) in fit_tasks:
         plotter.plot_fitting_for(sel_lambda, task_name=name)
+        plotter.plot_tablesize_fitting_for(sel_lambda, name)
     return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
@@ -485,13 +486,17 @@ def print_timing(title="Time taken:"):
     delta_seconds = time.time() - BENCHMARK_START
     print "%s %s" % (title, str(datetime.timedelta(seconds=delta_seconds)))
 
-#start_timing()
-#output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
-#print_timing(title='Scan took:')
+start_timing()
+output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
+print_timing(title='Scan took:')
 
 start_timing()
-output += runBenchmark_varying_users("var-users-separate", s1, separateOLAPTables=True, **kwargs)
-print_timing(title='varying users took:')
+output += runBenchmark_scaling_curve_Scan("scalingcurve-join", s1, **kwargs)
+print_timing(title='Join took:')
+
+# start_timing()
+# output += runBenchmark_varying_users("var-users-separate", s1, separateOLAPTables=True, **kwargs)
+# print_timing(title='varying users took:')
 
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')

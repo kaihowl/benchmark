@@ -56,12 +56,45 @@ class ScalingPlotter:
         except TypeError:  # no list but single element for rows
             self._plot_single_fitting_for(eval_selection_lambda, task_name, rows)
 
-    def _plot_single_fitting_for(self, eval_selection_lambda, task_name, rows):
-        """ Plot curve and fitting for selected task's size/duration
+    def plot_tablesize_fitting_for(self, eval_selection_lambda, task_name):
+        """ Plot the fitting for a task with table size as the independent var
 
             eval_selection_lambda -- Select the task whose duration shall be fit
-            rows -- Only plot and fir for the run with this table size
+            task_name -- Describe the task selected by the lambda
         """
+        criterion = self._df.apply(eval_selection_lambda, axis=1)
+        data = self._df[criterion]
+        rows = data["rows"].unique()
+        rows.sort()
+
+        def fit_for_rows(rows):
+            group = data[data['rows'] == rows].groupby("instances").mean()
+            return self._fit_single_data(group['duration'], self.task_size_fit_func)
+
+        fittings = pandas.DataFrame([x/100000] + list(fit_for_rows(x)["fit_params"]) for x in rows)
+        fittings.columns = ["rows_100k", "a", "b"]
+        fittings.set_index("rows_100k", inplace=True)
+
+        a_fitting = self._fit_single_data(fittings["a"], self.table_size_fit_func)
+        b_fitting = self._fit_single_data(fittings["b"], self.table_size_fit_func)
+
+        plt.subplot(1, 2, 1)
+        plt.title("Parameter a fitting")
+        fittings["a"].plot(style="o", label="Single fitted parameters")
+        plt.xlabel("Table size in 100k")
+        plt.plot(fittings.index, a_fitting['expected_y'], label='Overall fitting')
+        plt.legend(loc='best')
+
+        plt.subplot(1, 2, 2)
+        plt.title("Parameter b fitting")
+        fittings["b"].plot(style="o", label="Single fitted parameters")
+        plt.xlabel("Table size in 100k")
+        plt.plot(fittings.index, b_fitting['expected_y'], label='Overall fitting')
+        plt.legend(loc='best')
+
+        fname = "%s_parfitting_%s_%d.pdf" % (self._group_id, task_name, int(time.time()))
+        plt.savefig(fname)
+        print ">>>%s" % fname
 
     def _fit_single_data(self, data, fit_func):
         """ Fit data for selected task's size for a given number of rows.
