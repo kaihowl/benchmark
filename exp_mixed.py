@@ -491,7 +491,7 @@ output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
 print_timing(title='Scan took:')
 
 start_timing()
-output += runBenchmark_scaling_curve_Scan("scalingcurve-join", s1, **kwargs)
+output += runBenchmark_scaling_curve_Join("scalingcurve-join", s1, **kwargs)
 print_timing(title='Join took:')
 
 # start_timing()
