@@ -92,14 +92,14 @@ class ScalingPlotter:
         plt.title("Parameter a fitting")
         fittings["a"].plot(style="o", label="Single fitted parameters")
         plt.xlabel("Table size in 100k")
-        plt.plot(fittings.index, a_fitting['expected_y'], label='Overall fitting')
+        plt.plot(a_fitting["plottable_x"], a_fitting["plottable_y"], label='Overall fitting')
         plt.legend(loc='best')
 
         plt.subplot(1, 2, 2)
         plt.title("Parameter b fitting")
         fittings["b"].plot(style="o", label="Single fitted parameters")
         plt.xlabel("Table size in 100k")
-        plt.plot(fittings.index, b_fitting['expected_y'], label='Overall fitting')
+        plt.plot(b_fitting["plottable_x"], b_fitting["plottable_y"], label='Overall fitting')
         plt.legend(loc='best')
 
         fname = "%s_parfitting_%s_%d.pdf" % (self._group_id, task_name, int(time.time()))
@@ -109,8 +109,10 @@ class ScalingPlotter:
     def _fit_single_data(self, data, fit_func):
         """ Fit data for selected task's size for a given number of rows.
             Returns the parameters for the fitting function, the expected
-            y-values, the chi-square value, the probability of the cdf, and the
-            reduced chi square value.
+            y-values, a range of plottable x values between min and max rows in
+            the data set, the corresponding plottable y values, the chi-square
+            value, the probability of the cdf, and the reduced chi square
+            value.
 
             data -- Pandas dataframe with x-values as index and single column as
                     y values
@@ -138,9 +140,13 @@ class ScalingPlotter:
         dof = len(x[1:]) - len(fit_params)
         cdf = scipy.special.chdtrc(dof,chisq)
         reduced_chi_square = chisq / dof
+        plottable_x = np.arange(x.min(), x.max()+1)
+        plottable_y = fit_func(plottable_x, *fit_params)
         return {
                 "fit_params": fit_params,
                 "expected_y": y_exp,
+                "plottable_x": plottable_x,
+                "plottable_y": plottable_y,
                 "chisq": chisq,
                 "cdf": cdf,
                 "reduced_chi_square": reduced_chi_square}
@@ -166,8 +172,7 @@ class ScalingPlotter:
         plt.figure()
         measurement_label = 'Measured task execution time on %d rows' % rows
         group['duration'].plot(label=measurement_label)
-        x = np.array(group.index)
-        plt.plot(x, fitting['expected_y'], label='Fitting')
+        plt.plot(fitting["plottable_x"], fitting['plottable_y'], label='Fitting')
         plt.yscale('log')
         plt.ylabel("Mean %s Duration in ms" % task_name)
         plt.legend(loc='best')
