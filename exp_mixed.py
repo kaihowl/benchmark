@@ -114,7 +114,8 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks
         plotter.plot_mean_task_size(sel_lambda, task_name=name, dump_to_csv=True)
     for (sel_lambda, name, fit_func_str) in fit_tasks:
         plotter.plot_fitting_for(sel_lambda, task_name=name)
-        plotter.plot_tablesize_fitting_for(sel_lambda, name, fit_func_str)
+        plotter.add_tablesize_fitting_for(sel_lambda, name, fit_func_str)
+    plotter.save_tablesize_fittings()
     return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.

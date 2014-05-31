@@ -60,8 +60,11 @@ class ScalingPlotter:
         except TypeError:  # no list but single element for rows
             self._plot_single_fitting_for(eval_selection_lambda, task_name, rows)
 
-    def plot_tablesize_fitting_for(self, eval_selection_lambda, task_name, fit_func_str):
-        """ Plot the fitting for a task with table size as the independent var
+    def add_tablesize_fitting_for(self, eval_selection_lambda, task_name, fit_func_str):
+        """ Add a plot for the fitting of selected tasks to all table sizes
+
+            This will not save the fitting to a file. You have to call
+            save_tablesize_fittings for that.
 
             eval_selection_lambda -- Select the task whose duration shall be fit
             task_name -- Describe the task selected by the lambda
@@ -90,19 +93,23 @@ class ScalingPlotter:
 
         plt.subplot(1, 2, 1)
         plt.title("Parameter a fitting")
-        fittings["a"].plot(style="o", label="Single fitted parameters")
+        fittings["a"].plot(style="o", label="Per Row Fitted %s" % task_name)
         plt.xlabel("Table size in 100k")
-        plt.plot(a_fitting["plottable_x"], a_fitting["plottable_y"], label='Overall fitting')
+        plt.plot(a_fitting["plottable_x"], a_fitting["plottable_y"], label="Overall Fitted %s" % task_name)
         plt.legend(loc='best')
 
         plt.subplot(1, 2, 2)
         plt.title("Parameter b fitting")
-        fittings["b"].plot(style="o", label="Single fitted parameters")
+        fittings["b"].plot(style="o", label="Per Row Fitted %s" % task_name)
         plt.xlabel("Table size in 100k")
-        plt.plot(b_fitting["plottable_x"], b_fitting["plottable_y"], label='Overall fitting')
+        plt.plot(b_fitting["plottable_x"], b_fitting["plottable_y"], label="Overall Fitted %s" % task_name)
         plt.legend(loc='best')
 
-        fname = "%s_parfitting_%s_%d.pdf" % (self._group_id, task_name, int(time.time()))
+    def save_tablesize_fittings(self):
+        """ Save fittings from add_tablesize_fitting_for to a pdf file
+        """
+
+        fname = "%s_parfitting_%d.pdf" % (self._group_id, int(time.time()))
         plt.savefig(fname)
         print ">>>%s" % fname
 
