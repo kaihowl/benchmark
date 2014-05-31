@@ -91,14 +91,14 @@ class ScalingPlotter:
         a_fitting = self._fit_single_data(fittings["a"], fit_funcs[fit_func_str])
         b_fitting = self._fit_single_data(fittings["b"], fit_funcs[fit_func_str])
 
-        plt.subplot(1, 2, 1)
+        plt.subplot(2, 1, 1)
         plt.title("Parameter a fitting")
         fittings["a"].plot(style="o", label="Per Row Fitted %s" % task_name)
         plt.xlabel("Table size in 100k")
         plt.plot(a_fitting["plottable_x"], a_fitting["plottable_y"], label="Overall Fitted %s" % task_name)
         plt.legend(loc='best')
 
-        plt.subplot(1, 2, 2)
+        plt.subplot(2, 1, 2)
         plt.title("Parameter b fitting")
         fittings["b"].plot(style="o", label="Per Row Fitted %s" % task_name)
         plt.xlabel("Table size in 100k")
@@ -110,6 +110,7 @@ class ScalingPlotter:
         """
 
         fname = "%s_parfitting_%d.pdf" % (self._group_id, int(time.time()))
+        plt.tight_layout()
         plt.savefig(fname)
         print ">>>%s" % fname
 
