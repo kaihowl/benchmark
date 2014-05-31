@@ -36,7 +36,7 @@ def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
             s1,
             numRuns,
             mean_tasks=[scan],
-            fit_tasks=[scan],
+            fit_tasks=[scan + ("linear", )],
             **kwargs)
 
 # Creates Figure 3 of DASFAA paper
@@ -54,7 +54,7 @@ def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
             s1,
             numRuns,
             mean_tasks=[join, prefix, histogram, cluster],
-            fit_tasks=[join, cluster],
+            fit_tasks=[join + ("quadratic", ), cluster + ("linear", )],
             **kwargs)
 
 def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tasks=[],**kwargs):
@@ -68,9 +68,11 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks
         mean_tasks -- Sequence of pairs of lambdas and strings.
                       The lambdas select the tasks, the strings are used for
                       y axis labels
-        fit_tasks --  Sequence of pairs of lambdas and strings.
+        fit_tasks --  Sequence of three-tuples of lambdas, strings, and either
+                      "linear"/"quadratic" for the overall fitting.
                       The group of tasks selected by the lambda are fit with our
-                      model. The strings are used for the y axis labels.
+                      model. The strings are used for the y axis labels in the
+                      single plots.
     """
     output = ""
 
@@ -110,9 +112,9 @@ def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks
     plotter.plot_total_response_time(dump_to_csv=True)
     for (sel_lambda, name) in mean_tasks:
         plotter.plot_mean_task_size(sel_lambda, task_name=name, dump_to_csv=True)
-    for (sel_lambda, name) in fit_tasks:
+    for (sel_lambda, name, fit_func_str) in fit_tasks:
         plotter.plot_fitting_for(sel_lambda, task_name=name)
-        plotter.plot_tablesize_fitting_for(sel_lambda, name)
+        plotter.plot_tablesize_fitting_for(sel_lambda, name, fit_func_str)
     return output
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.

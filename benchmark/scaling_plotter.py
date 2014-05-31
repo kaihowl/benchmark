@@ -32,11 +32,15 @@ class ScalingPlotter:
         def task_size_fit_func(x, a, b):
             return np.divide(a, x) + b
 
-        def table_size_fit_func(x, a, b):
+        def linear_func(x, a, b):
             return np.multiply(a, x) + b
 
+        def quadratic_func(x, a, b):
+            return np.multiply(a, np.square(x)) + b
+
         self.task_size_fit_func = task_size_fit_func
-        self.table_size_fit_func = table_size_fit_func
+        self.linear_func = linear_func
+        self.quadratic_func = quadratic_func
 
     def plot_fitting_for(self, eval_selection_lambda, task_name, rows=None):
         """ Plot curve(s) and fitting of a task's size/duration
@@ -56,12 +60,18 @@ class ScalingPlotter:
         except TypeError:  # no list but single element for rows
             self._plot_single_fitting_for(eval_selection_lambda, task_name, rows)
 
-    def plot_tablesize_fitting_for(self, eval_selection_lambda, task_name):
+    def plot_tablesize_fitting_for(self, eval_selection_lambda, task_name, fit_func_str):
         """ Plot the fitting for a task with table size as the independent var
 
             eval_selection_lambda -- Select the task whose duration shall be fit
             task_name -- Describe the task selected by the lambda
+            fit_func_str -- "linear"/"quadratic" describes which function to use
+                            for the overall fitting
         """
+        fit_funcs = {
+                "linear": self.linear_func,
+                "quadratic": self.quadratic_func
+                }
         criterion = self._df.apply(eval_selection_lambda, axis=1)
         data = self._df[criterion]
         rows = data["rows"].unique()
@@ -75,8 +85,8 @@ class ScalingPlotter:
         fittings.columns = ["rows_100k", "a", "b"]
         fittings.set_index("rows_100k", inplace=True)
 
-        a_fitting = self._fit_single_data(fittings["a"], self.table_size_fit_func)
-        b_fitting = self._fit_single_data(fittings["b"], self.table_size_fit_func)
+        a_fitting = self._fit_single_data(fittings["a"], fit_funcs[fit_func_str])
+        b_fitting = self._fit_single_data(fittings["b"], fit_funcs[fit_func_str])
 
         plt.subplot(1, 2, 1)
         plt.title("Parameter a fitting")
