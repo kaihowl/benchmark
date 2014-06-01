@@ -28,7 +28,7 @@ def runbenchmarks(groupId, s1, **kwargs):
 def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
     scan = (lambda x: x["op_name"] == "TableScan", "TableScan")
     kwargs["legendTitle"] = "Rows"
-    return runBenchmark_scaling_curve(
+    return _scaling_curve(
             "queries/scaling-curves/scan.json",
             groupId,
             s1,
@@ -47,7 +47,7 @@ def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
     # TODO what to selet? hash or probe?
     cluster = (lambda x: x["op_name"] == "RadixCluster", "RadixCluster")
     kwargs["legendTitle"] = "Probe Rows"
-    return runBenchmark_scaling_curve("queries/scaling-curves/join.json",
+    return _scaling_curve("queries/scaling-curves/join.json",
             groupId,
             s1,
             numRuns,
@@ -55,8 +55,10 @@ def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
             fit_tasks=[join + ("quadratic", ), cluster + ("linear", )],
             **kwargs)
 
-def runBenchmark_scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tasks=[],**kwargs):
+def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tasks=[],**kwargs):
     """ Run a scaling curve benchmark.
+
+        This is just a helper for scan and join scaling curves.
 
         Will output the mean response time for the provided query. For supplied
         lambdas in mean_tasks, plot the mean task size. For the supplied lambdas
