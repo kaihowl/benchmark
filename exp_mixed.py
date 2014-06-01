@@ -2,6 +2,7 @@ import argparse
 import benchmark
 import time
 import datetime
+import sys
 
 from benchmark.bench_mixed import MixedWLBenchmark
 from benchmark.mixedWLPlotter import MixedWLPlotter
@@ -324,6 +325,7 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=Tr
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
+aparser.add_argument('benchmarks', metavar='benchmarks', type=str, nargs='+', help="Benchmarks to be run")
 aparser.add_argument('--duration', default=20, type=int, metavar='D',
                      help='How long to run the benchmark in seconds')
 aparser.add_argument('--clients', default=-1, type=int, metavar='N',
@@ -437,6 +439,8 @@ kwargs = {
     # Set this value according to the data in hyriseDBPath: full/narrow
     "schema"            : "narrow",
 
+    "separateOLAPTables": True,
+
     "scheduler"         : "DynamicPriorityScheduler",
     "serverThreads"     : 31,
     "remote"            : False,
@@ -487,25 +491,38 @@ def start_timing():
     global BENCHMARK_START
     BENCHMARK_START = time.time()
 
-def print_timing(title="Time taken:"):
+def stop_timing(title="Time taken:"):
     global BENCHMARK_START
     delta_seconds = time.time() - BENCHMARK_START
     print "%s %s" % (title, str(datetime.timedelta(seconds=delta_seconds)))
 
-start_timing()
-output += runBenchmark_scaling_curve_Scan("scalingcurve-scan", s1, **kwargs)
-print_timing(title='Scan took:')
-
-start_timing()
-output += runBenchmark_scaling_curve_Join("scalingcurve-join", s1, **kwargs)
-print_timing(title='Join took:')
-
-# start_timing()
-# output += runBenchmark_varying_users("var-users-separate", s1, separateOLAPTables=True, **kwargs)
-# print_timing(title='varying users took:')
-
 filename = "results_" + str(int(time.time()))
 f = open(filename,'w')
+
+# Benchmarks method signatures have to start with this prefix. The only
+# parameters they can take are the groupId, Settings, named parameters, and
+# **kwargs.
+BENCHMARK_PREFIX = "runBenchmark_"
+
+# You can run benchmarks by supplying the name without the prefix and all
+# underscores replaced by dashes.
+
+# Pairs of names and benchmarks to run
+run_list = [(b, BENCHMARK_PREFIX + b.replace("-", "_")) for b in args['benchmarks']]
+
+for benchmark_name, method_name in run_list:
+    if not method_name in locals():
+        print "Could not find benchmark %s" % benchmark_name
+        print "Possible benchmarks are:"
+        for name in [i[len(BENCHMARK_PREFIX):].replace("_", "-") for i in locals().keys() if i.startswith(BENCHMARK_PREFIX)]:
+            print "- %s" % name
+        sys.exit("Unkown benchmark")
+
+for benchmark_name, method_name in run_list:
+    start_timing()
+    output += locals()[method_name](benchmark_name, s1, **kwargs)
+    stop_timing(title="%s took:" % benchmark_name)
+
 f.write(output) # python will convert \n to os.linesep
 f.close() # you can omit in most cases as the destructor will call if
 
