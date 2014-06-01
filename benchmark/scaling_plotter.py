@@ -64,7 +64,10 @@ class ScalingPlotter:
         """ Add a plot for the fitting of selected tasks to all table sizes
 
             This will not save the fitting to a file. You have to call
-            save_tablesize_fittings for that.
+            save_tablesize_fittings for that. Furthermore, this relies on the
+            global state of matplotlib. Therefore, you cannot plot something
+            else inbetween call to add_tablesize_fitting_for and before the
+            final call to save_tablesize_fittings
 
             eval_selection_lambda -- Select the task whose duration shall be fit
             task_name -- Describe the task selected by the lambda
