@@ -1,7 +1,5 @@
 import argparse
 import benchmark
-import os
-import pprint
 import time
 import datetime
 
