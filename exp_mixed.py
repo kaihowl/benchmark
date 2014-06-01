@@ -89,6 +89,7 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
     if not kwargs["evaluationOnly"]:
         for cur_rows in rows:
             for cur_instances in instances:
+                print "scaling curve %s with %d rows and %d instances" % (groupId, cur_rows, cur_instances)
                 kwargs["userClass"]        = RepeatingUser
                 kwargs["numUsers"]         = 1
                 kwargs["userArgs"]         = {
