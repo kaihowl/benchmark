@@ -25,7 +25,7 @@ def runbenchmarks(groupId, s1, **kwargs):
     return output
 
 # Creates Figure 2 of DASFAA paper
-def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
+def runBenchmark_scaling_curve_scan(groupId, s1, numRuns=5, **kwargs):
     scan = (lambda x: x["op_name"] == "TableScan", "TableScan")
     kwargs["legendTitle"] = "Rows"
     return _scaling_curve(
@@ -38,7 +38,7 @@ def runBenchmark_scaling_curve_Scan(groupId, s1, numRuns=5, **kwargs):
             **kwargs)
 
 # Creates Figure 3 of DASFAA paper
-def runBenchmark_scaling_curve_Join(groupId, s1, numRuns=5, **kwargs):
+def runBenchmark_scaling_curve_join(groupId, s1, numRuns=5, **kwargs):
     join = (lambda x: x["op_name"] == "NestedLoopEquiJoin", "NestedLoopEquiJoin")
     # TODO what to select? hash or probe? hash first or second?
     prefix = (lambda x: x["op_name"] == "PrefixSum", "PrefixSum")
