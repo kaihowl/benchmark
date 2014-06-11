@@ -96,7 +96,8 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
                         "repetitions"      : numRuns,
                         "instances"        : cur_instances,
                         # Capped instances are used in join.json
-                        "capped_instances" : min(400, cur_instances),
+                        # NOTE no capping for scaling curves
+                        "capped_instances" : cur_instances,
                         "rows"             : cur_rows }
 
                 kwargs["tableLoadQueries"] = ("preload", )
