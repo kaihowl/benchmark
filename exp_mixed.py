@@ -10,6 +10,7 @@ from benchmark.DynamicPlotter import DynamicPlotter
 from benchmark.benchmark import Benchmark
 from benchmark.repeating_user import RepeatingUser
 from benchmark.scaling_plotter import ScalingPlotter
+from benchmark.VarUserPlotter import VarUserPlotter
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
@@ -166,7 +167,7 @@ def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
     output += plotter.printFormattedStatistics(kwargs["olapQueries"])
     return output
 
-def runBenchmark_varying_users(groupId, s1, separateOLAPTables=False, **kwargs):
+def runBenchmark_varying_users(groupId, s1, separateOLAPTables=False, runs=3, **kwargs):
     output = ""
 
     kwargs["olapQueries"] = ("vldb_q10_instances", "vldb_q11_instances", "vldb_q12_instances")
@@ -182,20 +183,22 @@ def runBenchmark_varying_users(groupId, s1, separateOLAPTables=False, **kwargs):
         users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
         for i in instances:
             for j in users:
-                if not distincts is None:
-                    print "Reusing distincts from now on."
-                    kwargs["distincts"] = distincts
-                print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
-                runId = str(i) + "_" + str(j)
-                kwargs["olapInstances"] = i
-                kwargs["olapUser"] = j
-                kwargs["numUsers"] = kwargs["olapUser"]
-                b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
-                b1.run()
-                time.sleep(3)
-                distincts = b1.getDistinctValues()
+                for run in range(runs):
+                    print "run %d" % (run + 1)
+                    if not distincts is None:
+                        print "Reusing distincts from now on."
+                        kwargs["distincts"] = distincts
+                    print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
+                    runId = "%d_%d_%d" % (i, j, run)
+                    kwargs["olapInstances"] = i
+                    kwargs["olapUser"] = j
+                    kwargs["numUsers"] = kwargs["olapUser"]
+                    b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+                    b1.run()
+                    time.sleep(3)
+                    distincts = b1.getDistinctValues()
 
-    plotter = DynamicPlotter(groupId)
+    plotter = VarUserPlotter(groupId)
     plotter.plot_throughput_per_run()
     plotter.plot_meansize_per_run()
     return output
