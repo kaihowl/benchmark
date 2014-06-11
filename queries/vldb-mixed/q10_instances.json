@@ -29,7 +29,8 @@
       "bits2": 5,
       /* same col number on narrow and wide schema */
       "fields": [1, 1],
-      "hash_par": %(instances)d,
+      /* The table scan returns at most 26379 tuples */
+      "hash_par": 1,
       "probe_par": %(instances)d,
       "join_par": %(instances)d
     },
