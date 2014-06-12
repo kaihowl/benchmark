@@ -15,8 +15,10 @@ class RepeatingUser(User):
         cur_query = self._totalRuns % len(self._queries)
         query_name = self._queries[cur_query]
         query = self._queryDict[query_name] % self._userArgs
-        result = self.fireQuery(query).json()
-        perf = result.get("performanceData", None)
+        response = self.fireQuery(query)
+        response.encoding = 'ISO-8859-1'
+        json_result = response.json()
+        perf = json_result.get("performanceData", None)
         self.log("queries", [query_name,  perf])
 
     def formatLog(self, key, value):
