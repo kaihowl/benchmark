@@ -1,6 +1,7 @@
 builds/
 logs/
 *.pdf
+*.tex
 *.csv
 *.pyc
 .DS_Store

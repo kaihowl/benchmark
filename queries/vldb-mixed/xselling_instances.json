@@ -1,0 +1,48 @@
+{
+  "priority": 2,
+  "operators": {
+    "0" : {
+      "type" : "GetTable",
+      "name": "vbap"
+    },
+    "2" : {
+      "type" : "TableScan",
+      "expression": "hyrise::Store_FLV_F1_EQ_STRING",
+      "f1": %(vbap_matnr_colnr)s, // MATNR 2 on narrow and 3 on full schema
+      "COMMENT": "value is in the dictionary for 10mill",
+      "v_f1": %(rand_matnr_vbap)s,
+      "instances": %(instances)d
+    },
+    "3" : {
+      "type" : "TableScan",
+      "expression": "hyrise::Store_FLV_F1_EQ_STRING",
+      "f1": %(vbap_matnr_colnr)s, // MATNR 2 on narrow and 3 on full schema
+      "COMMENT": "value is in the dictionary for 10mill",
+      "v_f1": %(rand_matnr_vbap_2)s,
+      "instances": %(instances)d
+    },
+    "4": {
+      "type": "RadixJoin",
+      "bits1": 10,
+      "bits2": 5,
+      /* same col nr for fields in narrow and full schema */
+      "fields": [1,1], // Left and right
+      "hash_par": %(instances)d,
+      "probe_par": %(instances)d,
+      "join_par": %(instances)d
+    },
+    "5": {
+      "type": "NoOp"
+    }
+  },
+
+  "edges" : [
+    ["0","2"],
+    ["0","3"],
+    ["2","4"],
+    ["3","4"],
+    ["4","5"]
+    ]
+}
+}
+

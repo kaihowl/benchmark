@@ -12,6 +12,8 @@ from benchmark.benchmark import Benchmark
 from benchmark.repeating_user import RepeatingUser
 from benchmark.scaling_plotter import ScalingPlotter
 from benchmark.VarUserPlotter import VarUserPlotter
+from benchmark.query_table_plotter import QueryTablePlotter
+from benchmark.queries import PREPARE_QUERIES_SERVER
 
 def runbenchmarks(groupId, s1, **kwargs):
     output = ""
@@ -26,6 +28,101 @@ def runbenchmarks(groupId, s1, **kwargs):
     plotter = MixedWLPlotter(groupId)
     output += plotter.printFormattedStatisticsAverage(kwargs["benchmarkQueries"])
     return output
+
+def runBenchmark_query_table(groupId, s1, numRuns=5, **kwargs):
+    """Generate a table of query run times for the workload"""
+
+    # enforcing narrow schema
+    if kwargs["schema"] != "narrow":
+        raise Exception("Only works with narrow schema.")
+
+    # where are the queries located?
+    query_dir = "queries/vldb-mixed"
+
+    # queries with a fixed number of instances
+    single_queries = ("q1", "q2", "q3", "q4", "q5", "q6a", "q6b",  "q7", "q8",
+            "q9")
+
+    # queries with a dynamic number of instances
+    instance_queries = ("q10", "q11", "q12", "xselling")
+
+    # what instances should be set during the run?
+    instances = [1, 8, 16, 31]
+
+    # placeholder values in both query types
+    single_replacements = {
+            "rand_name1_adrc": "\"Compute 3000\"",
+            "rand_kunnr_kna1": "\"0000404040\"",
+            "rand_addrnumber_adrc": "\"0000028077\"",
+            "rand_matnr_makt": "\"AM3100\"",
+            "rand_matnr_mara": "\"GGCDE002\"",
+            "vbak_data_line": "[800, \"4332566\", 20101010, \"0000404040\"]",
+            "vbap_data_line": "[800, \"4332566\", \"AM310\", 1.0, 1.0, 20101010]",
+            "rand_vbeln_vbak": "\"11720000006051\"",
+            "rand_vbeln_vbap": "\"10380000009025\""}
+    instances_replacements = {
+            # Fixed on narrow schema
+            "tableSuffix": "",
+            "vbak_kunnr_colnr": 3,
+            "rand_kunnr_vbak": "\"0000001172\"",
+            "vbap_matnr_colnr": 2,
+            "vbap_erdat_colnr": 5,
+            "rand_matnr_vbap": "\"M09\"",
+            "rand_matnr_vbap_2": "\"C200\""}
+
+    # name of the query is <queryname>_<set instances>
+    # value is the formatted and placeholder replaced query string
+    query_dict = {}
+
+    for single_query in single_queries:
+        query = open(os.path.join(query_dir, single_query) + ".json").read()
+        query = query % single_replacements
+        query_name = "%s_1" % single_query
+        query_dict[query_name] = query
+
+    for instance_query in instance_queries:
+        filename = os.path.join(query_dir, instance_query) + "_instances.json"
+        raw_query = open(filename).read()
+        # query = query % instances_replacements
+        for instance in instances:
+            query_name = "%s_%d" % (instance_query, instance)
+            replacements = dict(instances_replacements)
+            replacements["instances"] = instance
+            query = raw_query % replacements
+            query_dict[query_name] = query
+
+    # This benchmark's users terminate themselves after a set number of runs
+    kwargs["runtime"] = 0
+    kwargs["userClass"] = RepeatingUser
+    kwargs["numUsers"] = 1
+    kwargs["userArgs"] = {"repetitions": len(query_dict) * numRuns}
+    kwargs["prepareQueries"] = PREPARE_QUERIES_SERVER.keys()
+    kwargs["tableLoadQueries"] = ("preload", )
+    kwargs["tableLoadArgs"] = {
+        "preload_additional_vertices": "",
+        "preload_additional_edges": ""}
+    kwargs["benchmarkQueries"] = query_dict.keys()
+
+    if not kwargs["evaluationOnly"]:
+        b = Benchmark(groupId, "run", s1, **kwargs)
+        b.addQueryFile("preload", os.path.join(query_dir, "preload.json"))
+
+        # Add prepare (index) query files
+        for query_name, query_file in PREPARE_QUERIES_SERVER.iteritems():
+            b.addQueryFile(query_name, query_file)
+
+        # Add formatted queries
+        for query_name, query_string in query_dict.iteritems():
+            b.addQuery(query_name, query_string)
+
+        b.run()
+
+    # evalution
+    plotter = QueryTablePlotter(groupId)
+    plotter.print_query_table()
+
+    return ""
+
 
 # Creates Figure 2 of DASFAA paper
 def runBenchmark_scaling_curve_scan(groupId, s1, numRuns=5, **kwargs):
