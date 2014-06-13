@@ -37,8 +37,7 @@ class ScalingPlotter:
             multiply_table_sizes -- Split the tablesizes in VBAP and VBAK and
                                     multiply. Used for NestedLoopEquiJoin.
         """
-        criterion = self._df.apply(eval_selection_lambda, axis=1)
-        tasks = self._df[criterion]
+        tasks = self._filter_by_lambda(eval_selection_lambda)
 
         meantimes = tasks.groupby(["rows", "instances"])["duration"].mean()
         def add_weights(data):
