@@ -83,9 +83,10 @@ class ScalingPlotter:
         plt.figure()
         plt.yscale("log")
         for rows_100k, group in fitdata.groupby("rows_100k"):
+            x = np.arange(1, 1024, step=1)
+            x_pred = [(i, rows_100k) for i in x]
             # TODO magic number
-            x_pred = [(i, rows_100k) for i in np.arange(1, 1024, step=1)]
-            plt.plot(x_pred, fit_func(x_pred, *params))
+            plt.plot(x, fit_func(x_pred, *params))
             group.plot(x="instances", y="meanDuration")
 
         filename = "%s_singlefitting_%s_%d.pdf" % \
