@@ -82,13 +82,17 @@ class ScalingPlotter:
         # Plot each row size with measured and fitted curve
         plt.figure()
         plt.yscale("log")
+        plt.ylabel("Mean %s duration" % task_name)
         for rows_100k, group in fitdata.groupby("rows_100k"):
             min_instances = group["instances"].min()
             max_instances = group["instances"].max()
             x = np.arange(min_instances, max_instances, step=1)
             x_pred = [(i, rows_100k) for i in x]
-            plt.plot(x, fit_func(x_pred, *params))
-            group.plot(x="instances", y="meanDuration")
+            fit_label = "Fitted %d" % (rows_100k * 100000)
+            plt.plot(x, fit_func(x_pred, *params), "--", label=fit_label)
+            measured_label = "Measured %d" % (rows_100k * 100000)
+            group.plot(x="instances", y="meanDuration", label=measured_label)
+        plt.legend(loc="best")
 
         filename = "%s_singlefitting_%s_%d.pdf" % \
             (self._group_id, task_name, int(time.time()))
