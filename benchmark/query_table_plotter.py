@@ -68,16 +68,16 @@ class QueryTablePlotter:
     def _latex_format_table(self, format_rows):
 
         table_header = """
-\begin{table}[tb]
+\\begin{table}[tb]
     \centering
-    \begin{tabular}{|p{2cm}||p{2cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|}
+    \\begin{tabular}{|p{2cm}||p{2cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|}
         \hline
-        Query & Number of tasks & Execution time n=1 & Execution time n=8 & Execution time n=16 & Execution time n=32\\
+        Query & Number of tasks & Execution time n=1 & Execution time n=8 & Execution time n=16 & Execution time n=32\\\\
         \hline
         """
 
         table_line = """
-        %(label)s & %(instances_formula)s & %(time_1)s ms & %(time_8)s ms & %(time_16)s ms & %(time_31)s ms \\
+        %(label)s & %(instances_formula)s & %(time_1)s ms & %(time_8)s ms & %(time_16)s ms & %(time_31)s ms \\\\
         """
 
         table_footer = """
