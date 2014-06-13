@@ -42,24 +42,58 @@ class ScalingPlotter:
         self.linear_func = linear_func
         self.quadratic_func = quadratic_func
 
-    def plot_fitting_for(self, eval_selection_lambda, task_name, rows=None):
-        """ Plot curve(s) and fitting of a task's size/duration
+    def plot_fitting_for(self, eval_selection_lambda, task_name, multiply_table_sizes=False):
+        """ Plot overall single-step fitting.
 
             eval_selection_lambda -- Select the task whose duration shall be fit
             task_name -- Describe the task selected by the selection lambda
-            rows -- Only plot and fit for the run(s) with this table size.
-                    Optional argument. Takes scalar and sequence-like values.
-                    Default is to print fitting for all table sizes
+            multiply_table_sizes -- Split the tablesizes in VBAP and VBAK and
+                                    multiply. Used for NestedLoopEquiJoin.
         """
-        if not rows:
-            rows = self._df['rows'].unique()
+        criterion = self._df.apply(eval_selection_lambda, axis=1)
+        tasks = self._df[criterion]
 
-        try:
-            for cur_rows in rows:
-                self._plot_single_fitting_for(eval_selection_lambda, task_name, cur_rows)
-        except TypeError:  # no list but single element for rows
-            self._plot_single_fitting_for(eval_selection_lambda, task_name, rows)
+        meantimes = tasks.groupby(["rows", "instances"])["duration"].mean()
+        def add_weights(data):
+            data.name = 'meanDuration'
+            new_data = data.reset_index(level='rows', drop=True).reset_index()
+            x = np.array(new_data['instances'])
+            weights = np.concatenate([[0.1], np.diff(x)])
+            weights = np.subtract(weights.max()+1, weights)
+            new_data['weights'] = weights
+            return new_data
 
+        # Rows, instances, meanDuration, weights
+        fitdata = meantimes.groupby(level=0).apply(lambda x: add_weights(x)).reset_index()
+        # Curve fits struggle with too little values
+        fitdata["rows_100k"] = fitdata["rows"] / 100000
+
+        # TODO needs to use multiply_table_sizes
+        def fit_func(x_tuples, a, b):
+            instances = [x[0] for x in x_tuples]
+            tablesizes = [x[1] for x in x_tuples]
+            return np.multiply(a, tablesizes) / instances + b
+
+        x = np.array(fitdata[["instances", "rows_100k"]])
+        y = np.array(fitdata["meanDuration"])
+        weights = fitdata["weights"]
+        params, cov = curve_fit(fit_func, x, y, sigma=weights)
+
+        # Plot each row size with measured and fitted curve
+        plt.figure()
+        plt.yscale("log")
+        for rows_100k, group in fitdata.groupby("rows_100k"):
+            # TODO magic number
+            x_pred = [(i, rows_100k) for i in np.arange(1, 1024, step=1)]
+            plt.plot(x_pred, fit_func(x_pred, *params))
+            group.plot(x="instances", y="meanDuration")
+
+        filename = "%s_singlefitting_%s_%d.pdf" % \
+            (self._group_id, task_name, int(time.time()))
+        print ">>>%s" % filename
+        plt.savefig(filename)
+
+    # TODO delete
     def add_tablesize_fitting_for(self, eval_selection_lambda, task_name, fit_func_str):
         """ Add a plot for the fitting of selected tasks to all table sizes
 
@@ -108,6 +142,7 @@ class ScalingPlotter:
         plt.plot(b_fitting["plottable_x"], b_fitting["plottable_y"], label="Overall Fitted %s" % task_name)
         plt.legend(loc='best')
 
+    # TODO delete
     def save_tablesize_fittings(self):
         """ Save fittings from add_tablesize_fitting_for to a pdf file
         """
@@ -117,6 +152,7 @@ class ScalingPlotter:
         plt.savefig(fname)
         print ">>>%s" % fname
 
+    # TODO do we still use this?
     def _fit_single_data(self, data, fit_func):
         """ Fit data for selected task's size for a given number of rows.
             Returns the parameters for the fitting function, the expected
