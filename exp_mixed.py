@@ -3,6 +3,7 @@ import benchmark
 import time
 import datetime
 import sys
+import os
 
 from benchmark.bench_mixed import MixedWLBenchmark
 from benchmark.mixedWLPlotter import MixedWLPlotter
@@ -332,7 +333,13 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=Tr
     return output
 
 aparser = argparse.ArgumentParser(description='Python implementation of the TPC-C Benchmark for HYRISE')
+aparser.add_argument('-d', '--hyrise-db-path',
+                     help="ABSOLUTE path to data tables", required=True)
+aparser.add_argument('-s', '--schema', default='narrow',
+                     choices=['narrow', 'full'], help='The with of the schema')
 aparser.add_argument('benchmarks', metavar='benchmarks', type=str, nargs='+', help="Benchmarks to be run")
+aparser.add_argument('--evaluation-only', default=False, action='store_true',
+                     help='Do not run the benchmark, only evaluate last results.')
 aparser.add_argument('--duration', default=20, type=int, metavar='D',
                      help='How long to run the benchmark in seconds')
 aparser.add_argument('--clients', default=-1, type=int, metavar='N',
@@ -371,8 +378,6 @@ aparser.add_argument('--perfdata', default=True, action='store_true',
                      help='Collect additional performance data. Slows down benchmark.')
 aparser.add_argument('--json', default=False, action='store_true',
                      help='Use JSON queries instead of stored procedures.')
-aparser.add_argument('--evaluation-only', default=False, action='store_true',
-                     help='Do not run the benchmark, only evaluate last results.')
 args = vars(aparser.parse_args())
 
 s1 = benchmark.Settings("Standard",
@@ -428,6 +433,10 @@ s1 = benchmark.Settings("Standard",
 #    "host"              : "127.0.0.1"
 #}
 
+# Sanity check arguments
+if not os.path.exists(args["hyrise_db_path"]):
+    raise Exception("hyrise_db_path does not exist!")
+
 ##begram local
 kwargs = {
     "port"              : args["port"],
@@ -442,9 +451,9 @@ kwargs = {
     "useJson"           : args["json"],
     "evaluationOnly"    : args["evaluation_only"],
 
-    "hyriseDBPath"      : "/home/hoewelmeyer/vldb-tables/scaler/output",
+    "hyriseDBPath"      : args["hyrise_db_path"],
     # Set this value according to the data in hyriseDBPath: full/narrow
-    "schema"            : "narrow",
+    "schema"            : args["schema"],
 
     "separateOLAPTables": True,
 
