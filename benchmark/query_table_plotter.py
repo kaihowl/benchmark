@@ -38,9 +38,21 @@ class QueryTablePlotter:
 
         abs_ops_per_query = columns
 
-        resp_tasks = self._df[self._df["opName"] == "ResponseTask"]
-        group = resp_tasks.groupby(["queryId", "instances"])
-        result = group["opEndTime"].mean().unstack(level="instances")
+        # startTime of ResponseTask - endTime of QueryParseTask
+        def get_true_resp_time(data):
+            response_tasks = data[data["opName"] == "ResponseTask"]
+            assert(len(response_tasks) == 1)
+
+            parse_tasks = data[data["opName"] == "RequestParseTask"]
+            assert(len(parse_tasks) == 1)
+
+            response_start = response_tasks.iloc[0]["opStartTime"]
+            parse_end = parse_tasks.iloc[0]["opEndTime"]
+            return response_start - parse_end
+
+        group = self._df.groupby(["queryId", "instances", "runningNum"])
+        true_durations = group.apply(get_true_resp_time).reset_index(level="runningNum", drop=True)
+        result = true_durations.groupby(level=["queryId", "instances"]).mean().unstack(level="instances")
 
         format_rows = []
 
