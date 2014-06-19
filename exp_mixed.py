@@ -226,10 +226,16 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
 
 def runBenchmark_fitting_scan(groupId, s1, **kwargs):
     mainQueryFile = "queries/fitting/scan.json"
+    # Set short runtime. Maximum running scan is 400ms (empty system).
+    kwargs["warmuptime"] = 5  # seconds
+    kwargs["runtime"] = 20  # seconds
     _fitting(mainQueryFile, groupId, s1, **kwargs)
 
 def runBenchmark_fitting_join(groupId, s1, **kwargs):
     mainQueryFile = "queries/fitting/join.json"
+    # Maximum running join is 124 seconds (empty system).
+    kwargs["warmuptime"] = 20  # seconds
+    kwargs["runtime"] = 130  # seconds
     _fitting(mainQueryFile, groupId, s1, **kwargs)
 
 def _fitting(mainQueryFile, groupId, s1, **kwargs):
