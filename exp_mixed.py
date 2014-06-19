@@ -236,43 +236,46 @@ def _fitting(mainQueryFile, groupId, s1, **kwargs):
     rows = [100*10**3, 1*10**6, 10*10**6, 50*10**6, 100*10**6]
     # len(instances) == 35
     instances = [1] + range(2,32, 2)+ range(32, 64, 8) + range(64, 256, 32) + range(256,512,64) + range(512, 1025, 128)
+
+    # Templates for preload query
+    # Loads one table per user
     preload_template = """
-            {
- "operators" : {
-   %(vertices)s
-   "nop": {
-     "type" : "NoOp"
-   }
-  },
-  "edges" : [
-  %(edges)s
-  ]
-}
+    {
+     "operators" : {
+       %(vertices)s
+       "nop": {
+         "type" : "NoOp"
+       }
+      },
+      "edges" : [ %(edges)s ]
+    }
     """
     vertices_template = """
-   "loadvbak%(tableSuffix)s" : {
-     "type" : "LoadDumpedTable",
-     "name" : "vbak_%(rows)d"
-   },
-   "setvbak%(tableSuffix)s" : {
-     "type" : "SetTable",
-     "name" : "vbak%(tableSuffix)s"
-   },
-   "loadvbap%(tableSuffix)s" : {
-     "type" : "LoadDumpedTable",
-     "name" : "vbap_%(rows)d"
-   },
-   "setvbap%(tableSuffix)s" : {
-     "type" : "SetTable",
-     "name" : "vbap%(tableSuffix)s"
-   },
-   """
-    edges_template = """
-    ["loadvbak%(tableSuffix)s", "setvbak%(tableSuffix)s"],
-    ["loadvbap%(tableSuffix)s", "setvbap%(tableSuffix)s"],
-    ["setvbap%(tableSuffix)s", "nop"],
-    ["setvbak%(tableSuffix)s", "nop"]
+       "loadvbak%(tableSuffix)s" : {
+         "type" : "LoadDumpedTable",
+         "name" : "vbak_%(rows)d"
+       },
+       "setvbak%(tableSuffix)s" : {
+         "type" : "SetTable",
+         "name" : "vbak%(tableSuffix)s"
+       },
+       "loadvbap%(tableSuffix)s" : {
+         "type" : "LoadDumpedTable",
+         "name" : "vbap_%(rows)d"
+       },
+       "setvbap%(tableSuffix)s" : {
+         "type" : "SetTable",
+         "name" : "vbap%(tableSuffix)s"
+       },
     """
+    edges_template = """
+        ["loadvbak%(tableSuffix)s", "setvbak%(tableSuffix)s"],
+        ["loadvbap%(tableSuffix)s", "setvbap%(tableSuffix)s"],
+        ["setvbap%(tableSuffix)s", "nop"],
+        ["setvbak%(tableSuffix)s", "nop"]
+    """
+
+    # Actual benchmark
     if not kwargs["evaluationOnly"]:
         for cur_rows in rows:
             for cur_instances in instances:
