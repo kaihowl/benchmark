@@ -10,6 +10,7 @@ from benchmark.mixedWLPlotter import MixedWLPlotter
 from benchmark.DynamicPlotter import DynamicPlotter
 from benchmark.benchmark import Benchmark
 from benchmark.repeating_user import RepeatingUser
+from benchmark.continuous_user import ContinuousUser
 from benchmark.scaling_plotter import ScalingPlotter
 from benchmark.VarUserPlotter import VarUserPlotter
 from benchmark.query_table_plotter import QueryTablePlotter
@@ -222,6 +223,98 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
         plotter.add_tablesize_fitting_for(sel_lambda, name, fit_func_str)
     plotter.save_tablesize_fittings()
     return output
+
+def runBenchmark_scan_fitting(groupId, s1, **kwargs):
+    mainQueryFile = "queries/fitting/scan.json"
+    _fitting(mainQueryFile, groupId, s1, **kwargs)
+
+def runBenchmark_join_fitting(groupId, s1, **kwargs):
+    mainQueryFile = "queries/fitting/join.json"
+    _fitting(mainQueryFile, groupId, s1, **kwargs)
+
+def _fitting(mainQueryFile, groupId, s1, **kwargs):
+    rows = [100*10**3, 1*10**6, 10*10**6, 50*10**6, 100*10**6]
+    # len(instances) == 35
+    instances = [1] + range(2,32, 2)+ range(32, 64, 8) + range(64, 256, 32) + range(256,512,64) + range(512, 1025, 128)
+    preload_template = """
+            {
+ "operators" : {
+   %(vertices)s
+   "nop": {
+     "type" : "NoOp"
+   }
+  },
+  "edges" : [
+  %(edges)s
+  ]
+}
+    """
+    vertices_template = """
+   "loadvbak%(tableSuffix)s" : {
+     "type" : "LoadDumpedTable",
+     "name" : "vbak_%(rows)d"
+   },
+   "setvbak%(tableSuffix)s" : {
+     "type" : "SetTable",
+     "name" : "vbak%(tableSuffix)s"
+   },
+   "loadvbap%(tableSuffix)s" : {
+     "type" : "LoadDumpedTable",
+     "name" : "vbap_%(rows)d"
+   },
+   "setvbap%(tableSuffix)s" : {
+     "type" : "SetTable",
+     "name" : "vbap%(tableSuffix)s"
+   },
+   """
+    edges_template = """
+    ["loadvbak%(tableSuffix)s", "setvbak%(tableSuffix)s"],
+    ["loadvbap%(tableSuffix)s", "setvbap%(tableSuffix)s"],
+    ["setvbap%(tableSuffix)", "nop"],
+    ["setvbak%(tableSuffix)", "nop"]
+    """
+    if not kwargs["evaluationOnly"]:
+        for cur_rows in rows:
+            for cur_instances in instances:
+                print "fitting %s with %d rows and %d instances" % (groupId, cur_rows, cur_instances)
+                kwargs["userClass"]        = ContinuousUser
+                kwargs["numUsers"]         = kwargs['serverThreads']
+                kwargs["userArgs"]         = {
+                        "instances"        : cur_instances,
+                        # Capped instances are used in join.json
+                        # NOTE no capping for scaling curves
+                        "capped_instances" : cur_instances,
+                        "rows"             : cur_rows }
+
+                # Query works on user-local table copy
+                perUserArgs = []
+                vertices = []
+                edges = []
+                for i in range(kwargs['numUser']):
+                    tableSuffix = "_%d" % i
+                    perUserArgs.append({"tableSuffix": tableSuffix})
+                    vertices.append(vertices_template % {
+                        "rows": cur_rows,
+                        "tableSuffix": tableSuffix})
+                    edges.append(edges_template % {
+                        "tableSuffix": tableSuffix})
+
+                kwargs["perUserArgs"] = perUserArgs
+
+                kwargs["tableLoadQueries"] = ("preload", )
+                kwargs["tableLoadArgs"]    = {"rows": cur_rows}
+                kwargs["prepareQueries"]   = list()
+                kwargs["benchmarkQueries"] = ("mainQueryFile", )
+
+                b = Benchmark(groupId, "rows_%d_instances_%d" % (cur_rows, cur_instances), s1, **kwargs)
+                preload_query = preload_template % {
+                        "vertices": "".join(vertices),
+                        "edges": ",".join(edges)}
+                b.addQuery("preload", preload_query)
+
+                b.addQueryFile("mainQueryFile",  mainQueryFile)
+
+                b.run()
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
 def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):

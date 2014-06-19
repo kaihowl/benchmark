@@ -1,0 +1,33 @@
+{
+  "operators": {
+    "0" : {
+      "type" : "GetTable",
+      "name": "vbak%(tableSuffix)s"
+    },
+    "1" : {
+      "type" : "GetTable",
+      "name": "vbap%(tableSuffix)s"
+    },
+    "2" : {
+      "type" : "RadixJoin",
+      "expression": "hyrise::Store_FLV_F1_EQ_STRING",
+      "bits1": 12,
+      "bits2": 5,
+      "fields": [1,1],
+      "hash_par": %(capped_instances)d,
+      "probe_par": %(capped_instances)d,
+      "join_par": %(instances)d
+    },
+    "3": {
+      "type": "NoOp"
+    }
+  },
+
+  "edges" : [
+    ["1","2"],
+    ["0","2"],
+    ["2","3"]
+    ]
+}
+}
+
