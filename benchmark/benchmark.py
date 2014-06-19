@@ -53,6 +53,7 @@ class Benchmark:
         _user_args = {"queries": self._queries}
         if kwargs.has_key("userArgs"):
             _user_args.update(kwargs["userArgs"]) 
+        self._perUserArgs       = kwargs["perUserArgs"] if kwargs.has_key("perUserArgs") else [{} for i in range(self._numUsers)]
         self._userArgs          = _user_args
         self._stdout            = kwargs["showStdout"] if kwargs.has_key("showStdout") else False
         self._stderr            = kwargs["showStderr"] if kwargs.has_key("showStderr") else True
@@ -451,7 +452,10 @@ class Benchmark:
 
     def _createUsers(self):
         for i in range(self._numUsers):
-            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **self._userArgs))
+            curUserArgs = {}
+            curUserArgs.update(self._userArgs)
+            curUserArgs.update(self._perUserArgs[i])
+            self._users.append(self._userClass(userId=i, host=self._host, port=self._port, dirOutput=self._dirResults, queryDict=self._queryDict, collectPerfData=self._collectPerfData, useJson=self._useJson, write_to_file=self._write_to_file, write_to_file_count=self._write_to_file_count, **curUserArgs))
 
     def _stopServer(self):
         if not self._remote:
