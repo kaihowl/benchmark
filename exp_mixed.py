@@ -318,6 +318,7 @@ def _fitting(mainQueryFile, groupId, s1, **kwargs):
                 b.addQueryFile("mainQueryFile",  mainQueryFile)
 
                 b.run()
+    # TODO evaluation
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
 def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
