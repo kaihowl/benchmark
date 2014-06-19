@@ -270,8 +270,8 @@ def _fitting(mainQueryFile, groupId, s1, **kwargs):
     edges_template = """
     ["loadvbak%(tableSuffix)s", "setvbak%(tableSuffix)s"],
     ["loadvbap%(tableSuffix)s", "setvbap%(tableSuffix)s"],
-    ["setvbap%(tableSuffix)", "nop"],
-    ["setvbak%(tableSuffix)", "nop"]
+    ["setvbap%(tableSuffix)s", "nop"],
+    ["setvbak%(tableSuffix)s", "nop"]
     """
     if not kwargs["evaluationOnly"]:
         for cur_rows in rows:
@@ -290,7 +290,7 @@ def _fitting(mainQueryFile, groupId, s1, **kwargs):
                 perUserArgs = []
                 vertices = []
                 edges = []
-                for i in range(kwargs['numUser']):
+                for i in range(kwargs['numUsers']):
                     tableSuffix = "_%d" % i
                     perUserArgs.append({"tableSuffix": tableSuffix})
                     vertices.append(vertices_template % {
