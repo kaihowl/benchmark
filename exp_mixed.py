@@ -229,14 +229,14 @@ def runBenchmark_fitting_scan(groupId, s1, **kwargs):
     # Set short runtime. Maximum running scan is 400ms (empty system).
     kwargs["warmuptime"] = 5  # seconds
     kwargs["runtime"] = 20  # seconds
-    _fitting(mainQueryFile, groupId, s1, **kwargs)
+    return _fitting(mainQueryFile, groupId, s1, **kwargs)
 
 def runBenchmark_fitting_join(groupId, s1, **kwargs):
     mainQueryFile = "queries/fitting/join.json"
     # Maximum running join is 124 seconds (empty system).
     kwargs["warmuptime"] = 20  # seconds
     kwargs["runtime"] = 130  # seconds
-    _fitting(mainQueryFile, groupId, s1, **kwargs)
+    return _fitting(mainQueryFile, groupId, s1, **kwargs)
 
 def _fitting(mainQueryFile, groupId, s1, **kwargs):
     rows = [1*10**6, 10*10**6, 50*10**6]
@@ -325,6 +325,7 @@ def _fitting(mainQueryFile, groupId, s1, **kwargs):
 
                 b.run()
     # TODO evaluation
+    return ""
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
 def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
