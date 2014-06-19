@@ -233,7 +233,7 @@ def runBenchmark_fitting_join(groupId, s1, **kwargs):
     _fitting(mainQueryFile, groupId, s1, **kwargs)
 
 def _fitting(mainQueryFile, groupId, s1, **kwargs):
-    rows = [100*10**3, 1*10**6, 10*10**6, 50*10**6, 100*10**6]
+    rows = [1*10**6, 10*10**6, 50*10**6, 100*10**6]
     # len(instances) == 35
     instances = [1] + range(2,32, 2)+ range(32, 64, 8) + range(64, 256, 32) + range(256,512,64) + range(512, 1025, 128)
 
