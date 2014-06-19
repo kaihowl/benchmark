@@ -224,11 +224,11 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
     plotter.save_tablesize_fittings()
     return output
 
-def runBenchmark_scan_fitting(groupId, s1, **kwargs):
+def runBenchmark_fitting_scan(groupId, s1, **kwargs):
     mainQueryFile = "queries/fitting/scan.json"
     _fitting(mainQueryFile, groupId, s1, **kwargs)
 
-def runBenchmark_join_fitting(groupId, s1, **kwargs):
+def runBenchmark_fitting_join(groupId, s1, **kwargs):
     mainQueryFile = "queries/fitting/join.json"
     _fitting(mainQueryFile, groupId, s1, **kwargs)
 
