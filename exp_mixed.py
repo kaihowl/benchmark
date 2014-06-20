@@ -482,7 +482,7 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     return output
 
 
-def runBenchmark_varying_mts(groupId, settings, numRuns=1, separateOLAPTables=True, **kwargs):
+def runBenchmark_varying_mts(groupId, settings, numRuns=3, separateOLAPTables=True, **kwargs):
     # NOTE capping to 400 instances for dynamic prioritization (realized in
     # Hyrise code)
     if kwargs["scheduler"] != "DynamicPriorityScheduler":
