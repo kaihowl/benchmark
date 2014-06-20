@@ -1,5 +1,5 @@
-import ast
 import os
+import ujson
 import pandas
 import matplotlib.pyplot as plt
 import time
@@ -313,7 +313,10 @@ class ScalingPlotter:
                         query_id += 1
                         linedata = rawline.split(";")
                         query_name = linedata[0]
-                        perf_data = ast.literal_eval(linedata[1])
+                        # convert python literal to json
+                        # in order to use the faster ujson instead of ast
+                        jsonData = linedata[1].replace("u'", '"').replace("'", '"')
+                        perf_data = ujson.loads(jsonData)
 
                         # add new item to main data list structure for every op
                         for op_data in perf_data:
