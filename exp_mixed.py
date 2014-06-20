@@ -224,22 +224,40 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
     plotter.save_tablesize_fittings()
     return output
 
-def runBenchmark_fitting_scan(groupId, s1, **kwargs):
+def runBenchmark_fitting_scan(groupId, s1, rows=None, **kwargs):
+    """
+    rows -- specifies an array of row sizes to be run
+    """
     mainQueryFile = "queries/fitting/scan.json"
     # Set short runtime. Maximum running scan is 400ms (empty system).
     kwargs["warmuptime"] = 5  # seconds
     kwargs["runtime"] = 20  # seconds
-    return _fitting(mainQueryFile, groupId, s1, **kwargs)
+    return _fitting(mainQueryFile, groupId, s1, rows=rows, **kwargs)
 
-def runBenchmark_fitting_join(groupId, s1, **kwargs):
+def runBenchmark_fitting_reference_scan(groupId, s1, **kwargs):
+    return runBenchmark_fitting_scan(groupId, s1, rows=[30000000], **kwargs)
+
+def runBenchmark_fitting_join(groupId, s1, rows=None, **kwargs):
+    """
+    rows -- specifies an array of row sizes to be run
+    """
     mainQueryFile = "queries/fitting/join.json"
     # Maximum running join is 124 seconds (empty system).
     kwargs["warmuptime"] = 20  # seconds
     kwargs["runtime"] = 130  # seconds
-    return _fitting(mainQueryFile, groupId, s1, **kwargs)
+    return _fitting(mainQueryFile, groupId, s1, rows=rows, **kwargs)
 
-def _fitting(mainQueryFile, groupId, s1, **kwargs):
-    rows = [1*10**6, 10*10**6, 50*10**6]
+def runBenchmark_fitting_reference_join(groupId, s1, **kwargs):
+    return runBenchmark_fitting_join(groupId, s1, rows=[30000000], **kwargs)
+
+def _fitting(mainQueryFile, groupId, s1, rows=None, **kwargs):
+    """
+    Run a load fitting for the specified query file.
+
+    rows -- specifies an array of row sizes to be run
+    """
+    if rows is None:
+        rows = [1*10**6, 10*10**6, 50*10**6]
     # len(instances) == 35
     instances = [1] + range(2,32, 2)+ range(32, 64, 8) + range(64, 256, 32) + range(256,512,64) + range(512, 1025, 128)
 
