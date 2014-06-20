@@ -17,7 +17,13 @@ class ScalingPlotter:
     The data is generated with benchmarks located in exp_mixed.py
     """
 
-    def __init__(self, benchmark_group_id, **kwargs):
+    def __init__(self, benchmark_group_id, head=None, **kwargs):
+        """
+            head -- specifies after how many rows of each user's file the parsing
+            should stop. 'None' will read the entire file, any integer value
+            represents the number of rows to be read from each file.
+        """
+        self._head = head
         self._legend_title = kwargs['legendTitle']  \
             if kwargs.has_key('legendTitle') else "rows"
         self._group_id = benchmark_group_id
@@ -308,9 +314,9 @@ class ScalingPlotter:
                         print "WARNING: no queries log found in %s!" % dir_user
                         continue
 
-                    query_id = 0
-                    for rawline in open(log_file_name):
-                        query_id += 1
+                    for query_id, rawline in enumerate(open(log_file_name)):
+                        if self._head and query_id >= self._head:
+                            break
                         linedata = rawline.split(";")
                         query_name = linedata[0]
                         # convert python literal to json
