@@ -177,8 +177,6 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
     """
     output = ""
 
-    # TODO support full and narrow schema
-
     # This benchmark's users terminate themselves after a set number of runs
     kwargs["runtime"] = 0
 
@@ -342,7 +340,6 @@ def _fitting(mainQueryFile, groupId, s1, rows=None, **kwargs):
                 b.addQueryFile("mainQueryFile",  mainQueryFile)
 
                 b.run()
-    # TODO evaluation
     return ""
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
@@ -495,16 +492,13 @@ def runBenchmark_varying_mts(groupId, settings, numRuns=3, separateOLAPTables=Tr
     kwargs["oltpQueries"] = ("vldb_q1", "vldb_q2", "vldb_q3", "vldb_q4", "vldb_q5", "vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
     kwargs["oltpUser"] = 1
     kwargs["tolapQueries"] = ("vldb_xselling",)
-    # TODO why was that 0?
     kwargs["tolapUser"] = 1
-    # TODO is this in seconds?
     kwargs["tolapThinkTime"] = 1
     kwargs["olapQueries"] = ("vldb_q10", "vldb_q11", "vldb_q12")
     kwargs["olapUser"] = num_olap_users
     kwargs["separateOLAPTables"] = separateOLAPTables
     output += "separateOLAPTables = %s\n" % str(kwargs["separateOLAPTables"])
     # Rebuild only the first time
-    # TODO this seems like non-sense to me
     kwargs["rebuild"] = True
 
     distincts = None

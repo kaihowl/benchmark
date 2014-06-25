@@ -178,7 +178,6 @@ class ScalingPlotter:
         def filter(x):
             return x["rows"] == rows and eval_selection_lambda(x)
 
-        # TODO consider passing in the data. Might be faster.
         criterion = self._df.apply(filter, axis=1)
         cur_data = self._df[criterion]
         group = cur_data.groupby("instances").mean()
