@@ -420,6 +420,30 @@ def runBenchmark_varying_users_from_kai(groupId, s1, separateOLAPTables=False, r
     plotter.plot_meansize_per_run()
     return output
 
+def runBenchmark_varying_users(groupId, s1, **kwargs):
+    output = ""
+    #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
+
+    kwargs["olapQueries"] = ("q10i","q11i","q12i")
+
+    # numbers chosen to match the original paper's datapoints
+    instances = [1, 8, 32, 128]
+    users = [1, 2, 4, 5, 8, 10, 16, 20, 24, 30, 32, 40, 50, 60, 64]
+    for i in instances:
+        for j in users:
+           print "starting benchmark with " + str(i) + " instances and " + str(j) + " users"
+           runId = str(i) + "_" + str(j)
+           kwargs["olapInstances"] = i
+           kwargs["olapUser"] = j
+           kwargs["numUsers"] = kwargs["olapUser"] + kwargs["oltpUser"] + kwargs["tolapUser"]
+           b1 = MixedWLBenchmark(groupId, runId, s1, **kwargs)
+           b1.run()
+           time.sleep(3)
+    plotter = MixedWLPlotter(groupId)
+    output += plotter.printFormattedStatistics(kwargs["oltpQueries"]+kwargs["tolapQueries"] +kwargs["olapQueries"])
+   # output += plotter.printOpStatistics ()
+    return output
+
 def runBenchmark_prio(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
