@@ -30,7 +30,7 @@ def runbenchmarks(groupId, s1, **kwargs):
     output += plotter.printFormattedStatisticsAverage(kwargs["benchmarkQueries"])
     return output
 
-def runBenchmark_query_table(groupId, s1, numRuns=5, **kwargs):
+def runBenchmark_query_table_from_kai(groupId, s1, numRuns=5, **kwargs):
     """Generate a table of query run times for the workload"""
 
     # enforcing narrow schema
@@ -126,7 +126,7 @@ def runBenchmark_query_table(groupId, s1, numRuns=5, **kwargs):
 
 
 # Creates Figure 2 of DASFAA paper
-def runBenchmark_scaling_curve_scan(groupId, s1, numRuns=5, **kwargs):
+def runBenchmark_scaling_curve_scan_from_kai(groupId, s1, numRuns=5, **kwargs):
     scan = (lambda x: x["op_name"] == "TableScan", "TableScan")
     kwargs["legendTitle"] = "Rows"
     return _scaling_curve(
@@ -139,7 +139,7 @@ def runBenchmark_scaling_curve_scan(groupId, s1, numRuns=5, **kwargs):
             **kwargs)
 
 # Creates Figure 3 of DASFAA paper
-def runBenchmark_scaling_curve_join(groupId, s1, numRuns=5, **kwargs):
+def runBenchmark_scaling_curve_join_from_kai(groupId, s1, numRuns=5, **kwargs):
     join = (lambda x: x["op_name"] == "NestedLoopEquiJoin", "NestedLoopEquiJoin")
     # TODO what to select? hash or probe? hash first or second?
     prefix = (lambda x: x["op_name"] == "PrefixSum", "PrefixSum")
@@ -222,7 +222,7 @@ def _scaling_curve(mainQueryFile, groupId, s1, numRuns=5, mean_tasks=[], fit_tas
     plotter.save_tablesize_fittings()
     return output
 
-def runBenchmark_fitting_scan(groupId, s1, rows=None, **kwargs):
+def runBenchmark_fitting_scan_from_kai(groupId, s1, rows=None, **kwargs):
     """
     rows -- specifies an array of row sizes to be run
     """
@@ -232,10 +232,10 @@ def runBenchmark_fitting_scan(groupId, s1, rows=None, **kwargs):
     kwargs["runtime"] = 20  # seconds
     return _fitting(mainQueryFile, groupId, s1, rows=rows, **kwargs)
 
-def runBenchmark_fitting_reference_scan(groupId, s1, **kwargs):
-    return runBenchmark_fitting_scan(groupId, s1, rows=[30000000], **kwargs)
+def runBenchmark_fitting_reference_scan_from_kai(groupId, s1, **kwargs):
+    return runBenchmark_fitting_scan_from_kai(groupId, s1, rows=[30000000], **kwargs)
 
-def runBenchmark_fitting_join(groupId, s1, rows=None, **kwargs):
+def runBenchmark_fitting_join_from_kai(groupId, s1, rows=None, **kwargs):
     """
     rows -- specifies an array of row sizes to be run
     """
@@ -245,8 +245,8 @@ def runBenchmark_fitting_join(groupId, s1, rows=None, **kwargs):
     kwargs["runtime"] = 130  # seconds
     return _fitting(mainQueryFile, groupId, s1, rows=rows, **kwargs)
 
-def runBenchmark_fitting_reference_join(groupId, s1, **kwargs):
-    return runBenchmark_fitting_join(groupId, s1, rows=[30000000], **kwargs)
+def runBenchmark_fitting_reference_join_from_kai(groupId, s1, **kwargs):
+    return runBenchmark_fitting_join_from_kai(groupId, s1, rows=[30000000], **kwargs)
 
 def _fitting(mainQueryFile, groupId, s1, rows=None, **kwargs):
     """
@@ -343,7 +343,7 @@ def _fitting(mainQueryFile, groupId, s1, rows=None, **kwargs):
     return ""
 
 # NOTE: Changed the queries to the name_spaced versions since no standard versions exist.
-def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
+def runBenchmark_varying_users_OLTP_from_kai(groupId, s1, **kwargs):
     output = ""
     kwargs["oltpQueries"] = ("vldb_q6a", "vldb_q6b", "vldb_q7", "vldb_q8", "vldb_q9")
 
@@ -362,7 +362,7 @@ def runBenchmark_varying_users_OLTP(groupId, s1, **kwargs):
 
 
 
-def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
+def runBenchmark_varying_users_OLAP_from_kai(groupId, s1, **kwargs):
     output = ""
     #users = [1, 2, 4, 8, 16]#, 24, 32]#, 48, 64, 96, 128]
 
@@ -384,7 +384,7 @@ def runBenchmark_varying_users_OLAP(groupId, s1, **kwargs):
     output += plotter.printFormattedStatistics(kwargs["olapQueries"])
     return output
 
-def runBenchmark_varying_users(groupId, s1, separateOLAPTables=False, runs=3, **kwargs):
+def runBenchmark_varying_users_from_kai(groupId, s1, separateOLAPTables=False, runs=3, **kwargs):
     output = ""
 
     kwargs["olapQueries"] = ("vldb_q10_instances", "vldb_q11_instances", "vldb_q12_instances")
@@ -479,7 +479,7 @@ def runBenchmark_task_sizes(groupId, s1, **kwargs):
     return output
 
 
-def runBenchmark_varying_mts(groupId, settings, numRuns=3, separateOLAPTables=True, **kwargs):
+def runBenchmark_varying_mts_from_kai(groupId, settings, numRuns=3, separateOLAPTables=True, **kwargs):
     # NOTE capping to 400 instances for dynamic prioritization (realized in
     # Hyrise code)
     if kwargs["scheduler"] != "DynamicPriorityScheduler":
